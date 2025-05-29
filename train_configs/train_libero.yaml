@@ -16,7 +16,7 @@
 seed: 42
 steps: 100000
 batch_size: 32
-num_workers: 4
+num_workers: 8
 log_freq: 100
 save_freq: 1000
 save_checkpoint: true
@@ -25,7 +25,7 @@ output_dir: "outputs/train_libero"
 
 # Dataset configuration
 dataset:
-  name: "jesbu1/bridge_v2_lerobot"  # Replace with your LIBERO dataset name
+  name: "jesbu1/libero_test_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
 
 # Policy configuration
 policy:
@@ -43,9 +43,6 @@ policy:
     - name: "observation/wrist_image"
       type: "visual"
       shape: [3, 224, 224]
-    - name: "observation/image_mask"
-      type: "mask"
-      shape: [3]  # One mask per camera
   output_features:
     - name: "actions"
       type: "action"
@@ -56,7 +53,6 @@ policy:
     observation/state: "min_max"
     observation/image: "none"  # Images should be uint8
     observation/wrist_image: "none"  # Images should be uint8
-    observation/image_mask: "none"  # Binary masks
   output_normalization_mapping:
     actions: "min_max"
 
@@ -80,8 +76,8 @@ eval:
 # Wandb configuration
 wandb:
   enable: true
-  project: "lerobot"
-  name: "train_libero"
+  project: "p-masked-vla"
+  name: "train_libero_act_debug"
   tags:
     - "act"
     - "libero"
