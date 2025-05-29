@@ -32,7 +32,6 @@ policy:
   type: "act"
   device: "cuda"
   use_amp: true
-  #pretrained_policy_name_or_path: "jesbu1/act-bridge-v2"
   input_features:
     observation/state:
       type: "STATE"
