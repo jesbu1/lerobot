@@ -110,9 +110,13 @@ def make_policy(
         raise ValueError("Either one of a dataset metadata or a sim env must be provided.")
 
     # remap ds_meta features if remap_keys is provided
-    if remap_keys:
-        ds_meta.features = {remap_keys.get(key, key): val for key, val in ds_meta.features.items()}
-        ds_meta.stats = {remap_keys.get(key, key): val for key, val in ds_meta.stats.items()}
+    if ds_meta is not None:
+        if remap_keys:
+            input_output_features = {remap_keys.get(key, key): val for key, val in ds_meta.features.items()}
+            input_output_stats = {remap_keys.get(key, key): val for key, val in ds_meta.stats.items()}
+        else:
+            input_output_features = ds_meta.features
+            input_output_stats = ds_meta.stats
 
     # NOTE: Currently, if you try to run vqbet with mps backend, you'll get this error.
     # TODO(aliberts, rcadene): Implement a check_backend_compatibility in policies?
@@ -131,8 +135,8 @@ def make_policy(
 
     kwargs = {}
     if ds_meta is not None:
-        features = dataset_to_policy_features(ds_meta.features, remap_keys)
-        kwargs["dataset_stats"] = ds_meta.stats
+        features = dataset_to_policy_features(input_output_features, remap_keys)
+        kwargs["dataset_stats"] = input_output_stats
     else:
         if not cfg.pretrained_path:
             logging.warning(
