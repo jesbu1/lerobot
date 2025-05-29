@@ -109,6 +109,10 @@ def make_policy(
     if bool(ds_meta) == bool(env_cfg):
         raise ValueError("Either one of a dataset metadata or a sim env must be provided.")
 
+    # remap ds_meta features if remap_keys is provided
+    if remap_keys:
+        ds_meta.features = {remap_keys.get(key, key): val for key, val in ds_meta.features.items()}
+
     # NOTE: Currently, if you try to run vqbet with mps backend, you'll get this error.
     # TODO(aliberts, rcadene): Implement a check_backend_compatibility in policies?
     # NotImplementedError: The operator 'aten::unique_dim' is not currently implemented for the MPS device. If
