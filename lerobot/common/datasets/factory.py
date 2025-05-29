@@ -34,7 +34,7 @@ IMAGENET_STATS = {
 
 
 def resolve_delta_timestamps(
-    cfg: PreTrainedConfig, ds_meta: LeRobotDatasetMetadata
+    cfg: PreTrainedConfig, ds_meta: LeRobotDatasetMetadata, remap_keys: dict[str, str] | None = None
 ) -> dict[str, list] | None:
     """Resolves delta_timestamps by reading from the 'delta_indices' properties of the PreTrainedConfig.
 
@@ -52,7 +52,10 @@ def resolve_delta_timestamps(
             returns `None` if the resulting dict is empty.
     """
     delta_timestamps = {}
-    for key in ds_meta.features:
+    ds_features = ds_meta.features
+    if remap_keys is not None:
+        ds_features = {remap_keys.get(key, key): value for key, value in ds_features.items()}
+    for key in ds_features:
         if key == "next.reward" and cfg.reward_delta_indices is not None:
             delta_timestamps[key] = [i / ds_meta.fps for i in cfg.reward_delta_indices]
         if key == "action" and cfg.action_delta_indices is not None:
@@ -86,7 +89,7 @@ def make_dataset(cfg: TrainPipelineConfig) -> LeRobotDataset | MultiLeRobotDatas
         ds_meta = LeRobotDatasetMetadata(
             cfg.dataset.repo_id, root=cfg.dataset.root, revision=cfg.dataset.revision
         )
-        delta_timestamps = resolve_delta_timestamps(cfg.policy, ds_meta)
+        delta_timestamps = resolve_delta_timestamps(cfg.policy, ds_meta, remap_keys=cfg.dataset.remap_keys)
         dataset = LeRobotDataset(
             cfg.dataset.repo_id,
             root=cfg.dataset.root,
