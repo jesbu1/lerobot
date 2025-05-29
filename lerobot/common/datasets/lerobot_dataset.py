@@ -697,7 +697,9 @@ class LeRobotDataset(torch.utils.data.Dataset):
 
     def _query_hf_dataset(self, query_indices: dict[str, list[int]]) -> dict:
         if self.remap_keys:
-            query_indices = {self.remap_keys.get(key, key): val for key, val in query_indices.items()}
+            # get the inverse of remap keys to grab the original keys
+            inverse_remap_keys = {v: k for k, v in self.remap_keys.items()}
+            query_indices = {inverse_remap_keys.get(key, key): val for key, val in query_indices.items()}
         return {
             key: torch.stack(self.hf_dataset.select(q_idx)[key])
             for key, q_idx in query_indices.items()
