@@ -67,7 +67,7 @@ optimizer:
     warmup_steps: 1000
 
 # Evaluation configuration
-eval_freq: 1000
+eval_freq: 0
 eval:
   n_episodes: 10
   batch_size: 1
