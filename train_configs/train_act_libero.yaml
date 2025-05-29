@@ -35,7 +35,7 @@ policy:
   input_features:
     observation/state:
       type: "STATE"
-      shape: [7]  # Padded to match action_dim
+      shape: [8]  
     observation/image:
       type: "VISUAL"
       shape: [3, 224, 224]
