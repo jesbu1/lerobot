@@ -64,10 +64,6 @@ eval:
 
 # Wandb configuration
 wandb:
-  enable: true
+  enable: false 
   project: "p-masked-vla"
-  name: "train_libero_act_debug"
-  tags:
-    - "act"
-    - "libero"
-    - "bridge_v2" 
+  run_id: "train_libero_act_debug"
