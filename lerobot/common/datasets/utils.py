@@ -397,10 +397,15 @@ def get_features_from_robot(robot: Robot, use_videos: bool = True) -> dict:
     return {**robot.motor_features, **camera_ft, **DEFAULT_FEATURES}
 
 
-def dataset_to_policy_features(features: dict[str, dict]) -> dict[str, PolicyFeature]:
+def dataset_to_policy_features(
+    features: dict[str, dict], remap_keys: dict[str, str] | None = None
+) -> dict[str, PolicyFeature]:
     # TODO(aliberts): Implement "type" in dataset features and simplify this
     policy_features = {}
     for key, ft in features.items():
+        if remap_keys and key in remap_keys:
+            key = remap_keys[key]
+
         shape = ft["shape"]
         if ft["dtype"] in ["image", "video"]:
             type = FeatureType.VISUAL
