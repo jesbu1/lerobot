@@ -1,0 +1,88 @@
+# Copyright 2024 The HuggingFace Inc. team. All rights reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Training configuration
+seed: 42
+steps: 100000
+batch_size: 32
+num_workers: 4
+log_freq: 100
+save_freq: 1000
+save_checkpoint: true
+resume: false
+output_dir: "outputs/train_act_random_cam"
+
+# Dataset configuration
+dataset:
+  name: "jesbu1/bridge_v2_lerobot"
+  use_random_cam_sampling: true
+  how_many_cameras: 2
+  sample_cameras: true
+  camera_present_key: "camera_present"
+
+# Policy configuration
+policy:
+  name: "act"
+  device: "cuda"
+  use_amp: true
+  pretrained_policy_name_or_path: "jesbu1/act-bridge-v2"
+  input_features:
+    - name: "observation.state"
+      type: "state"
+      shape: [7]
+    - name: "observation.images.image_0"
+      type: "visual"
+      shape: [3, 480, 640]
+    - name: "observation.images.image_1"
+      type: "visual"
+      shape: [3, 480, 640]
+  output_features:
+    - name: "action"
+      type: "action"
+      shape: [7]
+  input_normalization_mode: "min_max"
+  output_normalization_mode: "min_max"
+  input_normalization_mapping:
+    observation.state: "min_max"
+    observation.images.image_0: "none"
+    observation.images.image_1: "none"
+  output_normalization_mapping:
+    action: "min_max"
+
+# Optimizer configuration
+optimizer:
+  name: "adamw"
+  lr: 0.0001
+  weight_decay: 0.01
+  grad_clip_norm: 1.0
+  scheduler:
+    name: "cosine"
+    warmup_steps: 1000
+
+# Evaluation configuration
+eval_freq: 1000
+eval:
+  n_episodes: 10
+  batch_size: 1
+  use_async_envs: false
+
+# Wandb configuration
+wandb:
+  enable: true
+  project: "lerobot"
+  name: "train_act_random_cam"
+  tags:
+    - "act"
+    - "random_cam"
+    - "bridge_v2" 

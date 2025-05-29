@@ -27,6 +27,7 @@ from torch.optim import Optimizer
 from lerobot.common.datasets.factory import make_dataset
 from lerobot.common.datasets.sampler import EpisodeAwareSampler
 from lerobot.common.datasets.utils import cycle
+from lerobot.common.datasets.random_cam import RandomCamDataset
 from lerobot.common.envs.factory import make_env
 from lerobot.common.optim.factory import make_optimizer_and_scheduler
 from lerobot.common.policies.factory import make_policy
@@ -125,7 +126,19 @@ def train(cfg: TrainPipelineConfig):
     torch.backends.cuda.matmul.allow_tf32 = True
 
     logging.info("Creating dataset")
-    dataset = make_dataset(cfg)
+    base_dataset = make_dataset(cfg)
+
+    # Optionally wrap the dataset with RandomCamDataset if enabled in config
+    if hasattr(cfg.dataset, "use_random_cam_sampling") and cfg.dataset.use_random_cam_sampling:
+        logging.info("Using random camera sampling")
+        dataset = RandomCamDataset(
+            base_dataset,
+            how_many_cameras=cfg.dataset.how_many_cameras,
+            sample_cameras=cfg.dataset.sample_cameras,
+            camera_present_key=cfg.dataset.camera_present_key,
+        )
+    else:
+        dataset = base_dataset
 
     # Create environment used for evaluating checkpoints during training on simulation data.
     # On real-world data, no need to create an environment as evaluations are done outside train.py,
@@ -138,7 +151,7 @@ def train(cfg: TrainPipelineConfig):
     logging.info("Creating policy")
     policy = make_policy(
         cfg=cfg.policy,
-        ds_meta=dataset.meta,
+        ds_meta=base_dataset.meta,  # Always use base dataset metadata
     )
 
     logging.info("Creating optimizer and scheduler")
@@ -157,8 +170,8 @@ def train(cfg: TrainPipelineConfig):
     if cfg.env is not None:
         logging.info(f"{cfg.env.task=}")
     logging.info(f"{cfg.steps=} ({format_big_number(cfg.steps)})")
-    logging.info(f"{dataset.num_frames=} ({format_big_number(dataset.num_frames)})")
-    logging.info(f"{dataset.num_episodes=}")
+    logging.info(f"{base_dataset.num_frames=} ({format_big_number(base_dataset.num_frames)})")
+    logging.info(f"{base_dataset.num_episodes=}")
     logging.info(f"{num_learnable_params=} ({format_big_number(num_learnable_params)})")
     logging.info(f"{num_total_params=} ({format_big_number(num_total_params)})")
 
@@ -166,7 +179,7 @@ def train(cfg: TrainPipelineConfig):
     if hasattr(cfg.policy, "drop_n_last_frames"):
         shuffle = False
         sampler = EpisodeAwareSampler(
-            dataset.episode_data_index,
+            base_dataset.episode_data_index,
             drop_n_last_frames=cfg.policy.drop_n_last_frames,
             shuffle=True,
         )
@@ -196,7 +209,7 @@ def train(cfg: TrainPipelineConfig):
     }
 
     train_tracker = MetricsTracker(
-        cfg.batch_size, dataset.num_frames, dataset.num_episodes, train_metrics, initial_step=step
+        cfg.batch_size, base_dataset.num_frames, base_dataset.num_episodes, train_metrics, initial_step=step
     )
 
     logging.info("Start offline training on a fixed dataset")
@@ -267,7 +280,11 @@ def train(cfg: TrainPipelineConfig):
                 "eval_s": AverageMeter("eval_s", ":.3f"),
             }
             eval_tracker = MetricsTracker(
-                cfg.batch_size, dataset.num_frames, dataset.num_episodes, eval_metrics, initial_step=step
+                cfg.batch_size,
+                base_dataset.num_frames,
+                base_dataset.num_episodes,
+                eval_metrics,
+                initial_step=step,
             )
             eval_tracker.eval_s = eval_info["aggregated"].pop("eval_s")
             eval_tracker.avg_sum_reward = eval_info["aggregated"].pop("avg_sum_reward")
