@@ -84,6 +84,7 @@ def make_policy(
     cfg: PreTrainedConfig,
     ds_meta: LeRobotDatasetMetadata | None = None,
     env_cfg: EnvConfig | None = None,
+    remap_keys: dict[str, str] | None = None,
 ) -> PreTrainedPolicy:
     """Make an instance of a policy class.
 
@@ -97,7 +98,7 @@ def make_policy(
             statistics to use for (un)normalization of inputs/outputs in the policy. Defaults to None.
         env_cfg (EnvConfig | None, optional): The config of a gym environment to parse features from. Must be
             provided if ds_meta is not. Defaults to None.
-
+        remap_keys (dict[str, str] | None, optional): A dictionary to remap keys in the dataset. Defaults to None.
     Raises:
         ValueError: Either ds_meta or env and env_cfg must be provided.
         NotImplementedError: if the policy.type is 'vqbet' and the policy device 'mps' (due to an incompatibility)
@@ -125,7 +126,7 @@ def make_policy(
 
     kwargs = {}
     if ds_meta is not None:
-        features = dataset_to_policy_features(ds_meta.features, cfg.remap_keys)
+        features = dataset_to_policy_features(ds_meta.features, remap_keys)
         kwargs["dataset_stats"] = ds_meta.stats
     else:
         if not cfg.pretrained_path:
