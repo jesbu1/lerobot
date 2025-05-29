@@ -26,6 +26,11 @@ output_dir: "outputs/train_act_libero"
 # Dataset configuration
 dataset:
   repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
+  remap_keys:
+    observation/state: "observation.state"
+    observation/image: "observation.image"
+    observation/wrist_image: "observation.wrist_image"
+    actions: "action"
 
 # Policy configuration
 policy:
@@ -33,17 +38,17 @@ policy:
   device: "cuda"
   use_amp: true
   input_features:
-    observation/state:
+    observation.state:
       type: "STATE"
       shape: [8]  
-    observation/image:
+    observation.image:
       type: "VISUAL"
       shape: [3, 224, 224]
-    observation/wrist_image:
+    observation.wrist_image:
       type: "VISUAL"
       shape: [3, 224, 224]
   output_features:
-    actions:
+    action:
       type: "ACTION"
       shape: [7]
 

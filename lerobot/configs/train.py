@@ -64,6 +64,10 @@ class TrainPipelineConfig(HubMixin):
     eval: EvalConfig = field(default_factory=EvalConfig)
     wandb: WandBConfig = field(default_factory=WandBConfig)
 
+    remap_keys: dict[str, str] | None = (
+        None  # This remaps dataset keys to keys used for the policy since some of them are hardcoded.
+    )
+
     def __post_init__(self):
         self.checkpoint_path = None
 

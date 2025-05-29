@@ -364,6 +364,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         force_cache_sync: bool = False,
         download_videos: bool = True,
         video_backend: str | None = None,
+        remap_keys: dict[str, str] | None = None,
     ):
         """
         2 modes are available for instantiating this class, depending on 2 different use cases:
@@ -465,6 +466,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
                 True.
             video_backend (str | None, optional): Video backend to use for decoding videos. Defaults to torchcodec when available int the platform; otherwise, defaults to 'pyav'.
                 You can also use the 'pyav' decoder used by Torchvision, which used to be the default option, or 'video_reader' which is another decoder of Torchvision.
+            remap_keys (dict[str, str] | None, optional): A dictionary to remap keys in the dataset. Defaults to None.
         """
         super().__init__()
         self.repo_id = repo_id
@@ -476,6 +478,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         self.revision = revision if revision else CODEBASE_VERSION
         self.video_backend = video_backend if video_backend else get_safe_default_codec()
         self.delta_indices = None
+        self.remap_keys = remap_keys
 
         # Unused attributes
         self.image_writer = None
@@ -738,6 +741,9 @@ class LeRobotDataset(torch.utils.data.Dataset):
             query_timestamps = self._get_query_timestamps(current_ts, query_indices)
             video_frames = self._query_videos(query_timestamps, ep_idx)
             item = {**video_frames, **item}
+
+        if self.remap_keys:
+            item = {self.remap_keys.get(key, key): val for key, val in item.items()}
 
         if self.image_transforms is not None:
             image_keys = self.meta.camera_keys
