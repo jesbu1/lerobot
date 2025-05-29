@@ -47,10 +47,6 @@ policy:
     actions:
       type: "ACTION"
       shape: [7]
-  normalization_mapping:
-    VISUAL: "none"  # Images should be uint8
-    STATE: "min_max"
-    ACTION: "min_max"
 
 # Optimizer configuration
 optimizer:
