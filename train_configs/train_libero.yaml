@@ -29,24 +29,24 @@ dataset:
 
 # Policy configuration
 policy:
-  name: "act"
+  type: "act"
   device: "cuda"
   use_amp: true
   pretrained_policy_name_or_path: "jesbu1/act-bridge-v2"
   input_features:
-    - name: "observation/state"
-      type: "state"
-      shape: [7]  # Padded to match action_dim
-    - name: "observation/image"
-      type: "visual"
-      shape: [3, 224, 224]
-    - name: "observation/wrist_image"
-      type: "visual"
-      shape: [3, 224, 224]
+    name: "observation/state"
+    type: "state"
+    shape: [7]  # Padded to match action_dim
+    name: "observation/image"
+    type: "visual"
+    shape: [3, 224, 224]
+    name: "observation/wrist_image"
+    type: "visual"
+    shape: [3, 224, 224]
   output_features:
-    - name: "actions"
-      type: "action"
-      shape: [7]
+    name: "actions"
+    type: "action"
+    shape: [7]
   input_normalization_mode: "min_max"
   output_normalization_mode: "min_max"
   input_normalization_mapping:
