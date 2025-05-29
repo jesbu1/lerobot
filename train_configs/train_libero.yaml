@@ -25,7 +25,7 @@ output_dir: "outputs/train_libero"
 
 # Dataset configuration
 dataset:
-  name: "jesbu1/libero_test_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
+  repo_id: "jesbu1/libero_test_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
 
 # Policy configuration
 policy:
