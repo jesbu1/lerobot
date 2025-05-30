@@ -21,7 +21,7 @@ export MUJOCO_GL=egl
 EXP_NAME=train_act_libero_path_mask
 PROJ_NAME=lerobot
 
-BASE_TRAIN_CMD="python lerobot/scripts/train.py --config_path train_configs/train_act_libero_path_mask.yaml --wandb.run_id=$EXP_NAME"
+BASE_TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py --config_path train_configs/train_act_libero_path_mask.yaml --wandb.run_id=$EXP_NAME"
 
 #TRAIN_CMD="$BASE_TRAIN_CMD --overwrite"
 TRAIN_CMD="$BASE_TRAIN_CMD"
