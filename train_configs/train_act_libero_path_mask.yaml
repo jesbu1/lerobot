@@ -72,4 +72,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_act_libero"
+  run_id: "train_act_libero_path_mask"
