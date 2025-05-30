@@ -9,12 +9,6 @@
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
-if [ $RELAUNCH_COUNT -ge $MAX_RELAUNCHES ]; then
-  echo "Maximum relaunch limit ($MAX_RELAUNCHES) reached. Exiting."
-  exit 1
-fi
-
-echo "Starting job... Relaunch attempt: $((RELAUNCH_COUNT + 1))/$MAX_RELAUNCHES"
 source ~/.bashrc
 module load cuda
 module load glew
