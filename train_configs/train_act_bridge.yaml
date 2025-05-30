@@ -15,8 +15,8 @@
 # Training configuration
 seed: 42
 steps: 100000
-batch_size: 32
-num_workers: 4
+batch_size: 64
+num_workers: 16
 log_freq: 100
 save_freq: 1000
 save_checkpoint: true
@@ -43,22 +43,16 @@ policy:
       shape: [7]
     - name: "observation.images.image_0"
       type: "visual"
-      shape: [3, 480, 640]
+      shape: [3, 224, 224]
     - name: "observation.images.image_1"
       type: "visual"
-      shape: [3, 480, 640]
+      shape: [3, 224, 224]
   output_features:
     - name: "action"
       type: "action"
       shape: [7]
-  input_normalization_mode: "min_max"
-  output_normalization_mode: "min_max"
-  input_normalization_mapping:
-    observation.state: "min_max"
-    observation.images.image_0: "none"
-    observation.images.image_1: "none"
-  output_normalization_mapping:
-    action: "min_max"
+  chunk_size: 50
+  n_action_steps: 50
 
 # Optimizer configuration
 optimizer:
@@ -71,7 +65,7 @@ optimizer:
     warmup_steps: 1000
 
 # Evaluation configuration
-eval_freq: 1000
+eval_freq: 0
 eval:
   n_episodes: 10
   batch_size: 1
@@ -81,8 +75,4 @@ eval:
 wandb:
   enable: true
   project: "lerobot"
-  name: "train_act_random_cam"
-  tags:
-    - "act"
-    - "random_cam"
-    - "bridge_v2" 
+  name: "train_act_random_cam_2"
