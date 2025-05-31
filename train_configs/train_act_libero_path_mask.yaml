@@ -22,6 +22,7 @@ save_freq: 1000
 save_checkpoint: true
 resume: false
 output_dir: "outputs/train_act_libero_path_mask"
+job_name: "train_act_libero_path_mask"
 
 # Dataset configuration
 dataset:
