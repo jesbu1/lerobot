@@ -24,7 +24,7 @@ EXP_NAME=train_act_libero
 PROJ_NAME=lerobot
 
 BASE_TRAIN_CMD="--config_path=train_configs/train_act_libero.yaml --wandb.run_id=$EXP_NAME"
-RESUME_TRAIN_CMD="--config_path=outputs/train_act_libero/$EXP_NAME/checkpoints/last/pretrained_model/train_config.json --resume=true"
+RESUME_TRAIN_CMD="--config_path=outputs/train_act_libero/checkpoints/last/pretrained_model/train_config.json --resume=true"
 
 TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py"
 if [ "$RESUME" = true ]; then
