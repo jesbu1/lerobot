@@ -18,14 +18,19 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
+RESUME=true
 
 EXP_NAME=train_act_libero
 PROJ_NAME=lerobot
 
-BASE_TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py --config_path train_configs/train_act_libero.yaml --wandb.run_id=$EXP_NAME"
+BASE_TRAIN_CMD="--config_path train_configs/train_act_libero.yaml --wandb.run_id=$EXP_NAME"
+RESUME_TRAIN_CMD="--config_path outputs/train_act_libero/$EXP_NAME/checkpoints/last/pretrained_model/train_config.json --resume"
 
-#TRAIN_CMD="$BASE_TRAIN_CMD --overwrite"
-TRAIN_CMD="$BASE_TRAIN_CMD"
-#TRAIN_CMD="$BASE_TRAIN_CMD --resume"
+TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py"
+if [ "$RESUME" = true ]; then
+    TRAIN_CMD="$TRAIN_CMD $RESUME_TRAIN_CMD"
+else
+    TRAIN_CMD="$TRAIN_CMD $BASE_TRAIN_CMD"
+fi
 echo "Executing command: $TRAIN_CMD"
 $TRAIN_CMD
