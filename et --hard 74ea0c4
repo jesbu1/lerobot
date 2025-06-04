@@ -1,0 +1,865 @@
+[33mb2f1909[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32minference[m[33m)[m model ckpt loader
+[33mf94f617[m Track model.safetensors using Git LFS
+[33m8c9cf1a[m infrerence infra
+[33m31c84e5[m gitignore safetensors + ckpt infra
+[33m4992265[m gitignore model
+[33mb1ca49d[m merge main + load inference ckpt
+[33m74ea0c4[m Merge remote-tracking branch 'origin/main' into inference
+[33m271222a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Update pyproject.toml
+[33m9be6b28[m Merge pull request #1 from huggingface/main
+[33m0c8bf61[m Update pyproject.toml
+[33mbfd26ee[m Add SmolVLA (#1175)
+[33mcc2e5d8[m run name bug fix in resume command
+[33m7d40bab[m resume=true
+[33ma6ccd5e[m another fix
+[33m3649c55[m updated training act scripts to properly resume the checkpoint
+[33m8d291bd[m fix resuming from checkpooints
+[33m3259937[m[33m ([m[1;31morigin/inference[m[33m)[m boilerplate for inference
+[33m1537d0a[m [pre-commit.ci] pre-commit autoupdate (#1048)
+[33m2be7f3a[m (hotfix): nightly CI by clipping pymunk version below 7.0.0 (#1182)
+[33m3908d20[m 100k -> 1M steps for act libero
+[33meeb57dc[m change run job names for act
+[33mb980b7b[m update train act libero.sh train act libero path
+[33ma5c9429[m update train act libero.sh train act libero path
+[33m6f692b1[m update train act libero.sh train act libero path
+[33meaeffd5[m update train act libero.sh train act libero path
+[33m2be15cc[m update train act libero.sh train act libero path
+[33m35244e5[m update
+[33m2f0277e[m update bridge and libero yaml
+[33m509d0f0[m update train act libero
+[33m437d903[m reduce batch size
+[33m8653503[m update train act libero
+[33mdd77f2b[m another remap fix
+[33m784db1a[m another remap fix
+[33m53d77d4[m remap keys for resolve_delta_timestamps
+[33m9d87867[m remap dataset stats to new variable
+[33maa956dd[m remap dataset stats
+[33m9f54cbd[m remap dataset stats
+[33m7647ce6[m remap dataset features
+[33m1b3fa88[m update features
+[33ma5f04c0[m remap keys used in dataset_to_policy_features
+[33m877e769[m remap keys used in dataset_to_policy_features
+[33m9b0f348[m added remap keys to remap datgaset keys
+[33m66c4cc4[m added remap keys to remap datgaset keys
+[33mc1aba8c[m bug fix
+[33md13390a[m bug fix
+[33md035efa[m bug fix for action and actions
+[33m4954b83[m rename
+[33m5a7986a[m update libero config
+[33m5306d39[m update libero config
+[33md422033[m update
+[33m727611f[m update
+[33m24525f6[m update
+[33m10788e0[m update
+[33mff3b95e[m update
+[33mab19e39[m repo_id for dataset instead of name
+[33mf59347e[m set eval freq to 0 for now
+[33m88bedc9[m update train_libero
+[33m004bfd6[m update training script for libero
+[33m0ff51eb[m update with random cam sampling and aloha yaml
+[33m0cf8648[m [Fix]  Unpin torch beyond 2.6.0 & torchcodec beyond 0.2.1  (#1127)
+[33m1786916[m Update README.md (#1163)
+[33m0507ad4[m Update README.md (#1160)
+[33mbed90e3[m fix: typos and grammar (#1148)
+[33m6163daa[m Fix: emptying action queue between resets (#1117)
+[33m8e2a394[m Add editable -e for feetech install command (#1133)
+[33ma445d9c[m bug fix for #1071 When --display_data=true, Failed running control_robot. (#1073)
+[33mf24030d[m Update 12_use_so101.md (#1081)
+[33m7598aea[m Update 10_use_so100.md; use diff syntax (#944)
+[33m4485cc0[m docs: minor corrections and clean-up (#1089)
+[33m8cfab38[m Fix typos (#1070)
+[33mee5525f[m Docs: adapt text + fix video code (#1064)
+[33ma1daeaf[m feat(docs): Add new docs build process (#1046)
+[33m6d723c4[m feat(encoding): switching to PyAV for ffmpeg related tasks (#983)
+[33m674e784[m Add description motor order SO-101 leader (#1051)
+[33m42bf1e8[m Update tutorial (#1021)
+[33ma75d009[m fix(ci): Pin `torchcodec` (==0.2.1) to fix pipeline temporarly (#1030)
+[33m4df18de[m fix(ci): Pin draccus (<0.10.0) and torch (<2.7) to fix pipeline (#1022)
+[33m8dc69c6[m Revert "[pre-commit.ci] pre-commit autoupdate" (#1025)
+[33m7d481e6[m [pre-commit.ci] pre-commit autoupdate (#1011)
+[33mb43ece8[m Add pythno3-dev in Dockerfile to build and modify Readme.md , python-dev to python3-dev (#987)
+[33mc10c5a0[m Fix --width --height type parsing on opencv and intelrealsense scripts (#556)
+[33ma8db91c[m Fix Windows HTML visualization to make videos could be seen (#647)
+[33m0f5f7ac[m Fix broken links in `examples/4_train_policy_with_script.md` (#697)
+[33m768e366[m [pre-commit.ci] pre-commit autoupdate (#980)
+[33m790d674[m fix(installation): adding note on `ffmpeg` version during installation (#976)
+[33m5322417[m fix(examples): removes extra backtick (#948)
+[33m4041f57[m feat(visualization): replace cv2 GUI with Rerun (and solves ffmpeg versioning issues) (#903)
+[33m2c86fea[m Switch typos pre-commit to mirror (#953)
+[33m437fc29[m [pre-commit.ci] pre-commit autoupdate (#871)
+[33maee86b4[m typo fix: example_1 python script (#631)
+[33m1c873df[m Support for PI0+FAST (#921)
+[33m145fe4c[m fix(deps): avoid torchcodec in macos x86_64 (#925)
+[33me004247[m docs: add tip for Mac users regarding Terminal permissions for keyboard (#917)
+[33mb568de3[m fix(datasets): cast imgs_dir as Path (#915)
+[33mae9c81a[m fix(docs): correct spelling of 'ffmpeg' in installation instructions (#914)
+[33m78fd1a1[m chore(docs): update docs (#911)
+[33m90533e6[m fix(docs): hot-fix updating installation instructions after #883 (#907)
+[33m2c22f7d[m Add offline mode in the configuration for wandb logging (#897)
+[33ma774af2[m fix pi0 action padding name (#893)
+[33m725b446[m fix(deps): constrain PyAV version to resolve OpenCV-python ffmpeg version conflict (#883)
+[33ma6015a5[m chore(scripts): remove deprecated script (#887)
+[33mf396527[m add docs details for resolving firmware update issues (#627)
+[33m712d5da[m fix(os): fix default codec for windows (#875)
+[33m952e892[m Use float32 instead of int (#877)
+[33me815999[m User/pepijn/2025 03 17 act different image shapes (#870)
+[33m1c15bab[m fix(codec): hot-fix for default codec in linux arm platforms (#868)
+[33m9f0a8a4[m Update test-docker-build.yml
+[33ma3cd18e[m added wandb.run_id to allow resuming without wandb log; updated log m… (#841)
+[33m7dc9ffe[m Update 10_use_so100.md (#840)
+[33m0e98c6e[m Add torchcodec cpu (#798)
+[33m974028b[m Organize test folders (#856)
+[33ma36ed39[m Improve pre-commit config (#857)
+[33mc37b1d4[m parametrise tolerance_s in visualize_dataset scripts (#716)
+[33mf994feb[m [pre-commit.ci] pre-commit autoupdate (#844)
+[33m12f5263[m chore(docs): update instructions for change in device and use_amp (#843)
+[33m8a64d82[m chore(deps): remove hydra dependency (#842)
+[33m84565c7[m Fix camera rotation error (#839)
+[33m05b5473[m feat: add support for external plugin config dataclasses (#807)
+[33m513b008[m fix: deactivate tdmpc backward compatibility test with use_mpc=True (#838)
+[33m32fffd4[m Fix delay in teleoperation start time (#676)
+[33m03c7cf8[m Remove pr_style_bot (#832)
+[33m074f0ac[m Fix gpu nightly (#829)
+[33m25c63cc[m :bug: Remove `map_location=device` that no longer exists when loading DiffusionPolicy from_pretained after commit 5e94738 (#830)
+[33m5e94738[m refactor(config): Move device & amp args to PreTrainedConfig (#812)
+[33m10706ed[m Support for discrete actions (#810)
+[33m0b8205a[m chore(doc): add star history graph to the README.md (#815)
+[33m57ae509[m Revert "docs: update installation instructions to use uv instead of conda" (#827)
+[33m5d24ce3[m chore(doc): add license header to all files (#818)
+[33md694ea1[m docs: update installation instructions to use uv instead of conda (#731)
+[33ma009366[m Fix doc (#793)
+[33m2feb5ed[m Fix printout in make_cameras_from_configs (#796)
+[33mb80e55c[m change "actions_id_pad" to "actions_is_pad"(🐛 Bug)  (#774)
+[33me8ce388[m Add wired instructions for LeKiwi (#814)
+[33ma4c1da2[m Add kiwi to readme (#803)
+[33ma003e7c[m change wheel setup in kinematics (#811)
+[33ma274110[m [visualization] Ignore 2d or 3d data for now (#809)
+[33m3827974[m refactor(test): remove duplicated code in conftest.py (#804)
+[33mb299cfe[m Add step assembly tutorial (#800)
+[33mbf6f89a[m fix(examples): Add Tensor type check (#799)
+[33m8861546[m [Security] Add Bandit (#795)
+[33m9c1a893[m [CI] Update Stylebot Permissions (#792)
+[33me81c36c[m Fix dataset version tags (#790)
+[33med83cbd[m Switch `pyav` -> `av` (#780)
+[33m2a33b9a[m Revert "Fix pr_style_bot" (#787)
+[33m6e85aa1[m Break style to test style bot (#785)
+[33maf05a17[m Fix pr_style_bot (#786)
+[33m800c4a8[m [Vizualisation] independent column names (#783)
+[33mbba8c4c[m Fix pr_style bot (#782)
+[33m68b369e[m Fix pr_style_bot (#781)
+[33m8d60ac3[m [vizualisation] Add pagination for many episodes (#776)
+[33m659ec44[m Fix nightly (#775)
+[33mda265ca[m Add pr style bot (#772)
+[33ma1809ad[m Add typos checks (#770)
+[33m8699a28[m [QOL] Enable teleoperation during environment reset (#725)
+[33m65db5af[m fixes in 7_get_started_with_real_robot.md (#677)
+[33m75d5fa4[m Optimizing Dockerfile (#751)
+[33me64fad2[m Fix the URL to setup hardware Aloha Stationary in the example document (#766)
+[33meecf32e[m feat: Add root directory option for dataset configuration (#765)
+[33m3354d91[m LeRobotDataset v2.1 (#711)
+[33maca464c[m Add mobile so100 (#724)
+[33mfe483b1[m Remove `poetry.lock` (#737)
+[33mddeade0[m Conform pyproject to PEP 621 (#621)
+[33mc4c2ce0[m Update pre-commits (#733)
+[33m2cb0bf5[m Add zizmor pre-commit (#732)
+[33mb86a2c0[m Fix wandb logging (#730)
+[33mc574eb4[m Fixed eval.py on MPS (#702)
+[33m1e49cc4[m Prevent resuming from hub (#726)
+[33me710959[m Fixes following #670 (#719)
+[33m90e099b[m Remove offline training, refactor `train.py` and logging/checkpointing (#670)
+[33m334deb9[m Update CI trigger rules (#712)
+[33m8548a87[m Remove dataset tests artifacts (#701)
+[33m638d411[m Add Pi0 (#681)
+[33mdd97452[m User/pepijn/2025 01 31 improved tutorial so100 (#666)
+[33m43e079f[m Fix nightly tests docker images (#675)
+[33m6674e36[m Fix Docker cpu/gpu builds (#667)
+[33mae9605f[m fix setting motor id with new dataclass config (#668)
+[33m3c0a209[m Simplify configs (#550)
+[33m1ee1acf[m Comply with torchvision 0.21 custom transforms (#665)
+[33mc4d912a[m Check for "/" in feature names (#660)
+[33m4323bdc[m updating config instructions for koch 1v1 motors (#658)
+[33m5daa454[m Fix typos in `lerobot/scripts/visualize_dataset.py` (#656)
+[33m4def6d6[m Fix cluster image (#653)
+[33md8560b8[m Bump`rerun-sdk` dependency to `0.21.0` (#618)
+[33m380b836[m Fix for the issue https://github.com/huggingface/lerobot/issues/638 (#639)
+[33meec6796[m fixes to SO-100 readme (#600)
+[33m25a8597[m [viz] Fixes & updates to html visualizer (#617)
+[33mb8b3683[m typo fix: batch_convert_dataset_v1_to_v2.py (#615)
+[33m5097cd9[m fix(visualise): use correct language description for each episode id (#604)
+[33mbc16e1b[m fix(docs): typos in benchmark readme.md (#614)
+[33m8f821ec[m Fix Quality workflow (#622)
+[33m4519016[m Update README.md (#612)
+[33m59e2757[m Fix broken `create_lerobot_dataset_card`  (#590)
+[33m73b64c3[m [vizualizer] for LeRobodDataset V2 (#576)
+[33m66f8736[m fixing typo from 'teloperation' to 'teleoperation' (#566)
+[33m4c41f6f[m Fix example 6 (#572)
+[33m44f9b21[m LerobotDataset pushable to HF from any folder (#563)
+[33m03f49ce[m Update 7_get_started_with_real_robot.md (#559)
+[33m8e7d697[m Control simulated robot with real leader (#514)
+[33m286bca3[m Fix missing local_files_only in record/replay (#540)
+[33ma2c1819[m Refactor OpenX (#505)
+[33m32eb0ce[m Dataset v2.0 (#461)
+[33m96c7052[m Rename deprecated argument (temporal_ensemble_momentum) (#490)
+[33m975c1c2[m Add distinction between two unallowed cases in name check "eval_" (#489)
+[33m20f4667[m bug causes error uploading to huggingface, unicode issue on windows. (#450)
+[33m8af6935[m Add support for Windows (#494)
+[33m963738d[m fix: broken images and a few minor typos in README (#499)
+[33me0df56d[m Fix config file (#495)
+[33m538455a[m feat: enable to use multiple rgb encoders per camera in diffusion policy (#484)
+[33m172809a[m [Fix] Move back to manual calibration (#488)
+[33m55e4ff6[m Fix autocalib moss (#486)
+[33m07e8716[m Add FeetechMotorsBus, SO-100, Moss-v1 (#419)
+[33m114870d[m Fix link (#482)
+[33m2efee45[m Update 9_use_aloha.md, missing comma (#479)
+[33mc351e1f[m Fix gymnasium version as pre-1.0.0 (#471)
+[33mcd0fc26[m Make `say(blocking=True)` work for Linux (#460)
+[33m77478d5[m Refactor `record` with `add_frame` (#468)
+[33m97b1feb[m Add policy/act_aloha_real.yaml + env/act_real.yaml (#429)
+[33mc29e70e[m Fix issue with wrong using index instead of camera_index in opencv (#466)
+[33md5b6696[m Fix nightly by updating .cache in dockerignore (#464)
+[33m1a343c3[m Add support for Stretch (hello-robot) (#409)
+[33m26f97cf[m Enable CI for robot devices with mocked versions (#398)
+[33m72f402d[m Fix dataset card (#453)
+[33m9257348[m Don't use async envs by default (#448)
+[33mc712d68[m Fix nightlies (#443)
+[33mf431a08[m small fix: assertion error message in envs/utils.py (#426)
+[33mbeaa427[m Fix slow camera fps with Aloha (#433)
+[33ma88dd60[m [Vizualization] Better error message (#430)
+[33m6c0324f[m [Vizualization] Fix video layout (#431)
+[33ma60d27b[m Raise ValueError if horizon is incompatible with downsampling (#422)
+[33m9c46366[m [Vizualization] Better UI on small screens (like in smartphones) (#423)
+[33m4255655[m [Vizualization] Show user error if videos codec is not supported (#424)
+[33mf17d9a2[m Bug: Fix VQ-Bet not working when n_action_pred_token=1 (#420)
+[33m9ff829a[m Add comments for Aloha (#417)
+[33md6516f0[m [Visualization tool] Fix when dim state != dim action (#415)
+[33mb0b8612[m fix(calibrate): fix calibrate arms option type. should be str not int (#418)
+[33m1072a05[m [Visualization tool] Fix videos sync (#416)
+[33m9c9f5ca[m Add IntelRealSenseCamera (#410)
+[33m9d0c6fe[m Fix nightlies & untrack json files from git lfs (#414)
+[33m54ac25c[m Revert "hotfix"
+[33m150a292[m hotfix
+[33m429a463[m Control aloha robot natively (#316)
+[33m27ba295[m fix(tdmpc): Add missing save_freq to tdmpc policy config (#404)
+[33mb2896d3[m fix(act): n_vae_encoder_layers config parameter wasn't being used (#400)
+[33mc0da806[m repair mailto link (#397)
+[33m114e09f[m rm EpisodeSampler from viz (#389)
+[33m04a995e[m Fix safe_action (#395)
+[33m4806336[m Add the possibility to visualize language instructions in visualize_dataset_html.py (#388)
+[33m1ce418e[m Add koch bimanual (#385)
+[33meb4c505[m Support for converting OpenX datasets from RLDS format to LeRobotDataset (#354)
+[33maad59e6[m Fix videos in visualize_dataset are not in sync (#382)
+[33m9ce98bb[m Add safety limits on relative action target (#373)
+[33m97086cd[m Make gripper_open_degree a config param (#379)
+[33m9c7649f[m Make sure `init_hydra_config` does not require any keys (#376)
+[33ma2592a5[m Provide more information to the user (#358)
+[33mb5ad79a[m Fix typo in tutorial (#371)
+[33m996468b[m Update README.md
+[33mf982002[m Slightly improve tutorial and README (#370)
+[33m86bbd16[m Improve discoverability on the hub (#325)
+[33m0f6e0f6[m Fix input dim (#365)
+[33mfc3e545[m Update README.md
+[33mb98ea41[m Add dataset cards (#363)
+[33mbbe9057[m Improve control robot ; Add process to configure motor indices (#326)
+[33m8c46436[m fix bug in example 2 (#361)
+[33mfab037f[m feat for the GPU poors : Add GPU availability check in evaluate_pretr… (#359)
+[33m03d6472[m Fix CI builds (#357)
+[33m2252b42[m Add visualize_dataset_html with `http.server` (#188)
+[33mbc6384b[m fix ci (#351)
+[33m8df7e63[m Update README for cross-platform installation compatibility (#347)
+[33m7a3cb1a[m Adjust the timestamps' description in Diffusion Policy (#343)
+[33mf8a6574[m Add online training with TD-MPC as proof of concept (#338)
+[33mabbb1d2[m Make sure policies don't mutate the batch (#323)
+[33m0b21210[m Convert datasets to av1 encoding (#302)
+[33m461d547[m Fix visualize_image_transforms (#333)
+[33mc75ea78[m Detect secrets in pre-commit (#332)
+[33mee200e8[m Ensure no upper bound constraints on dependencies (#327)
+[33m8865e19[m Fix datasets missing versions (#318)
+[33m5f5efe7[m Improve error message when attempting to overwrite a training output folder (#322)
+[33mc0101f0[m Fix ACT temporal ensembling (#319)
+[33m5e54e39[m Add real robot devices and scripts to control real robot (#288)
+[33m5ffcb48[m Add available list of raw repo ids (#312)
+[33m471eab3[m Make ACT compatible with "observation.environment_state" (#314)
+[33m64425d5[m Bug fix: fix error when setting select_target_actions_indices in vqbet (#310)
+[33me410e5d[m Improve video benchmark (#282)
+[33mcc2f6e7[m Train diffusion pusht_keypoints (#307)
+[33ma4d77b9[m Include `observation.environment_state` with keypoints in PushT dataset (#303)
+[33m7bd5ab1[m Fix generation of dataset test artifact (#306)
+[33m74362ac[m Add VQ-BeT copyrights (#299)
+[33m964f9e8[m Cleanup config defaults (#300)
+[33m7a5fc76[m Added new credits and citations (#301)
+[33m342f429[m Add test to make sure policy dataclass configs match yaml configs (#292)
+[33m7d1542c[m Add VQ-BeT (#166)
+[33m9aa4cdb[m Checkpoint on final step of training even when it doesn't coincide with `save_freq`. (#284)
+[33m2abef3b[m Enable `video_reader` backend (#220)
+[33m4895166[m Bug fix: missing attention mask in VAE encoder in ACT policy (#279)
+[33m56199fb[m Update readme to detail the lerobot dataset format (#275)
+[33m11f1cb5[m Bug fix: fix setting different learning rates between backbone and main model in ACT policy (#280)
+[33mb72d574[m fix Unet global_cond_dim to use state dim, not action dim (#278)
+[33m15dd682[m Add multi-image support to diffusion policy (#218)
+[33me28fa23[m added visualization for min and max transforms (#271)
+[33ma92d79f[m Fix nightlies (#273)
+[33m125bd93[m Improve `push_dataset_to_hub` API + Add unit tests (#231)
+[33mc38f535[m FIx make_dataset to match transforms config (#264)
+[33mff8f6aa[m Add data augmentation in LeRobotDataset (#234)
+[33m1cf050d[m chore: update 4_train_policy_with_script.md (#257)
+[33m54c9776[m Improves Type Annotations (#252)
+[33ma065986[m feat(ci): add trufflehog secrets detection (#254)
+[33m055a6f6[m add root argument to the dataset visualizer to visualize local datasets (#249)
+[33me54d6ea[m Make `display_sys_info.py` install-agnostic (#253)
+[33m1eb4bfe[m Fix videos_dir documentation (#247)
+[33m21f222f[m Add out_dir option to eval (#244)
+[33m33362db[m Adding parameter dataloading_s to console logs and wandb for tracking… (#243)
+[33mb0d954c[m Fix bug in normalize to avoid divide by zero (#239)
+[33mbd3111f[m Fix `visualize_dataset.py --help` (#241)
+[33mcf15cba[m Remove redundant slicing operation in Diffusion Policy (#240)
+[33m042e193[m Typo in examples\4_train_policy_with_script.md (#235)
+[33md585c73[m Add real-world support for ACT on Aloha/Aloha2 (#228)
+[33m504d2aa[m add EpisodeAwareSampler (#217)
+[33m83f4f7f[m Add precision param to format_big_number (#232)
+[33m633115d[m Fix chaining in MultiLerobotDataset (#233)
+[33m57fb5fe[m Improve documentation on VAE encoder inputs (#215)
+[33m0b51a33[m Add a test for MultiLeRobotDataset making sure it produces all frames. (#230)
+[33m111cd58[m Add `MultiLerobotDataset` for training with multiple `LeRobotDataset`s (#229)
+[33m265b0ec[m Refactor env to add key word arguments from config yaml (#223)
+[33m2c2e4e1[m Add `aloha_dora_format.py` (#201)
+[33m1331068[m Enable cuda for end-to-end tests (#222)
+[33m3d625ae[m Handle `crop_shape=None` in Diffusion Policy (#219)
+[33me3b9f1c[m Add resume training (#205)
+[33m7ec76ee[m Fix nightly builds (#216)
+[33m3b86050[m throw an error if config.do_maks_loss and action_is_pad not provided in batch (#213)
+[33m6d39b73[m Adds a tutorial section on how to use arbitrary configuration files (#206)
+[33maca424a[m Add dev docker image (#189)
+[33m35c1ce7[m Fix install issues (#191)
+[33me67da1d[m Add tutorials for using the training script and  (#196)
+[33mb6c216b[m Add Automatic Mixed Precision option for training and evaluation. (#199)
+[33m2b270d0[m Disable online training (#202)
+[33mc4da689[m Hot fix to compute validation loss example test (#200)
+[33m9b62c25[m Adds split_by_episodes to LeRobotDataset (#158)
+[33m01eae09[m Fix aloha real-world datasets (#175)
+[33m19dfb91[m Update the README to reflect WandB disabled by default (#198)
+[33m096149b[m Disable wandb by default (#195)
+[33m5ec0af6[m Explain why n_encoder_layers=1 (#193)
+[33m625f055[m Act temporal ensembling (#186)
+[33m4d7d41c[m Fix act action queue (#185)
+[33mc9069df[m Port SpatialSoftmax and remove Robomimic dependency (#182)
+[33m68c1b13[m Make policies compatible with other/multiple image keys (#149)
+[33mf52f4f2[m Add copyrights (#157)
+[33m89c6be8[m Limit datasets major update (#176)
+[33mfc5cf3d[m Fixes issue #152 - error with creating wandb artifact (#172)
+[33m29a196c[m Fix #173 - Require gym-pusht to be installed for test_examples_3_and_2 (#174)
+[33mced3de4[m Fix hanging in visualize_dataset.py when num_workers > 0 (#165)
+[33m7b47ab2[m Remove torchrl acknowledgement  (#177)
+[33m1249aee[m Enable logging all the information returned by the `forward` methods of policies (#151)
+[33mb187942[m Add context manager for seeding (#164)
+[33m473345f[m Fix stats override in ACT config (#161)
+[33me89521d[m Enable tests for TD-MPC (#160)
+[33m7bb5b15[m Remove dependencies upper bounds constraints (#145)
+[33mdf914aa[m Update dev docker build (#148)
+[33m0ea7a8b[m refactor: update configuration_tdmpc.py (#153)
+[33m460df2c[m Support for DDIMScheduler in Diffusion Policy (#146)
+[33mf5de57b[m Fix SpatialSoftmax input shape (#150)
+[33m47de076[m Override pretrained model config (#147)
+[33m26d9a07[m Add policy and dataset tags to WandB logging (#144)
+[33meb6bfe0[m Relax version contraints & poetry lock (#139)
+[33ma8e245f[m Remove loss masking from diffusion policy (#135)
+[33mf5e7639[m Release cleanup (#132)
+[33m6eaffbe[m Add 25 real world datasets (static + mobile aloha)  (#133)
+[33m6e6feae[m Remove additional frame from eval render (#137)
+[33mf6fe162[m Rename Diffusion Policy model repository (#136)
+[33mf3bba02[m Remove EMA model from Diffusion Policy (#134)
+[33md747195[m Fix loops in eval.py  (#128)
+[33mc77633c[m Add regression tests (#119)
+[33m19812ca[m Add dataset visualization with rerun.io (#131)
+[33mc015252[m Remove batch length restrictions in select_action (#123)
+[33mbccee74[m Refactor eval.py (#127)
+[33mb7b69fc[m Publish environments (#120)
+[33mb2cda12[m Add video decoding to LeRobotDataset (#92)
+[33mc166892[m Fix missing `policy.to(device)` in policy factory (#126)
+[33md1855a2[m Refactor TD-MPC (#103)
+[33ma489109[m Use PytorchModelHubMixin to save models as safetensors (#125)
+[33m01d5490[m Follow `transformers` single file naming conventions (#124)
+[33m986583d[m Nest ACT model in ACT Policy (#122)
+[33m9d60dce[m Tidy up yaml configs (#121)
+[33me4e739f[m Refactor push_dataset_to_hub (#118)
+[33m2765877[m Speed up CI, add more checks (#115)
+[33m1ec5f77[m Remove mask check key in XarmProcessor (#117)
+[33m508bd92[m Remove `update` method from the policy (#99)
+[33m5b4fd88[m Update UmiProcessor default fps to 10 (#116)
+[33mccffa9e[m Fix policy defaults (#113)
+[33m791506d[m Remove warnings (#111)
+[33m55dc9f7[m Refactor the download and publication of the datasets and convert it into CLI script (#95)
+[33m81e490d[m Add UMI-gripper dataset (#83)
+[33ma4b6c5e[m Add torchaudio (#110)
+[33mbf2eebb[m Update readme & remove example 1 (#108)
+[33mfe2b9af[m Add test-docker-build workflow (#109)
+[33mfdf6a0c[m More CI cleanup, add style workflow (#107)
+[33m45f351c[m Make sure targets are normalized too (#106)
+[33mb980c5d[m CI nightlies cpu/gpu & cleanup (#75)
+[33m659c69a[m Refactor datasets into LeRobotDataset (#91)
+[33me760e4c[m Move normalization to policy for act and diffusion (#90)
+[33mc1bcf85[m Fix online training (#94)
+[33m1030ea0[m Loads episode_data_index and stats during dataset __init__ (#85)
+[33me216816[m Quality of life patches for eval.py (#86)
+[33mac0ab27[m Hotfix test_examples.py (#87)
+[33m8d98094[m Fix tolerance for delta_timestamps (#84)
+[33m7ad1909[m Tests cleaning & simplification (#81)
+[33m0928afd[m Improve dataset examples (#82)
+[33md5c4b0c[m Merge pull request #80 from huggingface/alexander-soare/unify_policy_api
+[33mdd9c6ee[m Add temporary patch in TD-MPC
+[33m2298ddf[m wip
+[33m63e5ec6[m revert some formatting changes
+[33mc50a13a[m draft
+[33m18dd8f3[m Merge remote-tracking branch 'upstream/main' into unify_policy_api
+[33m6d78bca[m Merge pull request #77 from huggingface/alexander-soare/fix_save_stats
+[33m296bbfe[m Merge branch 'fix_stats_saving' into unify_policy_api
+[33mc945433[m revision
+[33m1331d3b[m fix issue with saving freshly computed stats
+[33mbff4b67[m Merge remote-tracking branch 'upstream/main' into unify_policy_api
+[33m3f1c322[m Merge pull request #73 from huggingface/user/rcadene/2024_04_14_hf_datasets
+[33mfbc31d9[m Merge pull request #74 from huggingface/user/aliberts/2024_04_15_setup_contributions
+[33m4057cc6[m Apply suggestions from code review
+[33m91badeb[m fix tests
+[33m4327e43[m fix merge thingy
+[33m36d9e88[m Address comments
+[33mb241ea4[m move download_and_upload_dataset.py to root_dir
+[33me09d252[m fix online training
+[33m4a3eac4[m fix unit tests, stats was missing, visualize_dataset was broken
+[33m69eeced[m add datasets to poetry/cpu
+[33m0980fff[m HF datasets works
+[33m5edd9a8[m Move stats_dataset init into else statement -> faster init
+[33mc7a8218[m typo
+[33m67d7973[m Add download_and_upload_dataset.py in script, update all datasets, update online training
+[33mc6aca7f[m For Pusht: use hf datasets to train, rename load_data_with_delta_timestamps -> load_previous_and_future_frames
+[33mcb3978b[m backup wip
+[33m4ed55c3[m Merge pull request #76 from huggingface/user/aliberts/2024_04_16_refactor_pyproject
+[33m0eb899d[m Merge remote-tracking branch 'upstream/main' into unify_policy_api
+[33ma8ddefc[m Merge pull request #71 from huggingface/user/alexander-soare/refactor_dp
+[33ma9496fd[m revision 1
+[33m8a322da[m backup wip
+[33m23be5e1[m backup wip
+[33m43a614c[m Fix test_examples
+[33m9c2f10b[m ready for review
+[33m03b08eb[m backup wip
+[33m38ef878[m Add COC badge
+[33mdee174f[m pre-commit autoupdate
+[33m70e8de9[m Clean & update pyproject
+[33m376d75f[m Add env info
+[33ma621ec8[m Add PR & issue templates
+[33mf9b48ab[m Add CONTRIBUTING
+[33m352010b[m Add COC
+[33m5608e65[m backup wip
+[33m14f3ffb[m Merge remote-tracking branch 'upstream/main' into refactor_dp
+[33me37f4e8[m Merge pull request #72 from huggingface/alexander-soare/policy_config
+[33m3002353[m revision 1
+[33m40d417e[m Make sure to make remove all traces of omegaconf from policy config
+[33m9241b5e[m pass step as kwarg
+[33m2ccf89d[m try fix tests
+[33mef4bd9e[m Use dataclass config for ACT
+[33m34f0075[m remove policy.py
+[33m55e4841[m draft pr
+[33m6d0a45a[m ready for review
+[33m5666ec3[m backup wip
+[33m94cc22d[m Merge remote-tracking branch 'upstream/main' into refactor_dp
+[33m976a197[m backup wip
+[33m5bd953e[m Merge pull request #64 from huggingface/user/rcadene/2024_03_31_remove_torchrl
+[33mc1a618e[m fix pusht images type from float32 to uint8, update gym-pusht dependencies
+[33m4216636[m fix
+[33m8e5b436[m fix
+[33m84d2468[m fix
+[33m5be83fb[m fix
+[33ma605eec[m Use pusht as example so it's fast
+[33m2f4af32[m small fix
+[33m36de77a[m fix and clarify tests
+[33m9270108[m small fix
+[33m657b27c[m fix load_data_with_delta_timestamps and add tests
+[33m9229226[m Update lerobot/common/envs/utils.py
+[33m35069bb[m Update CI dep
+[33m0593d20[m Fix gym-xarm
+[33m949f4d1[m remove comment
+[33m3914831[m remove __name__ outside script
+[33mf8c5a2e[m remove comment
+[33m9874652[m enable test_compute_stats
+[33m4c3d8b0[m Update lerobot/scripts/eval.py
+[33m0f0113a[m print_cuda_memory_usage docstring
+[33mdaecc3b[m Remove sbatch*.sh
+[33me862215[m Replace import gym_pusht in pusht dataset by dynamic import
+[33m8866b22[m remove policy is None eval end-to-end tests
+[33m2186429[m policy.batch_size=2
+[33m693f620[m drop_last=False
+[33m79542ec[m eval_episodes=1 env.episode_length=8
+[33m48ec479[m fix end-to-end aloha
+[33ma18bcb3[m cfg.env.fps
+[33mec4bf11[m fix example_1 test
+[33mc080032[m test_examples are passing
+[33m6082a7b[m Enable test_available.py
+[33m7c8eb7f[m Merge remote-tracking branch 'origin/user/rcadene/2024_03_31_remove_torchrl' into user/rcadene/2024_03_31_remove_torchrl
+[33m06573d7[m online training works (loss goes down), remove repeat_action, eval_policy outputs episodes data, eval_policy uses max_episodes_rendered
+[33m91ff69d[m Update gym_xarm
+[33m07c28a2[m Merge pull request #68 from alexander-soare/refactor_act
+[33m575891e[m Merge remote-tracking branch 'upstream/user/rcadene/2024_03_31_remove_torchrl' into refactor_act
+[33m7f4ff0b[m CI fix attempt
+[33md44950e[m Add ssh key
+[33mdba0375[m Fix CI
+[33md21543e[m Add env.close()
+[33mdfaacbc[m Split dev/test dependencies
+[33m2573e89[m Remove direct dependencies
+[33m274f20b[m Update gym-pusht
+[33md9019d9[m disable env_checker in factory
+[33me6c6c23[m Merge remote-tracking branch 'upstream/user/rcadene/2024_03_31_remove_torchrl' into refactor_act
+[33m19e7661[m Remove torchrl/tensordict from dependecies + update poetry cpu
+[33m253e495[m remove render(mode=visualization)
+[33m6902e01[m tests are passing for aloha/act policies, removes abstract policy
+[33m73dfa3c[m tests for tdmpc and diffusion policy are passing
+[33m50e4c80[m Merge remote-tracking branch 'upstream/user/rcadene/2024_03_31_remove_torchrl' into refactor_act
+[33m1e09507[m Merge pull request #69 from huggingface/user/aliberts/2024_04_08_remove_envs
+[33m1149894[m rename handle -> task
+[33m9c96349[m Merge remote-tracking branch 'upstream/user/rcadene/2024_03_31_remove_torchrl' into refactor_act
+[33m6c792f0[m Update README
+[33m3f6dfa4[m Add gym-aloha, rename simxarm -> xarm, refactor
+[33m5dff6d8[m remove aloha
+[33m70aaf1c[m test_datasets.py are passing!
+[33m91e0e4e[m rever change
+[33m0b4c42f[m typos
+[33m62b18a7[m Add type hints
+[33m86365ad[m revision
+[33m0a721f3[m empty commit
+[33m863f28f[m ready for review
+[33m1bab4a1[m Eval reproduction works with gym_aloha
+[33me982c73[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33me1ac5dc[m fix aloha pixels env test
+[33m4371a55[m Remove latency, tdmpc policy passes tests (TODO: make it work with online RL)
+[33m44656d2[m test_envs are passing
+[33m8d2463f[m backup wip
+[33mecc7dd3[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33m5eff40b[m rename task, sim_transfer -> transfer
+[33ma2d3588[m wrap dm_control aloha into gymnasium (TODO: properly seeding the env)
+[33m29032fb[m wrap dm_control aloha into gymnasium (TODO: properly seeding the env)
+[33mab22860[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33m1e71196[m backup wip
+[33m2660226[m test_envs.py are passing, remove simxarm and pusht directories
+[33m9c28ac8[m re-add pre-commit check
+[33mf56b1a0[m WIP tdmpc
+[33mab3cd3a[m (WIP) Add gym-xarm
+[33m0b8d27f[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33mc17dffe[m policies/utils.py
+[33m8ba88ba[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33ma420714[m fix: action_is_pad was missing in compute_loss
+[33m4863e54[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33mad3379a[m fix memory leak due to itertools.cycle
+[33m9d77f57[m Merge remote-tracking branch 'Cadene/user/rcadene/2024_03_31_remove_torchrl' into refactor_act_remove_torchrl
+[33medb125b[m backup wip
+[33m5af00d0[m fix train.py, stats, eval.py (training is running)
+[33m3a4dfa8[m backup wip
+[33mc93ce35[m WIP stats (TODO: run tests on stats + cmpute them)
+[33m1cdfbc8[m WIP
+[33m278336a[m backup wip
+[33m110ac5f[m backup wip
+[33mc7d70a8[m Merge remote-tracking branch 'upstream/main' into refactor_act
+[33m920e0d1[m Merge pull request #66 from alexander-soare/fix_stats_computation
+[33mcaf4ffc[m add TODO
+[33ma6ec4fb[m remove try-catch
+[33mc50a62d[m clarifying math
+[33me9eb262[m numerically sound mean computation
+[33m7242953[m revision
+[33m65ef8c3[m backup wip
+[33m2b928ee[m backup wip
+[33mc3234ad[m fix indentation
+[33m148df1c[m add comment on test
+[33ma6edb85[m Remove random sampling
+[33m95293d4[m fix stats computation
+[33m11cbf1b[m Merge pull request #53 from alexander-soare/finish_examples
+[33mf1148b8[m Merge remote-tracking branch 'upstream/main' into finish_examples
+[33m2a98cc7[m Merge pull request #56 from huggingface/user/aliberts/2024_03_27_improve_ci
+[33ma7c9b78[m Deactivate eval ACT on Aloha (policy is None)
+[33m404b8f8[m Fix end-to-end ACT train on Aloha
+[33m17c2bbb[m remove todo
+[33m006e5fe[m WIP add code coverage
+[33mb99ee81[m Add more end-to-end tests
+[33m6bddcb6[m Add test_aloha env test
+[33m58df206[m Add pytest-cov
+[33mc89aa4f[m Merge pull request #57 from huggingface/user/aliberts/2024_03_27_improve_readme
+[33m62aad71[m Pull merge
+[33m9d9148d[m Fixes for #57
+[33m1b6cb2b[m Add space
+[33m6f1a0ae[m typo fix
+[33mb7c9c33[m revision
+[33m120f0ae[m Merge remote-tracking branch 'upstream/main' into finish_examples
+[33m032200e[m Typo fix
+[33mde1e918[m Formatting
+[33m4f8f192[m Update pip install without requirements.txt
+[33m6710121[m Revert "Add requirements.txt"
+[33m5f4b8ab[m Add more exhaustive install instructions
+[33m18e7f4c[m Add requirements.txt
+[33m643d64e[m Add cmake
+[33mc037722[m Merge pull request #58 from alexander-soare/update_diffusion_model
+[33m6cd6710[m fix revision
+[33mb635396[m fix bug: use provided revision instead of hardcoded one
+[33m64c8851[m Merge branch 'tidy_diffusion_config' into update_diffusion_model
+[33mdc745e3[m Remove unused part of diffusion policy config
+[33m6f0c244[m Improve readme format
+[33md1d2229[m WIP add badges
+[33m68d02c8[m Remove b/c workaround
+[33m011f2d2[m fix tests
+[33mbe4441c[m update README
+[33m1ed0110[m finish examples 2 and 3
+[33mcb6d1e0[m Merge pull request #49 from huggingface/user/rcadene/2024_03_25_readme
+[33m9ced0cf[m unskip
+[33m98534d1[m skip
+[33medacc1d[m Add root in example
+[33m5a46b8a[m fix tests
+[33m4a8c5e2[m issue with cat_and_write_video
+[33m1a1308d[m fix environment seeding
+[33m203bcd7[m Merge pull request #47 from huggingface/user/aliberts/2024_03_22_fix_simxarm
+[33m98b9631[m Add n_obs_steps in default.yaml config
+[33mc5635b7[m Minor fixes for #47
+[33mf002525[m fix ci
+[33m90f6af9[m Update ci
+[33mbcfdba1[m Update pre-commit & run on all files
+[33m0fae5b2[m Allow mujoco minor revision updates
+[33m7cdd6d2[m Renamed set_seed -> set_global_seed
+[33m058ac99[m Add simxarm back into tests
+[33md3adaf1[m Add stat.pth for xarm_lift_medium
+[33mdc89166[m Upgrade gym to gymnasium
+[33m5ef813f[m Remove deprecated code
+[33ma2ac832[m Update ci env
+[33mc0833f1[m Remove simxarm download and preproc hack
+[33mde5c304[m fix wrong version
+[33m462e746[m Add xarm_lift_medium revision 1.0 to hub
+[33m298d391[m Add simxarm license
+[33mbe6364f[m fix, it's training now!
+[33m127de12[m WIP
+[33mb905111[m fix render issue
+[33m0c41675[m fix __init__ import Base
+[33m1c24bbd[m WIP Upgrading simxam from mujoco-py to mujoco python bindings
+[33me41c420[m Merge pull request #48 from alexander-soare/fix_visualization
+[33m4a48b77[m fix normalization and data type
+[33mf3cfc8b[m Merge pull request #46 from huggingface/user/rcadene/2024_03_23_update_stats_v1.2
+[33md2ef434[m move from cadene to lerobot
+[33m40f3783[m v1.2
+[33me21ed6f[m Merge pull request #45 from alexander-soare/fix_environment_seeding
+[33mbd40ffc[m revision
+[33md43fa60[m only try to start env if it is closed
+[33me698d38[m Merge remote-tracking branch 'upstream/main' into fix_environment_seeding
+[33m15ff3b3[m add fixes for reproducibility
+[33ma80d9c0[m Merge pull request #44 from alexander-soare/run_model_from_hub
+[33mb9047fb[m fix environment seeding
+[33m115927d[m make sure to pass stats.pth arg
+[33m529f426[m revision
+[33m1b279a1[m fix test
+[33m3f0f95f[m update readme
+[33m8720c56[m Add ability to eval hub model
+[33mb633748[m Merge pull request #41 from alexander-soare/fix_pusht_diffusion
+[33m41912b9[m remove TODO
+[33m9836107[m cpu poetry lock
+[33m48df15e[m add cpu dep
+[33mb562f89[m update deps
+[33m4e10cd3[m revert changes to default.yaml
+[33m72d3c31[m Merge remote-tracking branch 'upstream/main' into fix_pusht_diffusion
+[33macf1174[m ready for review
+[33m1bd5012[m Merge pull request #40 from huggingface/user/aliberts/2024_03_20_enable_mps_device
+[33m2b02210[m Merge pull request #39 from huggingface/user/rcadene/2024_03_20_update_stats_v1.1
+[33m4631d36[m Add get_safe_torch_device in policies
+[33mf23a53c[m update stats.pth
+[33m82e6e01[m v1.1
+[33md323993[m backup wip
+[33mec536ef[m Merge pull request #26 from Cadene/user/alexander-soare/multistep_policy_and_serial_env
+[33m3910c48[m Merge pull request #37 from Cadene/user/rcadene/2024_03_19_improve_readme
+[33m4b7ec81[m remove abstracmethods, fix online training
+[33m98a816f[m WIP
+[33m45a4a02[m WIP
+[33m8bed0fc[m WIP
+[33m32e3f71[m backup wip
+[33m5332766[m revision
+[33mb1ec3da[m remove internal rendering hooks
+[33md16f6a9[m Merge remote-tracking branch 'upstream/main' into user/alexander-soare/multistep_policy_and_serial_env
+[33m52e149f[m Only save video frames in first rollout
+[33m4f1955e[m Clear action queue when environment is reset
+[33mc5010fe[m fix seeding
+[33m18fa884[m Move reset_warning_issued flag to class attribute
+[33mb54cdc9[m break_when_any_done==True for batch_size==1
+[33m46ac87d[m ready for review
+[33m896a11f[m backup wip
+[33m2d5abbb[m Merge pull request #36 from Cadene/user/rcadene/2024_03_19_replay_buffer_folder
+[33m7d5d99e[m Address more comments
+[33mb420ab8[m version naming conventions
+[33me799dc5[m Improve mock_dataset
+[33m10034e8[m Aloha done
+[33mea17f4c[m backup wip
+[33m6a1a293[m Add replay_buffer directory in pusht datasets + aloha (WIP)
+[33m8834796[m revert dp changes, make act and tdmpc batch friendly
+[33m09ddd9b[m Merge branch 'main' into user/alexander-soare/multistep_policy_and_serial_env
+[33m099a465[m Merge pull request #35 from Cadene/switch_between_train_and_eval
+[33m8e346b3[m switch between train and eval
+[33mbae7e7b[m Merge remote-tracking branch 'origin/main' into user/alexander-soare/multistep_policy_and_serial_env
+[33m75cc101[m Merge pull request #31 from Cadene/disable_wandb_artifact
+[33m3124f71[m Merge remote-tracking branch 'origin/main' into user/alexander-soare/multistep_policy_and_serial_env
+[33m4ecfd17[m fix wandb artifact name and add disable option
+[33m58d1787[m Merge pull request #30 from Cadene/user/rcadene/2024_03_15_fix_path
+[33mb752833[m fix download
+[33ma45896d[m Merge remote-tracking branch 'origin/main' into user/alexander-soare/multistep_policy_and_serial_env
+[33m9c88071[m Merge pull request #28 from Cadene/user/rcadene/2024_03_14_hf_dataset
+[33m5805a7f[m small fix in type + comments
+[33m41521f7[m self.root is Path or None + The following packages are already present in the pyproject.toml and will be skipped:
+[33mb10c950[m Small fix
+[33ma311d38[m Add aloha + improve readme
+[33m19730b3[m Add pusht on hf dataset (WIP)
+[33ma222c88[m Merge branch 'user/alexander-soare/train_pusht' into user/alexander-soare/multistep_policy_and_serial_env
+[33m736bc96[m Merge branch 'main' into user/alexander-soare/train_pusht
+[33m4822d63[m Merge branch 'main' into user/alexander-soare/multistep_policy_and_serial_env
+[33mba91976[m wip: still needs batch logic for act and tdmp
+[33m95e8407[m Merge pull request #25 from Cadene/user/aliberts/2024_03_13_ci_fix
+[33m8e856f1[m Update readme
+[33m8c2b477[m Remove cuda env copy
+[33mf515cb6[m Add dm-control
+[33mc3f8d14[m CI env fix
+[33m98484ac[m ready for review
+[33m9512d1d[m Merge branch 'main' into user/alexander-soare/train_pusht
+[33m8c56770[m Merge pull request #11 from Cadene/user/rcadene/2024_03_06_aloha_env
+[33m998dd2b[m info
+[33m7331df8[m info
+[33m2c5d49c[m Add sudo apt-get install -y libegl1-mesa-dev
+[33m5881eec[m Add DEVICE constant from LEROBOT_TESTS_DEVICE
+[33m29c7384[m Update test.yml
+[33mf925889[m CI fix attempt
+[33m9d00203[m Add Aloha env and ACT policy
+[33m060bac7[m Merge pull request #23 from Cadene/kashif-patch-1
+[33m337208f[m Update README.md
+[33m87fcc53[m wip - still need to verify full training run
+[33m48e70e0[m Merge pull request #18 from Cadene/user/aliberts/2024_03_11_dynamic_build_versioning
+[33m4449c06[m Add comment
+[33m304355c[m Merge remote-tracking branch 'origin/main' into train_pusht
+[33m2a01487[m early training loss as expected
+[33ma94800f[m Merge pull request #20 from Cadene/user/aliberts/2024_03_11_license
+[33ma207b41[m Typo fix
+[33m78690d1[m Merge pull request #19 from Cadene/user/aliberts/2024_03_11_wandb_config
+[33m6d6c84b[m Remove entity from config
+[33m772a826[m Add FOWM & ALOHA copyright notices
+[33m2cb8ae5[m Add acknowledgements
+[33mfab2b32[m Merge pull request #17 from Cadene/user/rcadene/2024_03_11_bugfix_compute_stats
+[33m84a1647[m fix import
+[33mccd5dc5[m fix training
+[33mc1e9c13[m Add license
+[33m00fe4f4[m Configure wandb entity outside config
+[33m225eebd[m Add dynamic build versioning
+[33m816b2e9[m fix more bugs in normalization
+[33ma7ef4a6[m fix bug in compute_stats for action normalization
+[33md4ea4f0[m Merge pull request #16 from Cadene/user/aliberts/2024_03_09_integrate_diffusion_policy
+[33mf54ee7c[m Fix paths
+[33m134009f[m Remove init files
+[33m7982425[m Remove diffusion-policy dependency
+[33m6c867d7[m Integrate pusht env from diffusion
+[33m302b789[m Integrate diffusion policy
+[33m59397fb[m Move tdmpc files
+[33m1cc621e[m Merge pull request #15 from Cadene/user/aliberts/2024_03_09_add_ci_eval_test
+[33m471ebfe[m Remove cleanup + reduce eval steps
+[33m30753d8[m Fix
+[33mc6fb40f[m Add end-to-end pusht eval test
+[33mfa7a947[m Merge pull request #12 from Cadene/user/aliberts/2024_03_08_test_data
+[33m450e32e[m update readme
+[33m0da85b2[m Removed debugging lines
+[33mf2c7ab5[m test ci
+[33mcde866d[m reupload
+[33ma54a0fe[m remove mock
+[33mf440a68[m Add mock_dataset.py
+[33m35bd577[m Add mock_dataset.py
+[33m327f60e[m Update readme
+[33m74ad9d5[m Change pusht artifacts path
+[33m89eaab1[m Add pusht test artifact
+[33m7dbdbb0[m Add git lfs in CI checkout
+[33m4cc7e15[m Merge pull request #10 from Cadene/user/rcadene/2024_03_06_fix_tests
+[33mf1e2837[m fix pusht data_dir path
+[33m54b05bf[m Comment aloha, add test to CI
+[33m524d29a[m fix tests
+[33mc2c0ef9[m Leaner caching strategy
+[33m66373e9[m Merge pull request #9 from Cadene/user/rcadene/2024_03_05_aloha_dataset
+[33m7d33b43[m Add h5py
+[33mb9dc3be[m Trigger CI on direct pushes
+[33m86ec62f[m Trigger CI on PR labeled CI
+[33m52bdfc6[m Trigger CI on PR sync and reopen
+[33md782b02[m Add aloha dataset
+[33m49c0955[m Merge pull request #7 from Cadene/user/rcadene/2024_03_05_abstract_replay_buffer
+[33meed24b0[m small fix
+[33mf95ecd6[m Improve visualize_dataset, Improve AbstractReplayBuffer, Small improvements
+[33md34c0a3[m Update CI caches
+[33m11a5a7c[m Merge pull request #8 from Cadene/user/aliberts/2024_03_05_ci
+[33ma6d353c[m Fix
+[33md6556e6[m Fix
+[33m12af670[m Fix
+[33m7a20ef6[m Add CI, Remove old install files
+[33m2f80d71[m Remove noqa-F821
+[33md4e0849[m Refactor datasets with abstract class
+[33me132a26[m offline_prioritized_sampler: true
+[33ma027f4e[m Add cfg.offline_prioritized_sampler
+[33m570f8d0[m Revert "WIP"
+[33m7938adc[m Add sbatch_hopper.sh
+[33m20c08bb[m WIP
+[33m2bcf263[m minor comment
+[33me990f3e[m Merge pull request #6 from Cadene/user/rcadene/2024_03_04_diffusion
+[33me29fbb5[m Fix grad_clip_norm 0 -> 10, Fix normalization min_max to be per channel
+[33mcfc304e[m Refactor env queue, Training diffusion works (Still not converging)
+[33mfddd9f0[m Add possibility for the policy to provide a sequence of actions to the env
+[33m4c400b4[m Improve log msg in train.py
+[33m0f2fa4d[m Add obs queue to pusht, Set n_obs_steps=2 for diffusion (Not fully tested)
+[33mcbbed59[m Add mode to NormalizeTransform with mean_std or min_max (Not fully tested)
+[33md3aae31[m Merge pull request #5 from Cadene/user/aliberts/cpu_run
+[33mb859e89[m Fix for PR #5
+[33mb33ec5a[m Add run on cpu-only compatibility
+[33m48ded3d[m fix
+[33m661bda4[m imagenet_norm: False
+[33m80785f8[m Small fix, Refactor diffusion, Diffusion runs (TODO: remove normalization in diffusion)
+[33m45b4ecb[m pre-commit run -a
+[33m1ae6205[m Add Normalize, non_blocking=True in tdmpc, tdmpc run (TODO: diffusion)
+[33mb5a2f46[m fix bus error
+[33mfa7f473[m Merge pull request #4 from Cadene/user/aliberts/pusht_buffer_auto_download
+[33mc1942d4[m Fixes for PR #4
+[33mb862145[m Added pusht dataset auto-download
+[33mca948c1[m fix zip strict=False
+[33mae050d2[m Solve conflicts + pre-commit run -a
+[33m0b9027f[m Clean logging, Refactor
+[33mcb7b375[m Merge pull request #3 from Cadene/pre-commit
+[33m2c05b75[m Fixes for PR #3
+[33m7e024fd[m Ran pre-commit run --all-files
+[33m0e0e760[m Added pre-commit
+[33mafb6b86[m Merge pull request #2 from Cadene/install
+[33m5798979[m comment
+[33md5bfead[m Added poetry setup
+[33mac90b9c[m Fix diffusion (rm transpose), Add prefetch
+[33mcf5063e[m Add diffusion policy (train and eval works, TODO: reproduce results)
+[33mf1708c8[m install fix
+[33m98f8869[m WIP
+[33me543c9a[m small fix %
+[33m7df5424[m Small fix and improve logging message
+[33m21670dc[m Refactor train, eval_policy, logger, Add diffusion.yaml (WIP)
+[33m5a219fe[m Refactor policy config
+[33mb16c334[m Refactor configs to have env in seperate yaml + Fix training
+[33meec134d[m small change
+[33med80db2[m Sanitize cfg.env
+[33m9b469c4[m Fix pusht.yaml
+[33m0eb9b5d[m Sanitize cfg.wandb
+[33m5812298[m fix style readme
+[33me765e26[m Sanitize cfg.policy, Fix skip_frame pusht.yaml
+[33mfc4b985[m Add tests to Readme
+[33m6f5c731[m Rename test -> tests
+[33m598bb49[m Add policies/factory, Add test, Add _self_ in config
+[33m64b5920[m format
+[33maed02dc[m Add multithreading for video generation, Speed policy sampling
+[33m591985c[m Fix done in pusht, Fix --time in sbatch
+[33m664cfb2[m Add sbatch.sh
+[33m63d1847[m fix simxarm factory
+[33m96c53ad[m remove comments
+[33me3643d6[m Wandb works, One output dir
+[33mece8973[m Add pusht dataset (TODO verify reward is aligned), Refactor visualize_dataset, Add video_dir, fps, state_dim, action_dim to config (Training works)
+[33m3dc14b5[m Add Prod transform, Add test_factory
+[33m3da6ffb[m Fix unit tests, Refactor, Add pusht env, (TODO pusht replay buffer, image preprocessing)
+[33mfdfb201[m black
+[33ma5c305a[m offline training + online finetuning converge to 33 reward!
+[33m0b4084f[m Clean + alpha beta corresponds to config (before 0.7 and 0.9)
+[33m0cdd23d[m Update README
+[33mc202c2b[m Online finetuning runs (sometimes crash because of nans)
+[33m228c045[m Eval reproduced! Train running (but not reproduced)
+[33m937b2f8[m Add option for random policy
+[33m5a5b190[m Add common, refactor eval with eval_policy
+[33m1e52499[m eval.mp4 works!
+[33m1144819[m First real commit, simxarm env added with torchrl!
+[33m0396980[m .gitignore
+[33m007ffa8[m first commit
