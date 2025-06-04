@@ -4,11 +4,14 @@ ACT (Action-Constrained Transformer) inference implementation.
 
 import torch
 import numpy as np
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, AutoConfig
 from PIL import Image
 import yaml
 import os
 from typing import List, Union, Dict, Any
+
+# Add import for ACTPolicy
+from lerobot.common.policies.act.modeling_act import ACTPolicy
 
 class ACTInference:
     """Inference class for ACT policies."""
@@ -19,26 +22,24 @@ class ACTInference:
         
         Args:
             config_path: Path to the training config YAML file
-            checkpoint_path: Path to the model checkpoint (optional)
+            checkpoint_path: Path to the model checkpoint directory (should contain config.json and model.safetensors)
         """
         with open(config_path, 'r') as f:
             self.config = yaml.safe_load(f)
         
         self.device = torch.device(self.config['policy']['device'])
-        self.model = AutoModelForCausalLM.from_pretrained(
-            self.config['policy']['pretrained_policy_name_or_path'],
-            torch_dtype=torch.float16 if self.config['policy']['use_amp'] else torch.float32
-        ).to(self.device)
         
-        if checkpoint_path:
-            checkpoint = torch.load(checkpoint_path, map_location=self.device)
-            self.model.load_state_dict(checkpoint['model_state_dict'])
-        
+        # Use ACTPolicy.from_pretrained to load model from safetensors
+        if checkpoint_path is not None:
+            # Use the directory containing config.json and model.safetensors
+            model_dir = os.path.dirname(os.path.abspath(checkpoint_path))
+            self.model = ACTPolicy.from_pretrained(model_dir)
+        else:
+            raise ValueError("checkpoint_path must be provided and point to a directory with config.json and model.safetensors")
+        self.model.to(self.device)
         self.model.eval()
         
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.config['policy']['pretrained_policy_name_or_path']
-        )
+        # Tokenizer is not needed for ACTPolicy, so we skip it
         
         self.state_shape = next(f['shape'] for f in self.config['policy']['input_features'] 
                               if f['type'] == 'state')
