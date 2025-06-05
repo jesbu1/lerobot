@@ -17,6 +17,14 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
+
+# Add Hugging Face timeout and retry settings
+export HF_HUB_DOWNLOAD_TIMEOUT=300  # Increase timeout to 5 minutes
+export HF_HUB_ENABLE_HF_TRANSFER=1  # Enable HF transfer for better download speeds
+export HF_HUB_DISABLE_SYMLINKS_WARNING=1
+export HF_HUB_DISABLE_EXPERIMENTAL_WARNING=1
+export HF_HUB_DISABLE_PROGRESS_BARS=0
+
 RESUME=false
 
 EXP_NAME=train_smolvla_libero
