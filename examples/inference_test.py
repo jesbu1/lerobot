@@ -11,7 +11,7 @@ import argparse
 import numpy as np
 from PIL import Image
 from lerobot.inference import ACTInference
-from datasets import load_dataset
+from lerobot.common.datasets.lerobot_dataset import LeRobotDataset, LeRobotDatasetMetadata
 
 def parse_args():
     parser = argparse.ArgumentParser(description='ACT Policy Inference')
@@ -24,7 +24,7 @@ def parse_args():
                            help='Path to local checkpoint directory containing model files')
     
     # Dataset arguments
-    parser.add_argument('--dataset', type=str, default="jesbu1/bridge_v2_lerobot",
+    parser.add_argument('--dataset', type=str, default="jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask",
                        help='Hugging Face dataset ID to use for inference')
     parser.add_argument('--split', type=str, default="train",
                        help='Dataset split to use')
@@ -68,19 +68,36 @@ def load_model(args):
 def main():
     args = parse_args()
     
+    # Load dataset metadata first to analyze structure
+    print(f"[INFO] Loading dataset metadata for {args.dataset}...")
+    ds_meta = LeRobotDatasetMetadata(args.dataset)
+    print("\nDataset Metadata:")
+    print(f"Total number of episodes: {ds_meta.total_episodes}")
+    print(f"Average number of frames per episode: {ds_meta.total_frames / ds_meta.total_episodes:.3f}")
+    print(f"Frames per second: {ds_meta.fps}")
+    print(f"Robot type: {ds_meta.robot_type}")
+    print(f"Camera keys: {ds_meta.camera_keys}")
+    print("\nFeatures:")
+    print(ds_meta.features)
+    
     # Load dataset
-    print(f"[INFO] Loading dataset {args.dataset}...")
-    dataset = load_dataset(args.dataset, split=args.split)
-    print(f"[INFO] Dataset loaded. Number of samples: {len(dataset)}")
+    print(f"\n[INFO] Loading dataset {args.dataset}...")
+    dataset = LeRobotDataset(args.dataset)
+    print(f"[INFO] Dataset loaded. Number of frames: {dataset.num_frames}")
     
     # Get sample
     sample = dataset[args.sample_idx]
-    print("[INFO] Sample keys:", sample.keys())
+    print("\n[INFO] Sample keys:", sample.keys())
     
-    # Extract state
-    print("[INFO] Extracting state from sample...")
-    state = np.array(sample["observation.state"])
-    print("[INFO] State extracted. Shape:", state.shape)
+    # Extract state and images
+    print("\n[INFO] Extracting state and images from sample...")
+    state = sample["observation.state"]
+    images = [sample[key] for key in ds_meta.camera_keys] if ds_meta.camera_keys else []
+    
+    print("[INFO] State shape:", state.shape)
+    if images:
+        print("[INFO] Number of images:", len(images))
+        print("[INFO] Image shape:", images[0].shape)
     
     # Load model
     inference = load_model(args)
@@ -88,7 +105,7 @@ def main():
     
     # Run inference
     print("[INFO] Running inference...")
-    action = inference.get_action(state, [])  # For now, we'll just use the state without images
+    action = inference.get_action(state, images)
     print("[INFO] Inference complete.")
     print("State shape:", state.shape)
     print("Predicted action shape:", action.shape)
