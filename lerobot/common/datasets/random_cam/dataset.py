@@ -27,3 +27,7 @@ class RandomCamDataset(Dataset):
     def __getitem__(self, idx):
         sample = self.dataset[idx]
         return self.transform(sample)
+
+    def __getattr__(self, name):
+        """Delegate attribute access to the wrapped dataset."""
+        return getattr(self.dataset, name)

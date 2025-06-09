@@ -20,7 +20,7 @@ class RandomCamTransform:
 
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         # Get all camera keys
-        camera_keys = [key for key in sample.keys() if key.startswith("observation.images.image_")]
+        camera_keys = [key for key in sample.keys() if key.startswith("observation.images")]
 
         # Get available cameras based on camera_present
         if self.camera_present_key in sample:
@@ -44,7 +44,7 @@ class RandomCamTransform:
         # Create output dictionary with sampled cameras
         output = {}
         for key, value in sample.items():
-            if not key.startswith("observation.images.image_"):
+            if not key.startswith("observation.images"):
                 output[key] = value
                 continue
 

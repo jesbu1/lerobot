@@ -12,12 +12,7 @@ job_name: "train_act_bridge"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/bridge_v2_lerobot"  
-  remap_keys: # remaps dataset keys from the original format to the format expected by the policy
-    state: "observation.state"
-    image: "observation.images.image_0"
-    wrist_image: "observation.wrist_image"
-    actions: "action"
+  repo_id: "jesbu1/bridge_v2_lerobot"
 
 # Policy configuration
 policy:
@@ -59,4 +54,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_act_libero"
+  run_id: "train_act_bridge"
