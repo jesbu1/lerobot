@@ -74,6 +74,9 @@ class PreTrainedConfig(draccus.ChoiceRegistry, HubMixin, abc.ABC):
             )
             self.use_amp = False
 
+        # print which image features are being used
+        print(f"Using the following image features: {self.image_features}")
+
     @property
     def type(self) -> str:
         return self.get_choice_name(self.__class__)
