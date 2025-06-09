@@ -18,6 +18,8 @@ dataset:
     image: "observation.image"
     wrist_image: "observation.wrist_image"
     actions: "action"
+  drop_keys:
+    ["masked_image", "path_image", "masked_path_image"]
 
 # Policy configuration
 policy:
