@@ -29,8 +29,8 @@ dataset:
   repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
   remap_keys: # remaps dataset keys from the original format to the format expected by the policy
     state: "observation.state"
-    image: "observation.masked_path_image"
-    wrist_image: "observation.wrist_image"
+    image: "observation.images.image"
+    wrist_image: "observation.images.image_wrist"
     actions: "action"
 
 # Policy configuration
@@ -58,7 +58,7 @@ policy:
 # Optimizer configuration
 optimizer:
   type: "adamw"
-  lr: 0.001
+  lr: 0.003
   weight_decay: 0.01
   grad_clip_norm: 1.0
 

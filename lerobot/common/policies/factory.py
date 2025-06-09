@@ -92,6 +92,7 @@ def make_policy(
     ds_meta: LeRobotDatasetMetadata | None = None,
     env_cfg: EnvConfig | None = None,
     remap_keys: dict[str, str] | None = None,
+    drop_keys: list[str] | None = None,
 ) -> PreTrainedPolicy:
     """Make an instance of a policy class.
 
@@ -105,7 +106,8 @@ def make_policy(
             statistics to use for (un)normalization of inputs/outputs in the policy. Defaults to None.
         env_cfg (EnvConfig | None, optional): The config of a gym environment to parse features from. Must be
             provided if ds_meta is not. Defaults to None.
-        remap_keys (dict[str, str] | None, optional): A dictionary to remap keys in the dataset. Defaults to None.
+        remap_keys (dict[str, str] | None, optional): A dictionary to remap feature keys in the dataset. Defaults to None.
+        drop_keys (list[str] | None, optional): A list of feature keys to drop from the dataset. Defaults to None.
     Raises:
         ValueError: Either ds_meta or env and env_cfg must be provided.
         NotImplementedError: if the policy.type is 'vqbet' and the policy device 'mps' (due to an incompatibility)
@@ -118,9 +120,18 @@ def make_policy(
 
     # remap ds_meta features if remap_keys is provided
     if ds_meta is not None:
-        if remap_keys:
-            input_output_features = {remap_keys.get(key, key): val for key, val in ds_meta.features.items()}
-            input_output_stats = {remap_keys.get(key, key): val for key, val in ds_meta.stats.items()}
+        if remap_keys or drop_keys:
+            if drop_keys:
+                input_output_features = {
+                    key: val for key, val in ds_meta.features.items() if key not in drop_keys
+                }
+                input_output_stats = {key: val for key, val in ds_meta.stats.items() if key not in drop_keys}
+            if remap_keys:
+                input_output_features = {
+                    remap_keys.get(key, key): val for key, val in input_output_features.items()
+                }
+                input_output_stats = {remap_keys.get(key, key): val for key, val in ds_meta.stats.items()}
+
         else:
             input_output_features = ds_meta.features
             input_output_stats = ds_meta.stats

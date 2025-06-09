@@ -153,6 +153,7 @@ def train(cfg: TrainPipelineConfig):
         cfg=cfg.policy,
         ds_meta=base_dataset.meta,  # Always use base dataset metadata
         remap_keys=cfg.dataset.remap_keys,  # This remaps dataset keys to keys used for the policy since some of them are hardcoded.
+        drop_keys=cfg.dataset.drop_keys,  # This drops keys from the dataset.
     )
 
     logging.info("Creating optimizer and scheduler")

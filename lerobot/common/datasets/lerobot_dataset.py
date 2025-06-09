@@ -365,6 +365,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         download_videos: bool = True,
         video_backend: str | None = None,
         remap_keys: dict[str, str] | None = None,
+        drop_keys: list[str] | None = None,
     ):
         """
         2 modes are available for instantiating this class, depending on 2 different use cases:
@@ -466,7 +467,8 @@ class LeRobotDataset(torch.utils.data.Dataset):
                 True.
             video_backend (str | None, optional): Video backend to use for decoding videos. Defaults to torchcodec when available int the platform; otherwise, defaults to 'pyav'.
                 You can also use the 'pyav' decoder used by Torchvision, which used to be the default option, or 'video_reader' which is another decoder of Torchvision.
-            remap_keys (dict[str, str] | None, optional): A dictionary to remap keys in the dataset. Defaults to None.
+            remap_keys (dict[str, str] | None, optional): A dictionary to remap feature keys in the dataset. Defaults to None.
+            drop_keys (list[str] | None, optional): A list of feature keys to drop from the dataset. Defaults to None.
         """
         super().__init__()
         self.repo_id = repo_id
@@ -479,6 +481,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         self.video_backend = video_backend if video_backend else get_safe_default_codec()
         self.delta_indices = None
         self.remap_keys = remap_keys
+        self.drop_keys = drop_keys
 
         # Unused attributes
         self.image_writer = None
@@ -746,7 +749,9 @@ class LeRobotDataset(torch.utils.data.Dataset):
             video_frames = self._query_videos(query_timestamps, ep_idx)
             item = {**video_frames, **item}
 
-        if self.remap_keys:
+        if self.drop_keys:  # drop unnecessary features
+            item = {key: val for key, val in item.items() if key not in self.drop_keys}
+        if self.remap_keys:  # remap feature keys
             item = {self.remap_keys.get(key, key): val for key, val in item.items()}
 
         if self.image_transforms is not None:
