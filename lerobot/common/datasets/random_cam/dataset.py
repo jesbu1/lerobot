@@ -23,7 +23,11 @@ class RandomCamDataset(Dataset):
                 if key.startswith("observation.images")
             ]
         else:
-            self.image_keys = [key for key in dataset.meta.features if key.startswith("observation.images")]
+            self.image_keys = [
+                key
+                for key in dataset.meta.features
+                if key.startswith("observation.images") and key not in dataset.drop_keys
+            ]
         self.transform = RandomCamTransform(
             how_many_cameras=how_many_cameras,
             sample_cameras=sample_cameras,
