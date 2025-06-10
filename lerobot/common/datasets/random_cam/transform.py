@@ -17,10 +17,11 @@ class RandomCamTransform:
     how_many_cameras: int = 2
     sample_cameras: bool = True
     camera_present_key: str = "camera_present"
+    original_image_keys: list[str] = []
 
     def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
         # Get all camera keys
-        camera_keys = [key for key in sample.keys() if key.startswith("observation.images")]
+        camera_keys = [key for key in sample if key.startswith("observation.images")]
 
         # Get available cameras based on camera_present
         if self.camera_present_key in sample:
@@ -52,6 +53,8 @@ class RandomCamTransform:
 
             # Get camera index from key name
             if key in camera_keys_to_include:
-                output[key] = value
+                idx = camera_keys_to_include.index(key)
+                # map to some original key so the collate fn doesn't break with different number of keys in the batch
+                output[self.original_image_keys[idx]] = value
 
         return output
