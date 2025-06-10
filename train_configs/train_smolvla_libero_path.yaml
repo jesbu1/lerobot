@@ -7,19 +7,19 @@ log_freq: 100
 save_freq: 5000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_smolvla_libero"
-job_name: "train_smolvla_libero"
+output_dir: "outputs/train_smolvla_libero_path"
+job_name: "train_smolvla_libero_path"
 
 # Dataset configuration
 dataset:
   repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"
   remap_keys:
     state: "observation.state"
-    image: "observation.image"
+    path_image: "observation.image"
     wrist_image: "observation.wrist_image"
     actions: "action"
   drop_keys:
-    ["masked_image", "path_image", "masked_path_image"]
+    ["masked_image", "image", "masked_path_image"]
 
 # Policy configuration
 policy:
@@ -88,4 +88,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_smolvla_libero" 
+  run_id: "train_smolvla_libero_path" 
