@@ -21,7 +21,6 @@ class RandomCamDataset(Dataset):
             how_many_cameras=how_many_cameras,
             sample_cameras=sample_cameras,
             camera_present_key=camera_present_key,
-            original_image_keys=self.image_keys,
         )
 
     def __len__(self):
@@ -29,7 +28,7 @@ class RandomCamDataset(Dataset):
 
     def __getitem__(self, idx):
         sample = self.dataset[idx]
-        return self.transform(sample)
+        return self.transform(sample, self.image_keys)
 
     def __getattr__(self, name):
         """Delegate attribute access to the wrapped dataset."""

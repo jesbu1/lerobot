@@ -17,9 +17,8 @@ class RandomCamTransform:
     how_many_cameras: int = 2
     sample_cameras: bool = True
     camera_present_key: str = "camera_present"
-    original_image_keys: list[str] = []
 
-    def __call__(self, sample: Dict[str, Any]) -> Dict[str, Any]:
+    def __call__(self, sample: Dict[str, Any], original_image_keys: list[str]) -> Dict[str, Any]:
         # Get all camera keys
         camera_keys = [key for key in sample if key.startswith("observation.images")]
 
