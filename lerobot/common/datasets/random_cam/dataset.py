@@ -29,6 +29,8 @@ class RandomCamDataset(Dataset):
             sample_cameras=sample_cameras,
             camera_present_key=camera_present_key,
         )
+        # drop everything not in the first n image_keys so the downstream policy using this drop_keys doesn't expect images that don't exist
+        self.drop_keys = self.image_keys[how_many_cameras:]
 
     def __len__(self):
         return len(self.dataset)
@@ -39,4 +41,6 @@ class RandomCamDataset(Dataset):
 
     def __getattr__(self, name):
         """Delegate attribute access to the wrapped dataset."""
+        if name == "drop_keys":
+            return self.drop_keys
         return getattr(self.dataset, name)
