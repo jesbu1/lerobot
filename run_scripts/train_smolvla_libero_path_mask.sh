@@ -21,7 +21,7 @@ export MUJOCO_GL=egl
 # Add Hugging Face timeout and retry settings
 export HF_HUB_DOWNLOAD_TIMEOUT=300  # Increase timeout to 5 minutes
 export HF_HUB_ENABLE_HF_TRANSFER=1  # Enable HF transfer for better download speeds
-export HF_HOME=/scratch1/kimkj/huggingface
+#export HF_HOME=/scratch1/kimkj/huggingface
 export HF_HUB_DISABLE_SYMLINKS_WARNING=1
 export HF_HUB_DISABLE_EXPERIMENTAL_WARNING=1
 export HF_HUB_DISABLE_PROGRESS_BARS=0
