@@ -2,7 +2,7 @@
 seed: 42
 steps: 1000000
 batch_size: 192
-num_workers: 32
+num_workers: 24
 log_freq: 100
 save_freq: 5000
 save_checkpoint: true
