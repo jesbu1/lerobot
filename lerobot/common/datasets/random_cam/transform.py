@@ -54,6 +54,6 @@ class RandomCamTransform:
             if key in camera_keys_to_include:
                 idx = camera_keys_to_include.index(key)
                 # map to some original key so the collate fn doesn't break with different number of keys in the batch
-                output[self.original_image_keys[idx]] = value
+                output[original_image_keys[idx]] = value
 
         return output
