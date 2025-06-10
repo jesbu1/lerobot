@@ -41,6 +41,8 @@ class RandomCamTransform:
                     available_cameras, self.how_many_cameras, replace=False
                 )
 
+        camera_keys_to_include = [camera_keys[i] for i in camera_idx_to_include]
+
         # Create output dictionary with sampled cameras
         output = {}
         for key, value in sample.items():
@@ -49,8 +51,7 @@ class RandomCamTransform:
                 continue
 
             # Get camera index from key name
-            cam_idx = int(key.split("_")[-1])
-            if cam_idx in camera_idx_to_include:
+            if key in camera_keys_to_include:
                 output[key] = value
 
         return output
