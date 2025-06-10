@@ -16,7 +16,14 @@ class RandomCamDataset(Dataset):
     ):
         self.dataset = dataset
         # find the image keys that are in the remap keys and replace them with the new keys in any order
-        self.image_keys = [key for key in dataset.remap_keys.values() if key.startswith("observation.images")]
+        if dataset.remap_keys:
+            self.image_keys = [
+                dataset.remap_keys.get(key, key)
+                for key in dataset.remap_keys.values()
+                if key.startswith("observation.images")
+            ]
+        else:
+            self.image_keys = [key for key in dataset.meta.features if key.startswith("observation.images")]
         self.transform = RandomCamTransform(
             how_many_cameras=how_many_cameras,
             sample_cameras=sample_cameras,
