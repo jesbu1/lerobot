@@ -13,6 +13,10 @@ job_name: "train_act_bridge"
 # Dataset configuration
 dataset:
   repo_id: "jesbu1/bridge_v2_lerobot"
+  random_cam_sampling:
+    how_many_cameras: 2
+    sample_cameras: true
+    camera_present_key: "camera_present"
 
 # Policy configuration
 policy:

@@ -129,14 +129,9 @@ def train(cfg: TrainPipelineConfig):
     base_dataset = make_dataset(cfg)
 
     # Optionally wrap the dataset with appropriate transforms
-    if hasattr(cfg.dataset, "use_random_cam_sampling") and cfg.dataset.use_random_cam_sampling:
+    if hasattr(cfg.dataset, "random_cam_sampling") and cfg.dataset.random_cam_sampling is not None:
         logging.info("Using random camera sampling")
-        dataset = RandomCamDataset(
-            base_dataset,
-            how_many_cameras=cfg.dataset.how_many_cameras,
-            sample_cameras=cfg.dataset.sample_cameras,
-            camera_present_key=cfg.dataset.camera_present_key,
-        )
+        dataset = RandomCamDataset(base_dataset, **cfg.dataset.random_cam_sampling)
     else:
         dataset = base_dataset
 

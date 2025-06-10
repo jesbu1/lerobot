@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from dataclasses import dataclass, field
+from typing import Any
 
 from lerobot.common import (
     policies,  # noqa: F401
@@ -29,7 +30,8 @@ class DatasetConfig:
     # keys common between the datasets are kept. Each dataset gets and additional transform that inserts the
     # "dataset_index" into the returned item. The index mapping is made according to the order in which the
     # datasets are provided.
-    repo_id: str
+    repo_id: str | list[str]
+    split: str = "train"
     # Root directory where the dataset will be stored (e.g. 'dataset/path').
     root: str | None = None
     episodes: list[int] | None = None
@@ -39,6 +41,7 @@ class DatasetConfig:
     video_backend: str = field(default_factory=get_safe_default_codec)
     remap_keys: dict[str, str] | None = None
     drop_keys: list[str] | None = None
+    random_cam_sampling: dict[str, Any] | None = None  # Configuration for RandomCamDataset
 
 
 @dataclass
