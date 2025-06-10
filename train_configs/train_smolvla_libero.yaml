@@ -25,7 +25,7 @@ dataset:
 policy:
   type: "smolvla"
   device: "cuda"
-  use_amp: true
+  use_amp: false
   input_features:
     state:
       type: "STATE"
