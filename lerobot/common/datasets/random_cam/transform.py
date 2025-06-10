@@ -55,5 +55,11 @@ class RandomCamTransform:
                 idx = camera_keys_to_include.index(key)
                 # map to some original key so the collate fn doesn't break with different number of keys in the batch
                 output[original_image_keys[idx]] = value
+        if available_cameras < self.how_many_cameras:
+            # pad it with black images
+            for i in range(self.how_many_cameras - available_cameras):
+                output[original_image_keys[i + available_cameras]] = torch.zeros_like(
+                    output[original_image_keys[0]]
+                )
 
         return output
