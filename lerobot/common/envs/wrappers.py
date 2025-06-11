@@ -244,10 +244,10 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 
     def _modify_observation(self, obs):
         """Applies path and mask drawing to a single observation."""
-        if self.image_key not in obs:
+        if self.image_key not in obs["pixels"]:
             return obs
 
-        img = obs[self.image_key].copy()
+        img = obs["pixels"][self.image_key].copy()
         img, _, _ = get_path_mask_from_vlm(
             img,
             "Center Crop",
@@ -260,7 +260,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             mask=self.current_mask,
         )
 
-        obs[self.image_key] = img
+        obs["pixels"][self.image_key] = img
         return obs
 
     def reset(self, **kwargs):
