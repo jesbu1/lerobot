@@ -391,7 +391,7 @@ class LIBEROEnv(gym.Env):
 
     @property
     def num_tasks(self):
-        return len(self._libero_task_suite.get_tasks())
+        return len(self._libero_task_suite)
 
     def _construct_obs(self, obs):
         flipped_agentview = obs["agentview_image"][::-1]
