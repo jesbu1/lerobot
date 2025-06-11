@@ -77,6 +77,8 @@ class ACTPolicy(PreTrainedPolicy):
         if config.temporal_ensemble_coeff is not None:
             self.temporal_ensembler = ACTTemporalEnsembler(config.temporal_ensemble_coeff, config.chunk_size)
 
+        if config.use_language:
+            self.lang_encoder = SentenceTransformer("all-MiniLM-L6-v2").to(self.config.device)
         self.reset()
 
     def get_optim_params(self) -> dict:
@@ -150,7 +152,7 @@ class ACTPolicy(PreTrainedPolicy):
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = [batch[key] for key in self.config.image_features]
         if self.config.use_language:
-            batch["lang_embed"] = self.config._lang_encoder.encode(
+            batch["lang_embed"] = self.lang_encoder.encode(
                 batch["task"],
                 batch_size=len(batch["task"]),
                 convert_to_tensor=True,
@@ -381,11 +383,10 @@ class ACT(nn.Module):
             self.encoder_cam_feat_pos_embed = ACTSinusoidalPositionEmbedding2d(config.dim_model // 2)
 
         if self.config.use_language:
-            self.lang_encoder = SentenceTransformer("all-MiniLM-L6-v2").to(self.config.device)
             self.lang_input_proj = nn.Linear(
                 384, config.dim_model
             )  # 384 is the dimension of the language embeddings, hardcoded for now
-            self.lang_pos_embed = nn.Embedding(0, config.dim_model)
+            self.lang_pos_embed = nn.Embedding(1, config.dim_model)
 
         # Transformer decoder.
         # Learnable positional embedding for the transformer's decoder (in the style of DETR object queries).
@@ -533,7 +534,7 @@ class ACT(nn.Module):
         )
         if self.config.use_language:
             lang_embed = einops.rearrange(self.lang_input_proj(batch["lang_embed"]), "b d -> 1 b d")
-            encoder_out = torch.cat([encoder_out, self.lang_input_proj(batch["lang_embed"])], dim=0)
+            encoder_out = torch.cat([encoder_out, lang_embed], dim=0)
             encoder_in_pos_embed = torch.cat(
                 [encoder_in_pos_embed, self.lang_pos_embed.weight.unsqueeze(1)], dim=0
             )
