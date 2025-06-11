@@ -168,7 +168,7 @@ class LIBEROEnv(EnvConfig):
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
             "agentview_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
-            "eye_in_hand_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
+            "robot0_eye_in_hand_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
             "state": PolicyFeature(type=FeatureType.STATE, shape=(8,)),
         }
     )
@@ -177,7 +177,7 @@ class LIBEROEnv(EnvConfig):
             "action": ACTION,
             "state": OBS_ROBOT,
             "agentview_image": f"{OBS_IMAGES}.image",
-            "eye_in_hand_image": f"{OBS_IMAGES}.wrist_image",
+            "robot0_eye_in_hand_image": f"{OBS_IMAGES}.wrist_image",
         }
     )
 
@@ -185,7 +185,7 @@ class LIBEROEnv(EnvConfig):
         self.features["agentview_image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
-        self.features["eye_in_hand_image"] = PolicyFeature(
+        self.features["robot0_eye_in_hand_image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
 

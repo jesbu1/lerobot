@@ -252,7 +252,7 @@ def eval_libero(args: Args) -> None:
                         # Get preprocessed image
                         # IMPORTANT: rotate 180 degrees to match train preprocessing
                         img = np.ascontiguousarray(obs["agentview_image"][::-1])
-                        wrist_img = np.ascontiguousarray(obs["robot0_eye_in_hand_image"][::-1])
+                        wrist_img = np.ascontiguousarray(obs["robot0_robot0_eye_in_hand_image"][::-1])
                         if args.flip_image_horizontally:
                             img = img[:, ::-1]
                             wrist_img = wrist_img[:, ::-1]
