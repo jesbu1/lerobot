@@ -264,14 +264,14 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         return obs
 
     def reset(self, **kwargs):
-        obs = self.env.reset(**kwargs)
+        obs, info = self.env.reset(**kwargs)
         self.current_path, self.current_mask = self._load_path_and_mask_from_h5(
             self.env.task,
             self.env.episode_idx,
             obs[self.image_key].shape,
         )
         self.num_steps_since_last_draw = 0
-        return self._modify_observation(obs), {}
+        return self._modify_observation(obs), info
 
     def _load_path_and_mask_from_h5(
         self,
@@ -412,7 +412,7 @@ class LIBEROEnv(gym.Env):
         if seed is not None:
             self.seed = seed
         self.env, initial_states = self._get_libero_env()
-        obs, info = self.env.reset(**kwargs)
+        obs, _ = self.env.reset(**kwargs)
 
         if self.load_gt_initial_states:
             self.env.set_init_state(initial_states)
