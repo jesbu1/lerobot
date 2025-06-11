@@ -367,6 +367,7 @@ class LIBEROEnv(gym.Wrapper):
         env.metadata = {}
         env.render_mode = "rgb_array"
         env.observation_space = None
+        env.action_space = None
         super().__init__(env)
 
     @property
