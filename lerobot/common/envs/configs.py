@@ -176,7 +176,8 @@ class LIBEROEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "agent_pos": OBS_ROBOT,  # agent_pos is required name for lerobot
-            "pixels": f"{OBS_IMAGES}.image",
+            "pixels/agentview_image": f"{OBS_IMAGES}.agentview_image",
+            "pixels/robot0_eye_in_hand_image": f"{OBS_IMAGES}.robot0_eye_in_hand_image",
         }
     )
 
