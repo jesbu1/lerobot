@@ -164,6 +164,16 @@ class LIBEROEnv(EnvConfig):
     render_mode: str = "rgb_array"
     libero_hdf5_dir: str = None
     load_gt_initial_states: bool = False
+    image_key: str = "image"
+    wrist_image_key: str = "wrist_image"
+    remap_keys: dict[str, str] = field(
+        default_factory=lambda: {
+            "state": "observation.state",
+            "image": "observation.image",
+            "wrist_image": "observation.wrist_image",
+            "actions": "action",
+        }
+    )
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
@@ -182,7 +192,7 @@ class LIBEROEnv(EnvConfig):
     )
 
     def __post_init__(self):
-        self.features["pixels/agentview_image"] = PolicyFeature(
+        self.features[f"pixels/agentview_image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
         self.features["pixels/robot0_eye_in_hand_image"] = PolicyFeature(
