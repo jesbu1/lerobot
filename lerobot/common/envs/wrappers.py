@@ -326,7 +326,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         return obs, reward, terminated, truncated, info
 
 
-class LIBEROEnv(gym.Wrapper):
+class LIBEROEnv(gym.Env):
     LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 
     def __init__(
@@ -339,6 +339,7 @@ class LIBEROEnv(gym.Wrapper):
         libero_hdf5_dir: str = None,
         load_gt_initial_states: bool = False,
     ):
+        super().__init__()
         self.LIBERO_ENV_RESOLUTION = resolution
         self.num_steps_wait = 10
         self._task = None
@@ -364,10 +365,10 @@ class LIBEROEnv(gym.Wrapper):
         self._task_idx = task_idx
         self._episode_idx = episode_idx
         # load dummy env first
-        env, _ = self._get_libero_env()
-        env.metadata = {}
-        env.render_mode = "rgb_array"
-        env.observation_space = spaces.Dict(
+        # env, _ = self._get_libero_env()
+        self.metadata = {}
+        self.render_mode = "rgb_array"
+        self.observation_space = spaces.Dict(
             {
                 "agentview_image": spaces.Box(
                     0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
@@ -378,8 +379,7 @@ class LIBEROEnv(gym.Wrapper):
                 "state": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
         )
-        env.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
-        super().__init__(env)
+        self.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
 
     @property
     def task(self):
