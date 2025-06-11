@@ -19,7 +19,6 @@ from lerobot.common.optim.optimizers import AdamWConfig
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.configs.types import NormalizationMode
 
-from sentence_transformers import SentenceTransformer
 
 
 @PreTrainedConfig.register_subclass("act")
@@ -164,8 +163,6 @@ class ACTConfig(PreTrainedConfig):
             raise ValueError(
                 f"Multiple observation steps not handled yet. Got `nobs_steps={self.n_obs_steps}`"
             )
-        if self.use_language:
-            self._lang_encoder = SentenceTransformer("all-MiniLM-L6-v2")
 
     def get_optimizer_preset(self) -> AdamWConfig:
         return AdamWConfig(

@@ -32,6 +32,7 @@ import torchvision
 from torch import Tensor, nn
 from torchvision.models._utils import IntermediateLayerGetter
 from torchvision.ops.misc import FrozenBatchNorm2d
+from sentence_transformers import SentenceTransformer
 
 from lerobot.common.policies.act.configuration_act import ACTConfig
 from lerobot.common.policies.normalize import Normalize, Unnormalize
@@ -149,7 +150,13 @@ class ACTPolicy(PreTrainedPolicy):
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = [batch[key] for key in self.config.image_features]
         if self.config.use_language:
-            batch["lang_embed"] = self.config._lang_encoder.encode(batch["task"])
+            batch["lang_embed"] = self.config._lang_encoder.encode(
+                batch["task"],
+                batch_size=len(batch["task"]),
+                convert_to_tensor=True,
+                device=batch["action"].device,
+                show_progress_bar=False,
+            )
 
         batch = self.normalize_targets(batch)
         actions_hat, (mu_hat, log_sigma_x2_hat) = self.model(batch)
@@ -374,6 +381,7 @@ class ACT(nn.Module):
             self.encoder_cam_feat_pos_embed = ACTSinusoidalPositionEmbedding2d(config.dim_model // 2)
 
         if self.config.use_language:
+            self.lang_encoder = SentenceTransformer("all-MiniLM-L6-v2").to(self.config.device)
             self.lang_input_proj = nn.Linear(
                 384, config.dim_model
             )  # 384 is the dimension of the language embeddings, hardcoded for now
@@ -385,6 +393,7 @@ class ACT(nn.Module):
 
         # Final action regression head on the output of the transformer's decoder.
         self.action_head = nn.Linear(config.dim_model, self.config.action_feature.shape[0])
+
 
         self._reset_parameters()
 
