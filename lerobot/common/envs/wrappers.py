@@ -382,7 +382,7 @@ class LIBEROEnv(gym.Env):
                 "robot0_eye_in_hand_image": spaces.Box(
                     0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
                 ),
-                "state": spaces.Box(-np.inf, np.inf, shape=(8,)),
+                "agent_pos": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
         )
         self.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
@@ -407,7 +407,7 @@ class LIBEROEnv(gym.Env):
         new_obs = {}
         new_obs["agentview_image"] = flipped_agentview
         new_obs["robot0_eye_in_hand_image"] = flipped_eye_in_hand
-        new_obs["state"] = np.concatenate(
+        new_obs["agent_pos"] = np.concatenate(
             [
                 obs["robot0_eef_pos"],
                 LIBEROEnv._quat2axisangle(obs["robot0_eef_quat"]),
