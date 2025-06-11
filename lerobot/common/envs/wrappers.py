@@ -7,6 +7,7 @@ import h5py
 from libero.libero import get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
 from libero.libero import benchmark
+from gymnasium import spaces
 
 import re
 import time
@@ -366,7 +367,17 @@ class LIBEROEnv(gym.Wrapper):
         env, _ = self._get_libero_env()
         env.metadata = {}
         env.render_mode = "rgb_array"
-        env.observation_space = None
+        env.observation_space = spaces.Dict(
+            {
+                "agentview_image": spaces.Box(
+                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                ),
+                "eye_in_hand_image": spaces.Box(
+                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                ),
+                "state": spaces.Box(-np.inf, np.inf, shape=(8,)),
+            }
+        )
         env.action_space = None
         super().__init__(env)
 
