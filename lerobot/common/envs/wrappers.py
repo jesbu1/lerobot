@@ -386,6 +386,8 @@ class LIBEROEnv(gym.Env):
             }
         )
         self.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
+        self.spec = {}
+        self.spec["max_episode_steps"] = self._max_episode_steps
 
     @property
     def task(self):
