@@ -102,7 +102,7 @@ def make_libero_env(
 
     env = gym.vector.SyncVectorEnv(
         [
-            lambda x: LIBEROEnv(
+            lambda: LIBEROEnv(
                 task_suite_name=cfg.task_suite_name,
                 seed=cfg.seed,
                 resolution=cfg.resolution,
