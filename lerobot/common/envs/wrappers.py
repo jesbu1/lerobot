@@ -333,6 +333,8 @@ class LIBEROEnv(gym.Env):
         self,
         task_suite_name: str,
         seed: int,
+        task_idx: int,
+        episode_idx: int,
         resolution: int = 256,
         libero_hdf5_dir: str = None,
         load_gt_initial_states: bool = False,
@@ -363,7 +365,8 @@ class LIBEROEnv(gym.Env):
         self.load_gt_initial_states = load_gt_initial_states
         self._episode_idx = 0
         self.current_step = 0
-
+        self.task_idx = task_idx
+        self.episode_idx = episode_idx
     @property
     def task(self):
         return str(self._task)
@@ -391,11 +394,10 @@ class LIBEROEnv(gym.Env):
         )
         return new_obs
 
-    def reset(self, task_idx: int, episode_idx: int, **kwargs):
+    def reset(self, **kwargs):
         self.env, initial_states = self._get_libero_env(
-            self.LIBERO_ENV_RESOLUTION, self.seed, task_idx, episode_idx
+            self.LIBERO_ENV_RESOLUTION, self.seed, self.task_idx, self.episode_idx
         )
-        self._episode_idx = episode_idx
         obs, info = self.env.reset(**kwargs)
 
         if self.load_gt_initial_states:
