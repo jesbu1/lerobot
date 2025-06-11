@@ -266,7 +266,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         obs, info = self.env.reset(**kwargs)
         self.current_path, self.current_mask = self._load_path_and_mask_from_h5(
             self.env.task,
-            self.episode_idx,
+            self.env.episode_idx,
             obs[self.image_key].shape,
         )
         self.num_steps_since_last_draw = 0
@@ -360,10 +360,15 @@ class LIBEROEnv(gym.Env):
             get_libero_path("hdf5_files"), self.task_suite_name
         )
         self.load_gt_initial_states = load_gt_initial_states
+        self._episode_idx = 0
 
     @property
     def task(self):
         return str(self._task)
+
+    @property
+    def episode_idx(self):
+        return self._episode_idx
 
     @property
     def num_tasks(self):
@@ -373,6 +378,7 @@ class LIBEROEnv(gym.Env):
         self.env, initial_states = self._get_libero_env(
             self.LIBERO_ENV_RESOLUTION, self.seed, task_idx, episode_idx
         )
+        self._episode_idx = episode_idx
         obs, info = self.env.reset(**kwargs)
 
         if self.load_gt_initial_states:
