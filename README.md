@@ -1,3 +1,12 @@
+## Extra install
+```bash
+pip install -e .
+git clone git@github.com:jesbu1/LIBERO.git
+pip install -e LIBERO
+git clone git@github.com:memmelma/vila_utils.git
+pip install -e vila_utils
+```
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="media/lerobot-logo-thumbnail.png">
