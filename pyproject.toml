@@ -63,6 +63,7 @@ dependencies = [
     "opencv-python-headless>=4.9.0",
     "packaging>=24.2",
     "av>=14.2.0",
+    "openai",
     "pymunk>=6.6.0,<7.0.0",
     "pynput>=1.7.7",
     "pyzmq>=26.2.1",
@@ -87,6 +88,7 @@ feetech = ["feetech-servo-sdk>=1.0.0", "pynput>=1.7.7"]
 intelrealsense = ["pyrealsense2>=2.55.1.6486 ; sys_platform != 'darwin'"]
 pi0 = ["transformers>=4.48.0"]
 smolvla = ["transformers>=4.50.3", "num2words>=0.5.14", "accelerate>=1.7.0"]
+libero = ["libero @ git+https://github.com/jesbu1/LIBERO#egg=9d5627fee9bce32669ff9c2ef8e7260ddd3bb732"]
 pusht = ["gym-pusht>=0.1.5 ; python_version < '4.0'"]
 stretch = [
     "hello-robot-stretch-body>=0.7.27 ; python_version < '4.0' and sys_platform == 'linux'",
