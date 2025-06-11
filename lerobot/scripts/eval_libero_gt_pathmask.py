@@ -66,7 +66,6 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     draw_path: bool = True
     draw_mask: bool = True
     image_key: str = "image"
-    every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
 
 
 def make_libero_env(

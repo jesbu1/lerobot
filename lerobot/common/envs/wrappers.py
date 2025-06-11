@@ -277,7 +277,6 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         draw_path: bool,
         draw_mask: bool,
         image_key="image",
-        every_n_steps: int = 50,
     ):
         """
         Args:
@@ -286,18 +285,15 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             draw_path: Whether to draw the path on the image
             draw_mask: Whether to draw the mask on the image
             image_key: The key in the observation dictionary that contains the image.
-            every_n_steps: The number of steps between each path and mask drawing.
         """
         super().__init__(env)
         self.path_and_mask_h5_file = path_and_mask_h5_file
         self.image_key = image_key
         self.draw_path = draw_path
         self.draw_mask = draw_mask
-        self.num_steps_since_last_draw = 0
-        self.every_n_steps = every_n_steps
 
         self.current_path = None
-        self.current_mask = None
+        self.current_masked_images = None
         self.rng = np.random.default_rng()
 
     def _modify_observation(self, obs):
@@ -306,6 +302,12 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             return obs
 
         img = obs["pixels"][self.image_key].copy()
+        mask = self.current_mask[self.env.current_step % len(self.current_mask)]
+        mask_points = np.stack(mask.nonzero(), axis=1)
+        min_in, max_in = np.zeros(2), np.array(mask.shape)
+        min_out, max_out = np.zeros(2), np.ones(2)
+        mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+
         img, _, _ = get_path_mask_from_vlm(
             img,
             "Center Crop",
@@ -313,9 +315,9 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             draw_path=self.draw_path,
             draw_mask=self.draw_mask,
             verbose=True,
-            vlm_server_ip=None,
+            vlm_server_ip=self.vlm_server_ip,
             path=self.current_path,
-            mask=self.current_mask,
+            mask=mask_points,
         )
 
         obs["pixels"][self.image_key] = img
@@ -328,7 +330,6 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             self.env.episode_idx,
             obs["pixels"][self.image_key].shape,
         )
-        self.num_steps_since_last_draw = 0
         return self._modify_observation(obs), info
 
     def _load_path_and_mask_from_h5(
@@ -367,26 +368,19 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             path = f_annotation["gripper_positions"]  # Get path
 
             # Get mask data
-            significant_points = f_annotation["significant_points"][0]
-            stopped_points = f_annotation["stopped_points"][0]
-            mask = np.concatenate([significant_points, stopped_points], axis=0)
+            masked_images = f_annotation["masked_images"][()]
 
             # Scale path and mask to 0, 1-normalized coordinates for VLM to scale back to image coords.
             w, h = img_shape[:2]
             min_in, max_in = np.zeros(2), np.array([w, h])
             min_out, max_out = np.zeros(2), np.ones(2)
             path = scale_path(path, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
-            mask = scale_path(mask, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
 
-            return path, mask
-
+            return path, masked_images
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
-        self.num_steps_since_last_draw += 1
-        if self.num_steps_since_last_draw >= self.every_n_steps:
-            self.num_steps_since_last_draw = 0
-            obs = self._modify_observation(obs)
+        obs = self._modify_observation(obs)
         return obs, reward, terminated, truncated, info
 
 

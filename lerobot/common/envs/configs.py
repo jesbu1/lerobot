@@ -166,14 +166,6 @@ class LIBEROEnv(EnvConfig):
     load_gt_initial_states: bool = False
     image_key: str = "image"
     wrist_image_key: str = "wrist_image"
-    remap_keys: dict[str, str] = field(
-        default_factory=lambda: {
-            "state": "observation.state",
-            "image": "observation.image",
-            "wrist_image": "observation.wrist_image",
-            "actions": "action",
-        }
-    )
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
