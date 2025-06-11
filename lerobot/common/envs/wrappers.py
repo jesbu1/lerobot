@@ -338,7 +338,6 @@ class LIBEROEnv(gym.Wrapper):
         libero_hdf5_dir: str = None,
         load_gt_initial_states: bool = False,
     ):
-        super().__init__(None)
         self.LIBERO_ENV_RESOLUTION = resolution
         self.num_steps_wait = 10
         self._task = None
@@ -363,6 +362,9 @@ class LIBEROEnv(gym.Wrapper):
         self.current_step = 0
         self._task_idx = task_idx
         self._episode_idx = episode_idx
+        # load dummy env first
+        env = self._get_libero_env()
+        super().__init__(env)
 
     @property
     def task(self):
