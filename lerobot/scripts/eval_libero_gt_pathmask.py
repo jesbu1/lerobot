@@ -89,14 +89,14 @@ def make_libero_env(
     Returns:
         gym.vector.VectorEnv: The parallelized gym.env instance.
     """
+    # TODO: fix this later for lerobot[libero]
+    # package_name = f"gym_{cfg.type}"
 
-    package_name = f"gym_{cfg.type}"
-
-    try:
-        importlib.import_module(package_name)
-    except ModuleNotFoundError as e:
-        print(f"{package_name} is not installed. Please install it with `pip install 'lerobot[{cfg.type}]'`")
-        raise e
+    # try:
+    #    importlib.import_module(package_name)
+    # except ModuleNotFoundError as e:
+    #    print(f"{package_name} is not installed. Please install it with `pip install 'lerobot[{cfg.type}]'`")
+    #    raise e
 
     env = gym.vector.SyncVectorEnv(
         LIBEROEnv(
