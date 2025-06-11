@@ -376,6 +376,21 @@ class LIBEROEnv(gym.Env):
     def num_tasks(self):
         return len(self._libero_task_suite.get_tasks())
 
+    def _construct_obs(self, obs):
+        flipped_agentview = obs["agentview_image"][::-1]
+        flipped_eye_in_hand = obs["eye_in_hand_image"][::-1]
+        new_obs = {}
+        new_obs["agentview_image"] = flipped_agentview
+        new_obs["eye_in_hand_image"] = flipped_eye_in_hand
+        new_obs["state"] = np.concatenate(
+            [
+                obs["robot0_eef_pos"],
+                LIBEROEnv._quat2axisangle(obs["robot0_eef_quat"]),
+                obs["robot0_gripper_qpos"],
+            ]
+        )
+        return new_obs
+
     def reset(self, task_idx: int, episode_idx: int, **kwargs):
         self.env, initial_states = self._get_libero_env(
             self.LIBERO_ENV_RESOLUTION, self.seed, task_idx, episode_idx
@@ -390,27 +405,15 @@ class LIBEROEnv(gym.Env):
             obs, _, _, info = self.env.step(self.LIBERO_DUMMY_ACTION)
             current_steps_waited += 1
         self.current_step = 0
-        return obs, info
+        self.obs = self._construct_obs(obs)
+        return self.obs, info
 
     def step(self, action):
         obs, reward, terminated, info = self.env.step(action)
         self.current_step += 1
         truncated = self.current_step >= self.max_steps
-        # vertically flip the images coming from LIBERO
-        flipped_agentview = obs["agentview_image"][::-1]
-        flipped_eye_in_hand = obs["eye_in_hand_image"][::-1]
-        new_obs = {}
-        new_obs["agentview_image"] = flipped_agentview
-        new_obs["eye_in_hand_image"] = flipped_eye_in_hand
-        new_obs["state"] = np.concatenate(
-            [
-                obs["robot0_eef_pos"],
-                LIBEROEnv._quat2axisangle(obs["robot0_eef_quat"]),
-                obs["robot0_gripper_qpos"],
-            ]
-        )
-
-        return new_obs, reward, terminated, truncated, info
+        self.obs = self._construct_obs(obs)
+        return self.obs, reward, terminated, truncated, info
 
     def _load_initial_states_from_h5(self, episode_idx: int):
         """Load initial states from HDF5 file."""
@@ -465,3 +468,6 @@ class LIBEROEnv(gym.Env):
             return np.zeros(3)
 
         return (quat[:3] * 2.0 * math.acos(quat[3])) / den
+
+    def render(self):
+        return self.obs["agentview_image"]
