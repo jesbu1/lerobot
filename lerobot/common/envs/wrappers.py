@@ -364,6 +364,7 @@ class LIBEROEnv(gym.Wrapper):
         self._episode_idx = episode_idx
         # load dummy env first
         env, _ = self._get_libero_env()
+        env.metadata = {}
         super().__init__(env)
 
     @property
