@@ -16,7 +16,6 @@ import numpy as np
 from openai import OpenAI
 from vila_utils.utils.prompts import get_prompt
 from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img, get_path_from_answer
-from vila_utils.utils.encode import draw_path_on_img, draw_binary_mask_on_img
 from vila_utils.utils.encode import scale_path
 
 
