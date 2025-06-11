@@ -167,8 +167,6 @@ class LIBEROEnv(EnvConfig):
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
-            "agentview_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
-            "robot0_eye_in_hand_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
             "agent_pos": PolicyFeature(
                 type=FeatureType.STATE, shape=(8,)
             ),  # agent_pos is required name for lerobot
@@ -184,10 +182,7 @@ class LIBEROEnv(EnvConfig):
     )
 
     def __post_init__(self):
-        self.features["agentview_image"] = PolicyFeature(
-            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
-        )
-        self.features["robot0_eye_in_hand_image"] = PolicyFeature(
+        self.features["pixels"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
 
