@@ -352,15 +352,15 @@ class LIBEROEnv(gym.Env):
         self.task_suite_name = task_suite_name
         self.seed = seed
         if task_suite_name == "libero_spatial":
-            self.max_steps = 220  # longest training demo has 193 steps
+            self._max_episode_steps = 220  # longest training demo has 193 steps
         elif task_suite_name == "libero_object":
-            self.max_steps = 280  # longest training demo has 254 steps
+            self._max_episode_steps = 280  # longest training demo has 254 steps
         elif task_suite_name == "libero_goal":
-            self.max_steps = 300  # longest training demo has 270 steps
+            self._max_episode_steps = 300  # longest training demo has 270 steps
         elif task_suite_name == "libero_10":
-            self.max_steps = 520  # longest training demo has 505 steps
+            self._max_episode_steps = 520  # longest training demo has 505 steps
         elif task_suite_name == "libero_90":
-            self.max_steps = 400  # longest training demo has 373 steps
+            self._max_episode_steps = 400  # longest training demo has 373 steps
         else:
             raise ValueError(f"Unknown task suite: {task_suite_name}")
         benchmark_dict = benchmark.get_benchmark_dict()
@@ -433,8 +433,12 @@ class LIBEROEnv(gym.Env):
     def step(self, action):
         obs, reward, terminated, info = self.env.step(action)
         self.current_step += 1
-        truncated = self.current_step >= self.max_steps
+        truncated = self.current_step >= self._max_episode_steps
         self.obs = self._construct_obs(obs)
+        if terminated:
+            info["is_success"] = True
+        else:
+            info["is_success"] = False
         return self.obs, reward, terminated, truncated, info
 
     def _load_initial_states_from_h5(self, episode_idx: int):
