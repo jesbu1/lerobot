@@ -98,16 +98,21 @@ def make_libero_env(
     #    print(f"{package_name} is not installed. Please install it with `pip install 'lerobot[{cfg.type}]'`")
     #    raise e
 
+    n_envs = 1
+
     env = gym.vector.SyncVectorEnv(
-        LIBEROEnv(
-            task_suite_name=cfg.task_suite_name,
-            seed=cfg.seed,
-            resolution=cfg.resolution,
-            libero_hdf5_dir=cfg.libero_hdf5_dir,
-            load_gt_initial_states=cfg.load_gt_initial_states,
-            task_idx=task_idx,
-            episode_idx=episode_idx,
-        )
+        [
+            lambda x: LIBEROEnv(
+                task_suite_name=cfg.task_suite_name,
+                seed=cfg.seed,
+                resolution=cfg.resolution,
+                libero_hdf5_dir=cfg.libero_hdf5_dir,
+                load_gt_initial_states=cfg.load_gt_initial_states,
+                task_idx=task_idx,
+                episode_idx=episode_idx,
+            )
+            for _ in range(n_envs)
+        ]
     )
 
     return env
