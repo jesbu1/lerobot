@@ -376,11 +376,15 @@ class LIBEROEnv(gym.Env):
         self.render_mode = "rgb_array"
         self.observation_space = spaces.Dict(
             {
-                "agentview_image": spaces.Box(
-                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
-                ),
-                "robot0_eye_in_hand_image": spaces.Box(
-                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                "pixels": spaces.Dict(
+                    {
+                        "agentview_image": spaces.Box(
+                            0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                        ),
+                        "robot0_eye_in_hand_image": spaces.Box(
+                            0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                        ),
+                    }
                 ),
                 "agent_pos": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
