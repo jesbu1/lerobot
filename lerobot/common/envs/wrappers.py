@@ -325,7 +325,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         return obs, reward, terminated, truncated, info
 
 
-class LIBEROEnv(gym.Env):
+class LIBEROEnv(gym.Wrapper):
     LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 
     def __init__(
@@ -338,7 +338,7 @@ class LIBEROEnv(gym.Env):
         libero_hdf5_dir: str = None,
         load_gt_initial_states: bool = False,
     ):
-        super().__init__()
+        super().__init__(None)
         self.LIBERO_ENV_RESOLUTION = resolution
         self.num_steps_wait = 10
         self._task = None
