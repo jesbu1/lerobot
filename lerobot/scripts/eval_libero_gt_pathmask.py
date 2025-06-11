@@ -62,9 +62,9 @@ from lerobot.configs.eval import EvalPipelineConfig as BaseEvalPipelineConfig
 
 @dataclass
 class EvalPipelineConfig(BaseEvalPipelineConfig):
-    path_and_mask_h5_file: str
-    draw_path: bool
-    draw_mask: bool
+    path_and_mask_h5_file: str | None = None
+    draw_path: bool = True
+    draw_mask: bool = True
     image_key: str = "agentview_image"
     every_n_steps: int = 50
 
@@ -115,6 +115,8 @@ def make_libero_env(
 @parser.wrap()
 def eval_main(cfg: EvalPipelineConfig):
     logging.info(pformat(asdict(cfg)))
+
+    assert cfg.path_and_mask_h5_file is not None, "path_and_mask_h5_file is required"
 
     # Check device is available
     device = get_safe_torch_device(cfg.policy.device, log=True)
