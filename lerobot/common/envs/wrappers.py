@@ -508,4 +508,4 @@ class LIBEROEnv(gym.Env):
         return (quat[:3] * 2.0 * math.acos(quat[3])) / den
 
     def render(self):
-        return self.obs["agentview_image"]
+        return self.obs["pixels"]["agentview_image"]
