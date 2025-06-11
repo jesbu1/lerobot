@@ -65,7 +65,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     path_and_mask_h5_file: str | None = None
     draw_path: bool = True
     draw_mask: bool = True
-    image_key: str = "agentview_image"
+    image_key: str = "image"
     every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
 
 

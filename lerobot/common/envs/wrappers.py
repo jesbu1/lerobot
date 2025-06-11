@@ -276,7 +276,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         path_and_mask_h5_file: str,
         draw_path: bool,
         draw_mask: bool,
-        image_key="agentview_image",
+        image_key="image",
         every_n_steps: int = 50,
     ):
         """
@@ -430,19 +430,19 @@ class LIBEROEnv(gym.Env):
         self._episode_idx = episode_idx
         # load dummy env first
         # env, _ = self._get_libero_env()
-        self.metadata = {}
+        self.metadata = {"render_fps" : 10}
         self.render_mode = "rgb_array"
         self.observation_space = spaces.Dict(
             {
                 "pixels": spaces.Dict(
                     {
-                        "agentview_image": spaces.Box(
+                        "image": spaces.Box(
                             0,
                             255,
                             shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
                             dtype=np.uint8,
                         ),
-                        "robot0_eye_in_hand_image": spaces.Box(
+                        "image_wrist": spaces.Box(
                             0,
                             255,
                             shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
@@ -475,10 +475,10 @@ class LIBEROEnv(gym.Env):
         new_obs = {}
         pixels = {}
         # following stupid lerobot hardcoded pixels naming...
-        pixels["agentview_image"] = convert_to_uint8(
+        pixels["image"] = convert_to_uint8(
             resize_with_pad(flipped_agentview, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
         )
-        pixels["robot0_eye_in_hand_image"] = convert_to_uint8(
+        pixels["image_wrist"] = convert_to_uint8(
             resize_with_pad(flipped_eye_in_hand, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
         )
         new_obs["pixels"] = pixels
@@ -576,4 +576,4 @@ class LIBEROEnv(gym.Env):
         return (quat[:3] * 2.0 * math.acos(quat[3])) / den
 
     def render(self):
-        return self.obs["pixels"]["agentview_image"]
+        return self.obs["pixels"]["image"]

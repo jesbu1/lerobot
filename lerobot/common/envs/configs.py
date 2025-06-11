@@ -186,16 +186,16 @@ class LIBEROEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "agent_pos": OBS_ROBOT,  # agent_pos is required name for lerobot
-            "pixels/agentview_image": "image",
-            "pixels/robot0_eye_in_hand_image": "wrist_image",
+            "pixels/image": f"{OBS_IMAGES}.image", # need to make sure this matches with the pre-trained model's input name
+            "pixels/image_wrist": f"{OBS_IMAGES}.image_wrist", # need to make sure this matches 
         }
     )
 
     def __post_init__(self):
-        self.features[f"pixels/agentview_image"] = PolicyFeature(
+        self.features[f"pixels/image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
-        self.features["pixels/robot0_eye_in_hand_image"] = PolicyFeature(
+        self.features["pixels/image_wrist"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
 
