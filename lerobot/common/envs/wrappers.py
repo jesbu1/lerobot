@@ -268,7 +268,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         self.current_path, self.current_mask = self._load_path_and_mask_from_h5(
             self.env.task,
             self.env.episode_idx,
-            obs[self.image_key].shape,
+            obs["pixels"][self.image_key].shape,
         )
         self.num_steps_since_last_draw = 0
         return self._modify_observation(obs), info
