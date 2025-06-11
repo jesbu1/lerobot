@@ -358,14 +358,12 @@ class LIBEROEnv(gym.Env):
             raise ValueError(f"Unknown task suite: {task_suite_name}")
         benchmark_dict = benchmark.get_benchmark_dict()
         self._libero_task_suite = benchmark_dict[self.task_suite_name]()
-        self._libero_hdf5_dir = libero_hdf5_dir or os.path.join(
-            get_libero_path("hdf5_files"), self.task_suite_name
-        )
+        self._libero_hdf5_dir = libero_hdf5_dir
         self.load_gt_initial_states = load_gt_initial_states
-        self._episode_idx = 0
         self.current_step = 0
-        self.task_idx = task_idx
-        self.episode_idx = episode_idx
+        self._task_idx = task_idx
+        self._episode_idx = episode_idx
+
     @property
     def task(self):
         return str(self._task)
@@ -394,9 +392,7 @@ class LIBEROEnv(gym.Env):
         return new_obs
 
     def reset(self, **kwargs):
-        self.env, initial_states = self._get_libero_env(
-            self.LIBERO_ENV_RESOLUTION, self.seed, self.task_idx, self.episode_idx
-        )
+        self.env, initial_states = self._get_libero_env()
         obs, info = self.env.reset(**kwargs)
 
         if self.load_gt_initial_states:
@@ -429,14 +425,14 @@ class LIBEROEnv(gym.Env):
 
         raise ValueError(f"Could not find task name {self.task} in HDF5 files")
 
-    def _get_libero_env(self, seed, task_idx, episode_idx):
+    def _get_libero_env(self):
         """Initializes and returns the LIBERO environment, along with the task description."""
-        task_description = self._libero_task_suite.get_task(task_idx).language
+        task_description = self._libero_task_suite.get_task(self._task_idx).language
         self._task = task_description
         task_bddl_file = (
             pathlib.Path(get_libero_path("bddl_files"))
-            / self._libero_task_suite.get_task(task_idx).problem_folder
-            / self._libero_task_suite.get_task(task_idx).bddl_file
+            / self._libero_task_suite.get_task(self._task_idx).problem_folder
+            / self._libero_task_suite.get_task(self._task_idx).bddl_file
         )
         env_args = {
             "bddl_file_name": task_bddl_file,
@@ -444,9 +440,11 @@ class LIBEROEnv(gym.Env):
             "camera_widths": self.LIBERO_ENV_RESOLUTION,
         }
         env = OffScreenRenderEnv(**env_args)
-        env.seed(seed)  # IMPORTANT: seed seems to affect object positions even when using fixed initial state
+        env.seed(
+            self.seed
+        )  # IMPORTANT: seed seems to affect object positions even when using fixed initial state
         if self.load_gt_initial_states:
-            initial_states = self._load_initial_states_from_h5(episode_idx)
+            initial_states = self._load_initial_states_from_h5(self._episode_idx)
         else:
             initial_states = None
 
