@@ -408,7 +408,9 @@ class LIBEROEnv(gym.Env):
         )
         return new_obs
 
-    def reset(self, **kwargs):
+    def reset(self, seed=None, **kwargs):
+        if seed is not None:
+            self.seed = seed
         self.env, initial_states = self._get_libero_env()
         obs, info = self.env.reset(**kwargs)
 
