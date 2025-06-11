@@ -378,7 +378,7 @@ class LIBEROEnv(gym.Wrapper):
                 "state": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
         )
-        env.action_space = None
+        env.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
         super().__init__(env)
 
     @property
