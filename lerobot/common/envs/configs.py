@@ -158,8 +158,8 @@ class XarmEnv(EnvConfig):
 @EnvConfig.register_subclass("libero")
 @dataclass
 class LIBEROEnv(EnvConfig):
-    task_suite_name: str
-    seed: int
+    task_suite_name: str | None = None
+    seed: int = 42
     resolution: int = 256
     render_mode: str = "rgb_array"
     libero_hdf5_dir: str = None
