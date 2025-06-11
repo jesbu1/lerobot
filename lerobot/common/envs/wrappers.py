@@ -308,14 +308,20 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             # Get path data
             path = f_annotation["gripper_positions"]  # Get path
 
+            # Get mask data
+            significant_points = f_annotation["significant_points"][0]
+            stopped_points = f_annotation["stopped_points"][0]
+            mask = np.concatenate([significant_points, stopped_points], axis=0)
+
             # Scale path and mask to 0, 1-normalized coordinates for VLM to scale back to image coords.
             w, h = img_shape[:2]
             min_in, max_in = np.zeros(2), np.array([w, h])
             min_out, max_out = np.zeros(2), np.ones(2)
             path = scale_path(path, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
-            masked_images = f_annotation["masked_frames"][()]
+            mask = scale_path(mask, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
 
-            return path, masked_images
+            return path, mask
+
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
