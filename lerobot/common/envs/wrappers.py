@@ -405,8 +405,12 @@ class LIBEROEnv(gym.Env):
         flipped_agentview = obs["agentview_image"][::-1]
         flipped_eye_in_hand = obs["robot0_eye_in_hand_image"][::-1]
         new_obs = {}
-        new_obs["agentview_image"] = flipped_agentview
-        new_obs["robot0_eye_in_hand_image"] = flipped_eye_in_hand
+        pixels = {}
+        # following stupid lerobot hardcoded pixels naming...
+        pixels["agentview_image"] = flipped_agentview
+        pixels["robot0_eye_in_hand_image"] = flipped_eye_in_hand
+        new_obs["pixels"] = pixels
+        # following stupid lerobot hardcoded agent_pos naming...
         new_obs["agent_pos"] = np.concatenate(
             [
                 obs["robot0_eef_pos"],
