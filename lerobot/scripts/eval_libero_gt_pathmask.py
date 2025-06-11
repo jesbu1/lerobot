@@ -66,11 +66,16 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     draw_path: bool = True
     draw_mask: bool = True
     image_key: str = "agentview_image"
-    every_n_steps: int = 50
+    every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
 
 
 def make_libero_env(
-    cfg: LIBEROEnvConfig,
+    env_cfg: LIBEROEnvConfig,
+    path_and_mask_h5_file: str,
+    draw_path: bool,
+    draw_mask: bool,
+    image_key: str,
+    every_n_steps: int,
     task_idx: int,
     episode_idx: int,
 ) -> gym.vector.VectorEnv | None:
@@ -102,14 +107,21 @@ def make_libero_env(
 
     env = gym.vector.SyncVectorEnv(
         [
-            lambda: LIBEROEnv(
-                task_suite_name=cfg.task_suite_name,
-                seed=cfg.seed,
-                resolution=cfg.resolution,
-                libero_hdf5_dir=cfg.libero_hdf5_dir,
-                load_gt_initial_states=cfg.load_gt_initial_states,
-                task_idx=task_idx,
-                episode_idx=episode_idx,
+            lambda: GroundTruthPathMaskWrapper(
+                LIBEROEnv(
+                    task_suite_name=env_cfg.task_suite_name,
+                    seed=env_cfg.seed,
+                    resolution=env_cfg.resolution,
+                    libero_hdf5_dir=env_cfg.libero_hdf5_dir,
+                    load_gt_initial_states=env_cfg.load_gt_initial_states,
+                    task_idx=task_idx,
+                    episode_idx=episode_idx,
+                ),
+                path_and_mask_h5_file=path_and_mask_h5_file,
+                draw_path=draw_path,
+                draw_mask=draw_mask,
+                image_key=image_key,
+                every_n_steps=every_n_steps,
             )
             for _ in range(n_envs)
         ]
@@ -137,18 +149,18 @@ def eval_main(cfg: EvalPipelineConfig):
         for task_idx in range(env.envs[0].num_tasks):
             for episode_idx in range(50):
                 logging.info(f"Making environment for task {task_idx} and episode {episode_idx}.")
-                env = make_libero_env(cfg.env, task_idx=task_idx, episode_idx=episode_idx)
-
-                logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
-                env = GroundTruthPathMaskWrapper(
-                    env,
+                env = make_libero_env(
+                    env_cfg=cfg.env,
                     path_and_mask_h5_file=cfg.path_and_mask_h5_file,
                     draw_path=cfg.draw_path,
                     draw_mask=cfg.draw_mask,
                     image_key=cfg.image_key,
                     every_n_steps=cfg.every_n_steps,
+                    task_idx=task_idx,
+                    episode_idx=episode_idx,
                 )
 
+                logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
                 logging.info("Making policy.")
 
                 policy = make_policy(
