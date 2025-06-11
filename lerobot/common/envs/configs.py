@@ -182,7 +182,10 @@ class LIBEROEnv(EnvConfig):
     )
 
     def __post_init__(self):
-        self.features["pixels"] = PolicyFeature(
+        self.features["pixels/agentview_image"] = PolicyFeature(
+            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        )
+        self.features["pixels/robot0_eye_in_hand_image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
 
