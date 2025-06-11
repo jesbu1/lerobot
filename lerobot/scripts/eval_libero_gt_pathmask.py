@@ -134,7 +134,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
     env = make_libero_env(cfg.env, 0, 0)
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
-        for task_idx in range(env.num_tasks):
+        for task_idx in range(env.envs[0].num_tasks):
             for episode_idx in range(50):
                 logging.info(f"Making environment for task {task_idx} and episode {episode_idx}.")
                 env = make_libero_env(cfg.env, task_idx=task_idx, episode_idx=episode_idx)
