@@ -144,7 +144,16 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
-    env = make_libero_env(cfg.env, 0, 0)
+    env = make_libero_env(
+        env_cfg=cfg.env,
+        path_and_mask_h5_file=cfg.path_and_mask_h5_file,
+        draw_path=cfg.draw_path,
+        draw_mask=cfg.draw_mask,
+        image_key=cfg.image_key,
+        every_n_steps=cfg.every_n_steps,
+        task_idx=0,
+        episode_idx=0,
+    )
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
             for episode_idx in range(50):
