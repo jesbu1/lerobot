@@ -148,6 +148,8 @@ class ACTPolicy(PreTrainedPolicy):
         if self.config.image_features:
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = [batch[key] for key in self.config.image_features]
+        if self.config.use_language:
+            batch["lang_embed"] = self.config._lang_encoder.encode(batch["task"])
 
         batch = self.normalize_targets(batch)
         actions_hat, (mu_hat, log_sigma_x2_hat) = self.model(batch)
@@ -288,9 +290,9 @@ class ACT(nn.Module):
                    │      │     │     ├─────►│decoder│  │
               ┌────┴────┐ │     │     │      │       │  │
               │         │ │     │ ┌───┴───┬─►│       │  │
-              │ VAE     │ │     │ │       │  └───────┘  │
-              │ encoder │ │     │ │Transf.│             │
-              │         │ │     │ │encoder│             │
+              │ VAE     │ │     │ │       │  └────▲──┘  │
+              │ encoder │ │     │ │Transf.│       │     |
+              │         │ │     │ │encoder│    language │
               └───▲─────┘ │     │ │       │             │
                   │       │     │ └▲──▲─▲─┘             │
                   │       │     │  │  │ │               │
@@ -370,6 +372,12 @@ class ACT(nn.Module):
         self.encoder_1d_feature_pos_embed = nn.Embedding(n_1d_tokens, config.dim_model)
         if self.config.image_features:
             self.encoder_cam_feat_pos_embed = ACTSinusoidalPositionEmbedding2d(config.dim_model // 2)
+
+        if self.config.use_language:
+            self.lang_input_proj = nn.Linear(
+                384, config.dim_model
+            )  # 384 is the dimension of the language embeddings, hardcoded for now
+            self.lang_pos_embed = nn.Embedding(0, config.dim_model)
 
         # Transformer decoder.
         # Learnable positional embedding for the transformer's decoder (in the style of DETR object queries).
@@ -514,6 +522,12 @@ class ACT(nn.Module):
             dtype=encoder_in_pos_embed.dtype,
             device=encoder_in_pos_embed.device,
         )
+        if self.config.use_language:
+            lang_embed = einops.rearrange(self.lang_input_proj(batch["lang_embed"]), "b d -> 1 b d")
+            encoder_out = torch.cat([encoder_out, self.lang_input_proj(batch["lang_embed"])], dim=0)
+            encoder_in_pos_embed = torch.cat(
+                [encoder_in_pos_embed, self.lang_pos_embed.weight.unsqueeze(1)], dim=0
+            )
         decoder_out = self.decoder(
             decoder_in,
             encoder_out,

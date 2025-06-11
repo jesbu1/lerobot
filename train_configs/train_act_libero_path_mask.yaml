@@ -54,8 +54,9 @@ policy:
     action:
       type: "ACTION"
       shape: [7]
-  chunk_size: 50
-  n_action_steps: 50
+  chunk_size: 10
+  n_action_steps: 10
+  use_language: true
 
 # Optimizer configuration
 optimizer:

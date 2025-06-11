@@ -19,6 +19,8 @@ from lerobot.common.optim.optimizers import AdamWConfig
 from lerobot.configs.policies import PreTrainedConfig
 from lerobot.configs.types import NormalizationMode
 
+from sentence_transformers import SentenceTransformer
+
 
 @PreTrainedConfig.register_subclass("act")
 @dataclass
@@ -124,6 +126,9 @@ class ACTConfig(PreTrainedConfig):
     latent_dim: int = 32
     n_vae_encoder_layers: int = 4
 
+    # Language
+    use_language: bool = False  # conditions the decoder on language tokens
+
     # Inference.
     # Note: the value used in ACT when temporal ensembling is enabled is 0.01.
     temporal_ensemble_coeff: float | None = None
@@ -159,6 +164,8 @@ class ACTConfig(PreTrainedConfig):
             raise ValueError(
                 f"Multiple observation steps not handled yet. Got `nobs_steps={self.n_obs_steps}`"
             )
+        if self.use_language:
+            self._lang_encoder = SentenceTransformer("all-MiniLM-L6-v2")
 
     def get_optimizer_preset(self) -> AdamWConfig:
         return AdamWConfig(
