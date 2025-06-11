@@ -412,7 +412,7 @@ class LIBEROEnv(gym.Env):
         if seed is not None:
             self.seed = seed
         self.env, initial_states = self._get_libero_env()
-        obs, _ = self.env.reset(**kwargs)
+        obs = self.env.reset(**kwargs)
 
         if self.load_gt_initial_states:
             self.env.set_init_state(initial_states)
