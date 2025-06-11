@@ -1,4 +1,5 @@
 import gymnasium as gym
+import os
 import pathlib
 import numpy as np
 import h5py
@@ -327,7 +328,14 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 class LIBEROEnv(gym.Env):
     LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
 
-    def __init__(self, task_suite_name: str, seed: int, resolution: int = 256):
+    def __init__(
+        self,
+        task_suite_name: str,
+        seed: int,
+        resolution: int = 256,
+        libero_hdf5_dir: str = None,
+        load_gt_initial_states: bool = False,
+    ):
         super().__init__()
         self.LIBERO_ENV_RESOLUTION = resolution
         self.num_steps_wait = 10
@@ -348,6 +356,10 @@ class LIBEROEnv(gym.Env):
             raise ValueError(f"Unknown task suite: {task_suite_name}")
         benchmark_dict = benchmark.get_benchmark_dict()
         self._libero_task_suite = benchmark_dict[self.task_suite_name]()
+        self._libero_hdf5_dir = libero_hdf5_dir or os.path.join(
+            get_libero_path("hdf5_files"), self.task_suite_name
+        )
+        self.load_gt_initial_states = load_gt_initial_states
 
     @property
     def task(self):
@@ -357,8 +369,14 @@ class LIBEROEnv(gym.Env):
     def num_tasks(self):
         return len(self._libero_task_suite.get_tasks())
 
-    def reset(self, episode_id=None, **kwargs):
-        obs, info = self.env.reset(episode_id=episode_id, **kwargs)
+    def reset(self, task_idx: int, episode_idx: int, **kwargs):
+        self.env, initial_states = self._get_libero_env(
+            self.LIBERO_ENV_RESOLUTION, self.seed, task_idx, episode_idx
+        )
+        obs, info = self.env.reset(**kwargs)
+
+        if self.load_gt_initial_states:
+            self.env.set_init_state(initial_states)
         current_steps_waited = 0
         while current_steps_waited < self.num_steps_wait:
             obs, _, _, info = self.env.step(self.LIBERO_DUMMY_ACTION)
@@ -374,13 +392,27 @@ class LIBEROEnv(gym.Env):
         obs["eye_in_hand_image"] = flipped_eye_in_hand
         return obs, reward, terminated, truncated, info
 
-    def _get_libero_env(self, resolution, seed):
+    def _load_initial_states_from_h5(self, episode_idx: int):
+        """Load initial states from HDF5 file."""
+        # get the hdf5 names
+        hdf5_names = os.listdir(self._libero_hdf5_dir)
+        task_name_underscore = self.task.replace(" ", "_")
+        for hdf5_name in hdf5_names:
+            if task_name_underscore not in hdf5_name:
+                continue
+            with h5py.File(os.path.join(self._libero_hdf5_dir, hdf5_name), "r", swmr=True) as f:
+                return f["data"][f"demo_{episode_idx}"]["states"][0]
+
+        raise ValueError(f"Could not find task name {self.task} in HDF5 files")
+
+    def _get_libero_env(self, seed, task_idx, episode_idx):
         """Initializes and returns the LIBERO environment, along with the task description."""
-        task_description = self._libero_task_suite.get_task(self.task).language
+        task_description = self._libero_task_suite.get_task(task_idx).language
+        self._task = task_description
         task_bddl_file = (
             pathlib.Path(get_libero_path("bddl_files"))
-            / self._libero_task_suite.get_task(self.task).problem_folder
-            / self._libero_task_suite.get_task(self.task).bddl_file
+            / self._libero_task_suite.get_task(task_idx).problem_folder
+            / self._libero_task_suite.get_task(task_idx).bddl_file
         )
         env_args = {
             "bddl_file_name": task_bddl_file,
@@ -389,4 +421,9 @@ class LIBEROEnv(gym.Env):
         }
         env = OffScreenRenderEnv(**env_args)
         env.seed(seed)  # IMPORTANT: seed seems to affect object positions even when using fixed initial state
-        return env, task_description
+        if self.load_gt_initial_states:
+            initial_states = self._load_initial_states_from_h5(episode_idx)
+        else:
+            initial_states = None
+
+        return env, initial_states
