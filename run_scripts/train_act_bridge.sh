@@ -2,10 +2,10 @@
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
-#SBATCH --cpus-per-task=32
-#SBATCH --mem=128G
+#SBATCH --cpus-per-task=28
+#SBATCH --mem=120G
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:l40s:1
+#SBATCH --gres=gpu:a40:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
@@ -20,11 +20,11 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
 RESUME=false
 
-EXP_NAME=train_act_bridge_2cam
+EXP_NAME=train_act_bridge_2cam_lang
 PROJ_NAME=lerobot
 
-BASE_TRAIN_CMD="--config_path=train_configs/train_act_bridge.yaml --wandb.run_id=$EXP_NAME"
-RESUME_TRAIN_CMD="--config_path=outputs/train_act_bridge_2cam/checkpoints/last/pretrained_model/train_config.json --resume=true"
+BASE_TRAIN_CMD="--config_path=train_configs/train_act_bridge.yaml --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --wandb.run_id=$EXP_NAME"
+RESUME_TRAIN_CMD="--config_path=outputs/$EXP_NAME/checkpoints/last/pretrained_model/train_config.json --resume=true"
 
 TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py"
 if [ "$RESUME" = true ]; then

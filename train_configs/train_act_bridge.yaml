@@ -7,8 +7,8 @@ log_freq: 100
 save_freq: 5000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_act_bridge_2cam"
-job_name: "train_act_bridge_2cam"
+output_dir: "outputs/train_act_bridge_2cam_lang"
+job_name: "train_act_bridge_2cam_lang"
 
 # Dataset configuration
 dataset:
@@ -39,6 +39,7 @@ policy:
       shape: [7]
   chunk_size: 50
   n_action_steps: 50
+  use_language: true
 
 # Optimizer configuration
 optimizer:
@@ -58,4 +59,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_act_bridge_2cam"
+  run_id: "train_act_bridge_2cam_lang"

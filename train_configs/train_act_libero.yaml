@@ -21,8 +21,8 @@ log_freq: 100
 save_freq: 1000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_act_libero"
-job_name: "train_act_libero"
+output_dir: "outputs/train_act_libero_lang"
+job_name: "train_act_libero_lang"
 
 # Dataset configuration
 dataset:
@@ -77,4 +77,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_act_libero"
+  run_id: "train_act_libero_lang"
