@@ -154,3 +154,46 @@ class XarmEnv(EnvConfig):
             "visualization_height": self.visualization_height,
             "max_episode_steps": self.episode_length,
         }
+
+@EnvConfig.register_subclass("libero")
+@dataclass
+class LIBEROEnv(EnvConfig):
+    task_suite_name: str
+    seed: int
+    resolution: int = 256
+    render_mode: str = "rgb_array"
+    libero_hdf5_dir: str = None
+    load_gt_initial_states: bool = False
+    features: dict[str, PolicyFeature] = field(
+        default_factory=lambda: {
+            "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
+            "agentview_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
+            "eye_in_hand_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
+            "state": PolicyFeature(type=FeatureType.STATE, shape=(8,)),
+        }
+    )
+    features_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "action": ACTION,
+            "state": OBS_ROBOT,
+            "agentview_image": f"{OBS_IMAGES}.image",
+            "eye_in_hand_image": f"{OBS_IMAGES}.wrist_image",
+        }
+    )
+
+    def __post_init__(self):
+        self.features["agentview_image"] = PolicyFeature(
+            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        )
+        self.features["eye_in_hand_image"] = PolicyFeature(
+            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        )
+
+    @property
+    def gym_kwargs(self) -> dict:
+        # probably not used, we will write our own env make function
+        return {
+            "render_mode": self.render_mode,
+            "visualization_width": self.resolution,
+            "visualization_height": self.resolution,
+        }

@@ -1,5 +1,6 @@
 import gymnasium as gym
 import os
+import math
 import pathlib
 import numpy as np
 import h5py
@@ -361,6 +362,7 @@ class LIBEROEnv(gym.Env):
         )
         self.load_gt_initial_states = load_gt_initial_states
         self._episode_idx = 0
+        self.current_step = 0
 
     @property
     def task(self):
@@ -387,16 +389,28 @@ class LIBEROEnv(gym.Env):
         while current_steps_waited < self.num_steps_wait:
             obs, _, _, info = self.env.step(self.LIBERO_DUMMY_ACTION)
             current_steps_waited += 1
+        self.current_step = 0
         return obs, info
 
     def step(self, action):
-        obs, reward, terminated, truncated, info = self.env.step(action)
+        obs, reward, terminated, info = self.env.step(action)
+        self.current_step += 1
+        truncated = self.current_step >= self.max_steps
         # vertically flip the images coming from LIBERO
         flipped_agentview = obs["agentview_image"][::-1]
         flipped_eye_in_hand = obs["eye_in_hand_image"][::-1]
-        obs["agentview_image"] = flipped_agentview
-        obs["eye_in_hand_image"] = flipped_eye_in_hand
-        return obs, reward, terminated, truncated, info
+        new_obs = {}
+        new_obs["agentview_image"] = flipped_agentview
+        new_obs["eye_in_hand_image"] = flipped_eye_in_hand
+        new_obs["state"] = np.concatenate(
+            [
+                obs["robot0_eef_pos"],
+                LIBEROEnv._quat2axisangle(obs["robot0_eef_quat"]),
+                obs["robot0_gripper_qpos"],
+            ]
+        )
+
+        return new_obs, reward, terminated, truncated, info
 
     def _load_initial_states_from_h5(self, episode_idx: int):
         """Load initial states from HDF5 file."""
@@ -433,3 +447,21 @@ class LIBEROEnv(gym.Env):
             initial_states = None
 
         return env, initial_states
+
+    @staticmethod
+    def _quat2axisangle(quat):
+        """
+        Copied from robosuite: https://github.com/ARISE-Initiative/robosuite/blob/eafb81f54ffc104f905ee48a16bb15f059176ad3/robosuite/utils/transform_utils.py#L490C1-L512C55
+        """
+        # clip quaternion
+        if quat[3] > 1.0:
+            quat[3] = 1.0
+        elif quat[3] < -1.0:
+            quat[3] = -1.0
+
+        den = np.sqrt(1.0 - quat[3] * quat[3])
+        if math.isclose(den, 0.0):
+            # This is (close to) a zero degree rotation, immediately return
+            return np.zeros(3)
+
+        return (quat[:3] * 2.0 * math.acos(quat[3])) / den
