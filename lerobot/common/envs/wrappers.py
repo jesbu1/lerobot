@@ -437,10 +437,16 @@ class LIBEROEnv(gym.Env):
                 "pixels": spaces.Dict(
                     {
                         "agentview_image": spaces.Box(
-                            0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                            0,
+                            255,
+                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            dtype=np.uint8,
                         ),
                         "robot0_eye_in_hand_image": spaces.Box(
-                            0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                            0,
+                            255,
+                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            dtype=np.uint8,
                         ),
                     }
                 ),
