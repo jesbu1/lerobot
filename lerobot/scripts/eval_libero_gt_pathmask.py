@@ -43,6 +43,7 @@ import numpy as np
 import torch
 from datasets import load_dataset
 from termcolor import colored
+import wandb
 
 from lerobot.common.envs.factory import make_env
 from lerobot.common.policies.factory import make_policy
@@ -56,6 +57,7 @@ from lerobot.common.utils.utils import (
     get_safe_torch_device,
     init_logging,
 )
+from lerobot.common.utils.logging_utils import AverageMeter, MetricsTracker
 from lerobot.configs import parser
 from lerobot.configs.eval import EvalPipelineConfig as BaseEvalPipelineConfig
 
@@ -67,6 +69,13 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     draw_mask: bool = True
     image_key: str = "agentview_image"
     every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
+    # Wandb configuration
+    wandb_enable: bool = True
+    wandb_project: str = "lerobot-eval"
+    wandb_entity: str | None = None
+    wandb_name: str | None = None
+    wandb_notes: str | None = None
+    wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
 
 
 def make_libero_env(
@@ -144,6 +153,40 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
+    if cfg.wandb_enable:
+        wandb.init(
+            project=cfg.wandb_project,
+            entity=cfg.wandb_entity,
+            name=cfg.wandb_name,
+            notes=cfg.wandb_notes,
+            config=asdict(cfg),
+            mode=cfg.wandb_mode if cfg.wandb_mode in ["online", "offline", "disabled"] else "online",
+        )
+        logging.info(colored("Logs will be synced with wandb.", "blue", attrs=["bold"]))
+        logging.info(f"Track this run --> {colored(wandb.run.get_url(), 'yellow', attrs=['bold'])}")
+
+    #eval metrics from loggeing utils.py
+    eval_metrics = {
+        "avg_sum_reward": AverageMeter("∑rwrd", ":.3f"),
+        "pc_success": AverageMeter("success", ":.1f"),
+        "eval_s": AverageMeter("eval_s", ":.3f"),
+    }
+    eval_tracker = MetricsTracker(
+        cfg.eval.batch_size,
+        1,  # num_frames (not used in eval)
+        1,  # num_episodes (not used in eval)
+        eval_metrics,
+        initial_step=0,
+    )
+
+    # Initialize overall metrics aggregators
+    overall_metrics = {
+        "total_successes": 0,
+        "total_episodes": 0,
+        "total_reward": 0.0,
+        "total_eval_time": 0.0,
+    }
+
     env = make_libero_env(
         env_cfg=cfg.env,
         path_and_mask_h5_file=cfg.path_and_mask_h5_file,
@@ -156,6 +199,11 @@ def eval_main(cfg: EvalPipelineConfig):
     )
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
+            task_successes = 0
+            task_episodes = 0
+            task_reward = 0.0
+            task_eval_time = 0.0
+            
             for episode_idx in range(50):
                 logging.info(f"Making environment for task {task_idx} and episode {episode_idx}.")
                 env = make_libero_env(
@@ -185,13 +233,70 @@ def eval_main(cfg: EvalPipelineConfig):
                     videos_dir=Path(cfg.output_dir) / "videos",
                     start_seed=cfg.seed,
                 )
-                print(info["aggregated"])
+                
+                eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
+                eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
+                eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
+                task_successes += int(eval_tracker.pc_success > 0)
+                task_episodes += 1
+                task_reward += eval_tracker.avg_sum_reward
+                task_eval_time += eval_tracker.eval_s
+                overall_metrics["total_successes"] += int(eval_tracker.pc_success > 0)
+                overall_metrics["total_episodes"] += 1
+                overall_metrics["total_reward"] += eval_tracker.avg_sum_reward
+                overall_metrics["total_eval_time"] += eval_tracker.eval_s
+                
+                # Log episode-level metrics to wandb
+                if cfg.wandb_enable:
+                    wandb.log({
+                        f"task_{task_idx}/episode_{episode_idx}/success_rate": eval_tracker.pc_success,
+                        f"task_{task_idx}/episode_{episode_idx}/avg_reward": eval_tracker.avg_sum_reward,
+                        f"task_{task_idx}/episode_{episode_idx}/eval_time": eval_tracker.eval_s,
+                    })
+                    
+                    # Log videos if available
+                    if "video_paths" in info and len(info["video_paths"]) > 0:
+                        wandb.log({
+                            f"task_{task_idx}/episode_{episode_idx}/video": wandb.Video(info["video_paths"][0], fps=10)
+                        })
 
-    # Save info
+                # Print current metrics
+                print(info["aggregated"])
+                logging.info(f"Task {task_idx} success rate: {task_successes / task_episodes:.2f}")
+            
+            # Log task-level aggregated metrics
+            if cfg.wandb_enable:
+                wandb.log({
+                    f"task_{task_idx}/success_rate": task_successes / task_episodes,
+                    f"task_{task_idx}/total_episodes": task_episodes,
+                    f"task_{task_idx}/avg_reward": task_reward / task_episodes,
+                    f"task_{task_idx}/avg_eval_time": task_eval_time / task_episodes,
+                })
+
+    # Log overall aggregated metrics
+    if cfg.wandb_enable:
+        wandb.log({
+            "overall/success_rate": overall_metrics["total_successes"] / overall_metrics["total_episodes"],
+            "overall/total_episodes": overall_metrics["total_episodes"],
+            "overall/avg_reward": overall_metrics["total_reward"] / overall_metrics["total_episodes"],
+            "overall/avg_eval_time": overall_metrics["total_eval_time"] / overall_metrics["total_episodes"],
+        })
+
+    # Save info with aggregated metrics
+    info["aggregated"] = {
+        "overall_success_rate": overall_metrics["total_successes"] / overall_metrics["total_episodes"],
+        "total_episodes": overall_metrics["total_episodes"],
+        "avg_reward": overall_metrics["total_reward"] / overall_metrics["total_episodes"],
+        "avg_eval_time": overall_metrics["total_eval_time"] / overall_metrics["total_episodes"],
+    }
+    
     with open(Path(cfg.output_dir) / "eval_info.json", "w") as f:
         json.dump(info, f, indent=2)
 
     env.close()
+
+    if cfg.wandb_enable:
+        wandb.finish()
 
     logging.info("End of eval")
 
