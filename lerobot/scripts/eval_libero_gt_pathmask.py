@@ -1,4 +1,4 @@
-t"""Evaluate a policy on an environment with ground truth path/mask visualizations.
+"""Evaluate a policy on an environment with ground truth path/mask visualizations.
 
 Usage examples:
 
