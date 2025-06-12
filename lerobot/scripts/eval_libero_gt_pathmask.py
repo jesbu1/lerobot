@@ -67,6 +67,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     path_and_mask_h5_file: str | None = None
     draw_path: bool = True
     draw_mask: bool = True
+<<<<<<< HEAD
     image_key: str = "agentview_image"
     every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
     # Wandb configuration
@@ -76,6 +77,9 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_name: str | None = None
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
+=======
+    image_key: str = "image"
+>>>>>>> d3af5beea044e59e923035f6b8228cdcd770f434
 
 
 def make_libero_env(
@@ -84,7 +88,6 @@ def make_libero_env(
     draw_path: bool,
     draw_mask: bool,
     image_key: str,
-    every_n_steps: int,
     task_idx: int,
     episode_idx: int,
 ) -> gym.vector.VectorEnv | None:
@@ -130,7 +133,6 @@ def make_libero_env(
                 draw_path=draw_path,
                 draw_mask=draw_mask,
                 image_key=image_key,
-                every_n_steps=every_n_steps,
             )
             for _ in range(n_envs)
         ]
@@ -193,7 +195,6 @@ def eval_main(cfg: EvalPipelineConfig):
         draw_path=cfg.draw_path,
         draw_mask=cfg.draw_mask,
         image_key=cfg.image_key,
-        every_n_steps=cfg.every_n_steps,
         task_idx=0,
         episode_idx=0,
     )
@@ -212,7 +213,6 @@ def eval_main(cfg: EvalPipelineConfig):
                     draw_path=cfg.draw_path,
                     draw_mask=cfg.draw_mask,
                     image_key=cfg.image_key,
-                    every_n_steps=cfg.every_n_steps,
                     task_idx=task_idx,
                     episode_idx=episode_idx,
                 )

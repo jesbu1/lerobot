@@ -11,6 +11,7 @@ from gymnasium import spaces
 
 import re
 import time
+from PIL import Image
 import base64
 import cv2
 import numpy as np
@@ -27,6 +28,63 @@ DOWNSAMPLE_RESOLUTION = 256
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
 PATH_MODEL_NAME = "vila_3b_oxe_sim_path"
 PATH_MODEL_NAME_MASK = "vila_3b_oxe_sim_path_mask"
+
+def convert_to_uint8(img: np.ndarray) -> np.ndarray:
+    """Converts an image to uint8 if it is a float image.
+
+    This is important for reducing the size of the image when sending it over the network.
+    """
+    if np.issubdtype(img.dtype, np.floating):
+        img = (255 * img).astype(np.uint8)
+    return img
+
+
+def _resize_with_pad_pil(image: Image.Image, height: int, width: int, method: int) -> Image.Image:
+    """Replicates tf.image.resize_with_pad for one image using PIL. Resizes an image to a target height and
+    width without distortion by padding with zeros.
+
+    Unlike the jax version, note that PIL uses [width, height, channel] ordering instead of [batch, h, w, c].
+    """
+    cur_width, cur_height = image.size
+    if cur_width == width and cur_height == height:
+        return image  # No need to resize if the image is already the correct size.
+
+    ratio = max(cur_width / width, cur_height / height)
+    resized_height = int(cur_height / ratio)
+    resized_width = int(cur_width / ratio)
+    resized_image = image.resize((resized_width, resized_height), resample=method)
+
+    zero_image = Image.new(resized_image.mode, (width, height), 0)
+    pad_height = max(0, int((height - resized_height) / 2))
+    pad_width = max(0, int((width - resized_width) / 2))
+    zero_image.paste(resized_image, (pad_width, pad_height))
+    assert zero_image.size == (width, height)
+    return zero_image
+
+
+def resize_with_pad(images: np.ndarray, height: int, width: int, method=Image.BILINEAR) -> np.ndarray:
+    """Replicates tf.image.resize_with_pad for multiple images using PIL. Resizes a batch of images to a target height.
+
+    Args:
+        images: A batch of images in [..., height, width, channel] format.
+        height: The target height of the image.
+        width: The target width of the image.
+        method: The interpolation method to use. Default is bilinear.
+
+    Returns:
+        The resized images in [..., height, width, channel].
+    """
+    # If the images are already the correct size, return them as is.
+    if images.shape[-3:-1] == (height, width):
+        return images
+
+    original_shape = images.shape
+
+    images = images.reshape(-1, *original_shape[-3:])
+    resized = np.stack(
+        [_resize_with_pad_pil(Image.fromarray(im), height, width, method=method) for im in images]
+    )
+    return resized.reshape(*original_shape[:-3], *resized.shape[-3:])
 
 
 def draw_onto_image(vlm_path_mask_output, prompt_type, img, verbose=False):
@@ -179,7 +237,7 @@ def get_path_mask_from_vlm(
     temperature = 0.0
     for _ in range(5):
         try:
-            if path is None or mask is None:
+            if path is None and draw_path or mask is None and draw_mask:
                 prompt_type = "path_mask"
                 response_text = send_request(
                     image,
@@ -218,8 +276,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         path_and_mask_h5_file: str,
         draw_path: bool,
         draw_mask: bool,
-        image_key="agentview_image",
-        every_n_steps: int = 50,
+        image_key="image",
     ):
         """
         Args:
@@ -228,39 +285,45 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             draw_path: Whether to draw the path on the image
             draw_mask: Whether to draw the mask on the image
             image_key: The key in the observation dictionary that contains the image.
-            every_n_steps: The number of steps between each path and mask drawing.
         """
         super().__init__(env)
         self.path_and_mask_h5_file = path_and_mask_h5_file
         self.image_key = image_key
         self.draw_path = draw_path
         self.draw_mask = draw_mask
-        self.num_steps_since_last_draw = 0
-        self.every_n_steps = every_n_steps
 
         self.current_path = None
-        self.current_mask = None
+        self.current_masked_images = None
         self.rng = np.random.default_rng()
 
     def _modify_observation(self, obs):
         """Applies path and mask drawing to a single observation."""
-        if self.image_key not in obs:
+        if self.image_key not in obs["pixels"]:
             return obs
 
-        img = obs[self.image_key].copy()
+        img = obs["pixels"][self.image_key].copy()
+        mask = self.current_mask[self.env.current_step % len(self.current_mask)]
+        #mask_points = np.stack(mask.nonzero(), axis=1)
+        #min_in, max_in = np.zeros(2), np.array(mask.shape)
+        #min_out, max_out = np.zeros(2), np.ones(2)
+        #mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+        if self.draw_mask:
+            # mask directly
+            img = mask[..., None] * img
+
         img, _, _ = get_path_mask_from_vlm(
             img,
             "Center Crop",
             self.env.task,
             draw_path=self.draw_path,
-            draw_mask=self.draw_mask,
+            draw_mask=False,
             verbose=True,
             vlm_server_ip=None,
             path=self.current_path,
-            mask=self.current_mask,
+            mask=None,
         )
 
-        obs[self.image_key] = img
+        obs["pixels"][self.image_key] = img
         return obs
 
     def reset(self, **kwargs):
@@ -268,9 +331,8 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         self.current_path, self.current_mask = self._load_path_and_mask_from_h5(
             self.env.task,
             self.env.episode_idx,
-            obs[self.image_key].shape,
+            obs["pixels"][self.image_key].shape,
         )
-        self.num_steps_since_last_draw = 0
         return self._modify_observation(obs), info
 
     def _load_path_and_mask_from_h5(
@@ -309,26 +371,19 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             path = f_annotation["gripper_positions"]  # Get path
 
             # Get mask data
-            significant_points = f_annotation["significant_points"][0]
-            stopped_points = f_annotation["stopped_points"][0]
-            mask = np.concatenate([significant_points, stopped_points], axis=0)
+            masked_images = f_annotation["masked_frames"][()]
 
             # Scale path and mask to 0, 1-normalized coordinates for VLM to scale back to image coords.
             w, h = img_shape[:2]
             min_in, max_in = np.zeros(2), np.array([w, h])
             min_out, max_out = np.zeros(2), np.ones(2)
             path = scale_path(path, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
-            mask = scale_path(mask, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
 
-            return path, mask
-
+            return path, masked_images
 
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
-        self.num_steps_since_last_draw += 1
-        if self.num_steps_since_last_draw >= self.every_n_steps:
-            self.num_steps_since_last_draw = 0
-            obs = self._modify_observation(obs)
+        obs = self._modify_observation(obs)
         return obs, reward, terminated, truncated, info
 
 
@@ -372,15 +427,25 @@ class LIBEROEnv(gym.Env):
         self._episode_idx = episode_idx
         # load dummy env first
         # env, _ = self._get_libero_env()
-        self.metadata = {}
+        self.metadata = {"render_fps" : 10}
         self.render_mode = "rgb_array"
         self.observation_space = spaces.Dict(
             {
-                "agentview_image": spaces.Box(
-                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
-                ),
-                "robot0_eye_in_hand_image": spaces.Box(
-                    0, 255, shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3)
+                "pixels": spaces.Dict(
+                    {
+                        "image": spaces.Box(
+                            0,
+                            255,
+                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            dtype=np.uint8,
+                        ),
+                        "image_wrist": spaces.Box(
+                            0,
+                            255,
+                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            dtype=np.uint8,
+                        ),
+                    }
                 ),
                 "agent_pos": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
@@ -405,8 +470,16 @@ class LIBEROEnv(gym.Env):
         flipped_agentview = obs["agentview_image"][::-1]
         flipped_eye_in_hand = obs["robot0_eye_in_hand_image"][::-1]
         new_obs = {}
-        new_obs["agentview_image"] = flipped_agentview
-        new_obs["robot0_eye_in_hand_image"] = flipped_eye_in_hand
+        pixels = {}
+        # following stupid lerobot hardcoded pixels naming...
+        pixels["image"] = convert_to_uint8(
+            resize_with_pad(flipped_agentview, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
+        )
+        pixels["image_wrist"] = convert_to_uint8(
+            resize_with_pad(flipped_eye_in_hand, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
+        )
+        new_obs["pixels"] = pixels
+        # following stupid lerobot hardcoded agent_pos naming...
         new_obs["agent_pos"] = np.concatenate(
             [
                 obs["robot0_eef_pos"],
@@ -500,4 +573,4 @@ class LIBEROEnv(gym.Env):
         return (quat[:3] * 2.0 * math.acos(quat[3])) / den
 
     def render(self):
-        return self.obs["agentview_image"]
+        return self.obs["pixels"]["image"]

@@ -164,11 +164,11 @@ class LIBEROEnv(EnvConfig):
     render_mode: str = "rgb_array"
     libero_hdf5_dir: str = None
     load_gt_initial_states: bool = False
+    image_key: str = "image"
+    wrist_image_key: str = "wrist_image"
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
-            "agentview_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
-            "robot0_eye_in_hand_image": PolicyFeature(type=FeatureType.VISUAL, shape=(256, 256, 3)),
             "agent_pos": PolicyFeature(
                 type=FeatureType.STATE, shape=(8,)
             ),  # agent_pos is required name for lerobot
@@ -178,16 +178,16 @@ class LIBEROEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "agent_pos": OBS_ROBOT,  # agent_pos is required name for lerobot
-            "agentview_image": f"{OBS_IMAGES}.image",
-            "robot0_eye_in_hand_image": f"{OBS_IMAGES}.wrist_image",
+            "pixels/image": f"{OBS_IMAGES}.image", # need to make sure this matches with the pre-trained model's input name
+            "pixels/image_wrist": f"{OBS_IMAGES}.image_wrist", # need to make sure this matches 
         }
     )
 
     def __post_init__(self):
-        self.features["agentview_image"] = PolicyFeature(
+        self.features[f"pixels/image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
-        self.features["robot0_eye_in_hand_image"] = PolicyFeature(
+        self.features["pixels/image_wrist"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
 
