@@ -87,6 +87,7 @@ def rollout(
     seeds: list[int] | None = None,
     return_observations: bool = False,
     render_callback: Callable[[gym.vector.VectorEnv], None] | None = None,
+    reset_callback: Callable[[gym.vector.VectorEnv], None] | None = None,
 ) -> dict:
     """Run a batched policy rollout once through a batch of environments.
 
@@ -116,6 +117,7 @@ def rollout(
             are returned optionally because they typically take more memory to cache. Defaults to False.
         render_callback: Optional rendering callback to be used after the environments are reset, and after
             every step.
+        reset_callback: Optional reset callback to be used before the environment is reset.
     Returns:
         The dictionary described above.
     """
@@ -124,6 +126,8 @@ def rollout(
 
     # Reset the policy and environments.
     policy.reset()
+    if reset_callback is not None:
+        reset_callback(env)
     observation, info = env.reset(seed=seeds)
     if render_callback is not None:
         render_callback(env)
@@ -228,6 +232,7 @@ def eval_policy(
     videos_dir: Path | None = None,
     return_episode_data: bool = False,
     start_seed: int | None = None,
+    reset_callback: Callable[[gym.vector.VectorEnv], None] | None = None,
 ) -> dict:
     """
     Args:
@@ -240,6 +245,7 @@ def eval_policy(
             the "episodes" key of the returned dictionary.
         start_seed: The first seed to use for the first individual rollout. For all subsequent rollouts the
             seed is incremented by 1. If not provided, the environments are not manually seeded.
+        reset_callback: Optional reset callback to be used before the environment is reset.
     Returns:
         Dictionary with metrics and data regarding the rollouts.
     """
@@ -304,6 +310,7 @@ def eval_policy(
             seeds=list(seeds) if seeds else None,
             return_observations=return_episode_data,
             render_callback=render_frame if max_episodes_rendered > 0 else None,
+            reset_callback=reset_callback,
         )
 
         # Figure out where in each rollout sequence the first done condition was encountered (results after

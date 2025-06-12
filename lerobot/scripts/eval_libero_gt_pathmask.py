@@ -76,6 +76,13 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
 
+def reset_callback(envs: gym.vector.VectorEnv):
+    # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
+    number_of_envs = len(envs.envs)
+    for env in envs.envs:
+        original_episode_idx = env.episode_idx
+        env.set_episode_idx(original_episode_idx + number_of_envs)
+
 
 def make_libero_env(
     env_cfg: LIBEROEnvConfig,
@@ -84,7 +91,8 @@ def make_libero_env(
     draw_mask: bool,
     image_key: str,
     task_idx: int,
-    episode_idx: int,
+    start_episode_idx: int,
+    n_envs: int,
 ) -> gym.vector.VectorEnv | None:
     """Makes a gym vector environment according to the config.
 
@@ -110,8 +118,6 @@ def make_libero_env(
     #    print(f"{package_name} is not installed. Please install it with `pip install 'lerobot[{cfg.type}]'`")
     #    raise e
 
-    n_envs = 1
-
     env = gym.vector.SyncVectorEnv(
         [
             lambda: GroundTruthPathMaskWrapper(
@@ -122,22 +128,24 @@ def make_libero_env(
                     libero_hdf5_dir=env_cfg.libero_hdf5_dir,
                     load_gt_initial_states=env_cfg.load_gt_initial_states,
                     task_idx=task_idx,
-                    episode_idx=episode_idx,
+                    episode_idx=start_episode_idx + i,
                 ),
                 path_and_mask_h5_file=path_and_mask_h5_file,
                 draw_path=draw_path,
                 draw_mask=draw_mask,
                 image_key=image_key,
             )
-            for _ in range(n_envs)
+            for i in range(n_envs)
         ]
     )
 
     return env
 
+
 @parser.wrap()
 def eval_main(cfg: EvalPipelineConfig):
     logging.info(pformat(asdict(cfg)))
+    assert cfg.eval.n_episodes == 50, "n_episodes must be 50 for libero"
 
     assert cfg.path_and_mask_h5_file is not None, "path_and_mask_h5_file is required"
 
@@ -162,7 +170,7 @@ def eval_main(cfg: EvalPipelineConfig):
         logging.info(colored("Logs will be synced with wandb.", "blue", attrs=["bold"]))
         logging.info(f"Track this run --> {colored(wandb.run.get_url(), 'yellow', attrs=['bold'])}")
 
-    #eval metrics from loggeing utils.py
+    # eval metrics from loggeing utils.py
     eval_metrics = {
         "avg_sum_reward": AverageMeter("∑rwrd", ":.3f"),
         "pc_success": AverageMeter("success", ":.1f"),
@@ -191,7 +199,8 @@ def eval_main(cfg: EvalPipelineConfig):
         draw_mask=cfg.draw_mask,
         image_key=cfg.image_key,
         task_idx=0,
-        episode_idx=0,
+        start_episode_idx=0,
+        n_envs=1,
     )
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
@@ -199,27 +208,28 @@ def eval_main(cfg: EvalPipelineConfig):
             task_episodes = 0
             task_reward = 0.0
             task_eval_time = 0.0
-            
-            for episode_idx in range(50):
-                logging.info(f"Making environment for task {task_idx} and episode {episode_idx}.")
-                env = make_libero_env(
-                    env_cfg=cfg.env,
-                    path_and_mask_h5_file=cfg.path_and_mask_h5_file,
-                    draw_path=cfg.draw_path,
-                    draw_mask=cfg.draw_mask,
-                    image_key=cfg.image_key,
-                    task_idx=task_idx,
-                    episode_idx=episode_idx,
-                )
 
-                logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
-                logging.info("Making policy.")
+            logging.info(f"Making environment for task {task_idx}.")
+            env = make_libero_env(
+                env_cfg=cfg.env,
+                path_and_mask_h5_file=cfg.path_and_mask_h5_file,
+                draw_path=cfg.draw_path,
+                draw_mask=cfg.draw_mask,
+                image_key=cfg.image_key,
+                task_idx=task_idx,
+                start_episode_idx=0,
+                n_envs=cfg.eval.batch_size,
+            )
 
-                policy = make_policy(
-                    cfg=cfg.policy,
-                    env_cfg=cfg.env,
-                )
-                policy.eval()
+            logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
+            logging.info("Making policy.")
+
+            policy = make_policy(
+                cfg=cfg.policy,
+                env_cfg=cfg.env,
+            )
+            policy.eval()
+            try:
                 info = eval_policy(
                     env,
                     policy,
@@ -227,38 +237,48 @@ def eval_main(cfg: EvalPipelineConfig):
                     max_episodes_rendered=10,
                     videos_dir=Path(cfg.output_dir) / "videos",
                     start_seed=cfg.seed,
+                    reset_callback=reset_callback,
                 )
-                
-                eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
-                eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
-                eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
-                task_successes += eval_tracker.pc_success.sum
-                task_episodes += 1
-                task_reward += eval_tracker.avg_sum_reward.sum
-                task_eval_time += eval_tracker.eval_s.sum
-                overall_metrics["total_successes"] += eval_tracker.pc_success.sum
-                overall_metrics["total_episodes"] += 1
-                overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
-                overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
-                
-                # Log episode-level metrics to wandb
-                if cfg.wandb_enable:
-                    wandb.log({
-                        f"task_{task_idx}/episode_{episode_idx}/success_rate": eval_tracker.pc_success.avg,
-                        f"task_{task_idx}/episode_{episode_idx}/avg_reward": eval_tracker.avg_sum_reward.avg,
-                        f"task_{task_idx}/episode_{episode_idx}/eval_time_per_ep": eval_tracker.eval_s.avg,
-                    })
-                    
-                    # Log videos if available
-                    if "video_paths" in info and len(info["video_paths"]) > 0:
-                        for i, ep_info in enumerate(info['per_episode']): 
-                            if ep_info['success']:
-                                wandb_prefix = 'success'
-                            else:
-                                wandb_prefix = 'failure'
-                            wandb.log({
-                                f"{wandb_prefix}/task_{task_idx}/episode_{episode_idx}/video": wandb.Video(info["video_paths"][0], fps=10)
-                            })
+            except KeyError as e:
+                logging.error(f"Error evaluating policy: {e}")
+                continue
+
+            eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
+            eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
+            eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
+            task_successes += eval_tracker.pc_success.sum
+            task_episodes += 1
+            task_reward += eval_tracker.avg_sum_reward.sum
+            task_eval_time += eval_tracker.eval_s.sum
+            overall_metrics["total_successes"] += eval_tracker.pc_success.sum
+            overall_metrics["total_episodes"] += 1
+            overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
+            overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
+
+            # Log episode-level metrics to wandb
+            if cfg.wandb_enable:
+                wandb.log(
+                    {
+                        f"task_{task_idx}/success_rate": eval_tracker.pc_success.avg,
+                        f"task_{task_idx}/avg_reward": eval_tracker.avg_sum_reward.avg,
+                        f"task_{task_idx}/eval_time_per_ep": eval_tracker.eval_s.avg,
+                    }
+                )
+
+                # Log videos if available
+                if "video_paths" in info and len(info["video_paths"]) > 0:
+                    for i, ep_info in enumerate(info["per_episode"]):
+                        if ep_info["success"]:
+                            wandb_prefix = "success"
+                        else:
+                            wandb_prefix = "failure"
+                        wandb.log(
+                            {
+                                f"{wandb_prefix}/task_{task_idx}/video": wandb.Video(
+                                    info["video_paths"][i], fps=30
+                                )
+                            }
+                        )
 
                 # Print current metrics
                 print(info["aggregated"])

@@ -296,6 +296,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         self.current_masked_images = None
         self.rng = np.random.default_rng()
 
+
     def _modify_observation(self, obs):
         """Applies path and mask drawing to a single observation."""
         if self.image_key not in obs["pixels"]:
@@ -465,6 +466,12 @@ class LIBEROEnv(gym.Env):
     @property
     def num_tasks(self):
         return self._libero_task_suite.n_tasks
+
+    def set_task_idx(self, task_idx: int):
+        self._task_idx = task_idx
+
+    def set_episode_idx(self, episode_idx: int):
+        self._episode_idx = episode_idx
 
     def _construct_obs(self, obs):
         flipped_agentview = obs["agentview_image"][::-1]
