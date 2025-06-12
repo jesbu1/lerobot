@@ -424,8 +424,8 @@ class LIBEROEnv(gym.Env):
         self._libero_hdf5_dir = libero_hdf5_dir
         self.load_gt_initial_states = load_gt_initial_states
         self.current_step = 0
-        self._task_idx = task_idx
-        self._episode_idx = episode_idx
+        self.set_task_idx(task_idx)
+        self.set_episode_idx(episode_idx)
         # load dummy env first
         # env, _ = self._get_libero_env()
         self.metadata = {"render_fps" : 10}

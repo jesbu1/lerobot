@@ -76,12 +76,16 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
 
+VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
+
+
 def reset_callback(envs: gym.vector.VectorEnv):
     # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
     number_of_envs = len(envs.envs)
     for env in envs.envs:
         original_episode_idx = env.episode_idx
-        env.set_episode_idx(original_episode_idx + number_of_envs)
+        new_idx = (original_episode_idx + number_of_envs) % len(VALID_EPISODE_LIST)
+        env.set_episode_idx(VALID_EPISODE_LIST[new_idx])
 
 
 def make_libero_env(
@@ -141,11 +145,13 @@ def make_libero_env(
 
     return env
 
-
 @parser.wrap()
 def eval_main(cfg: EvalPipelineConfig):
     logging.info(pformat(asdict(cfg)))
     assert cfg.eval.n_episodes == 50, "n_episodes must be 50 for libero"
+    assert (
+        cfg.eval.batch_size == 1
+    ), "batch_size must be 1 for libero, not supporting batched envs with gt path/mask"
 
     assert cfg.path_and_mask_h5_file is not None, "path_and_mask_h5_file is required"
 
@@ -209,6 +215,28 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward = 0.0
             task_eval_time = 0.0
 
+            # first determine the valid episode list
+            # this is to avoid making envs that don't have ground truth path/mask data
+            for idx in range(50):
+                env = make_libero_env(
+                    env_cfg=cfg.env,
+                    path_and_mask_h5_file=cfg.path_and_mask_h5_file,
+                    draw_path=cfg.draw_path,
+                    draw_mask=cfg.draw_mask,
+                    image_key=cfg.image_key,
+                    task_idx=0,
+                    start_episode_idx=idx,
+                    n_envs=1,
+                )
+                try:
+                    env.reset()
+                    VALID_EPISODE_LIST.append(idx)
+                except KeyError as e:
+                    logging.error(f"Error making environment for task {0} and episode {idx}: {e}")
+                    continue
+
+            logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
+
             logging.info(f"Making environment for task {task_idx}.")
             env = make_libero_env(
                 env_cfg=cfg.env,
@@ -229,19 +257,15 @@ def eval_main(cfg: EvalPipelineConfig):
                 env_cfg=cfg.env,
             )
             policy.eval()
-            try:
-                info = eval_policy(
-                    env,
-                    policy,
-                    cfg.eval.n_episodes,
-                    max_episodes_rendered=10,
-                    videos_dir=Path(cfg.output_dir) / "videos",
-                    start_seed=cfg.seed,
-                    reset_callback=reset_callback,
-                )
-            except KeyError as e:
-                logging.error(f"Error evaluating policy: {e}")
-                continue
+            info = eval_policy(
+                env,
+                policy,
+                cfg.eval.n_episodes,
+                max_episodes_rendered=10,
+                videos_dir=Path(cfg.output_dir) / "videos",
+                start_seed=cfg.seed,
+                reset_callback=reset_callback,
+            )
 
             eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
             eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
