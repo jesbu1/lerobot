@@ -81,6 +81,7 @@ VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth pat
 
 def reset_callback(envs: gym.vector.VectorEnv):
     # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
+    global VALID_EPISODE_LIST
     number_of_envs = len(envs.envs)
     for env in envs.envs:
         original_episode_idx = env.episode_idx
@@ -208,6 +209,7 @@ def eval_main(cfg: EvalPipelineConfig):
         start_episode_idx=0,
         n_envs=1,
     )
+    global VALID_EPISODE_LIST
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
             task_successes = 0
@@ -217,6 +219,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
             # first determine the valid episode list
             # this is to avoid making envs that don't have ground truth path/mask data
+            VALID_EPISODE_LIST = []
             for idx in range(50):
                 env = make_libero_env(
                     env_cfg=cfg.env,
