@@ -237,7 +237,7 @@ def get_path_mask_from_vlm(
     temperature = 0.0
     for _ in range(5):
         try:
-            if path is None or mask is None:
+            if path is None and draw_path or mask is None and draw_mask:
                 prompt_type = "path_mask"
                 response_text = send_request(
                     image,
@@ -303,21 +303,24 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 
         img = obs["pixels"][self.image_key].copy()
         mask = self.current_mask[self.env.current_step % len(self.current_mask)]
-        mask_points = np.stack(mask.nonzero(), axis=1)
-        min_in, max_in = np.zeros(2), np.array(mask.shape)
-        min_out, max_out = np.zeros(2), np.ones(2)
-        mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+        #mask_points = np.stack(mask.nonzero(), axis=1)
+        #min_in, max_in = np.zeros(2), np.array(mask.shape)
+        #min_out, max_out = np.zeros(2), np.ones(2)
+        #mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+        if self.draw_mask:
+            # mask directly
+            img = mask[..., None] * img
 
         img, _, _ = get_path_mask_from_vlm(
             img,
             "Center Crop",
             self.env.task,
             draw_path=self.draw_path,
-            draw_mask=self.draw_mask,
+            draw_mask=False,
             verbose=True,
-            vlm_server_ip=self.vlm_server_ip,
+            vlm_server_ip=None,
             path=self.current_path,
-            mask=mask_points,
+            mask=None,
         )
 
         obs["pixels"][self.image_key] = img
@@ -368,7 +371,7 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             path = f_annotation["gripper_positions"]  # Get path
 
             # Get mask data
-            masked_images = f_annotation["masked_images"][()]
+            masked_images = f_annotation["masked_frames"][()]
 
             # Scale path and mask to 0, 1-normalized coordinates for VLM to scale back to image coords.
             w, h = img_shape[:2]
