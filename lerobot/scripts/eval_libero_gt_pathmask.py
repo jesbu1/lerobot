@@ -67,9 +67,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     path_and_mask_h5_file: str | None = None
     draw_path: bool = True
     draw_mask: bool = True
-<<<<<<< HEAD
-    image_key: str = "agentview_image"
-    every_n_steps: int = 50  # how many steps to wait before redrawing path/mask on the image
+    image_key: str = "image"
     # Wandb configuration
     wandb_enable: bool = True
     wandb_project: str = "lerobot-eval"
@@ -77,9 +75,6 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_name: str | None = None
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
-=======
-    image_key: str = "image"
->>>>>>> d3af5beea044e59e923035f6b8228cdcd770f434
 
 
 def make_libero_env(
