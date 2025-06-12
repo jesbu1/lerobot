@@ -232,28 +232,33 @@ def eval_main(cfg: EvalPipelineConfig):
                 eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
                 eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
                 eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
-                task_successes += int(eval_tracker.pc_success > 0)
+                task_successes += eval_tracker.pc_success.sum
                 task_episodes += 1
-                task_reward += eval_tracker.avg_sum_reward
-                task_eval_time += eval_tracker.eval_s
-                overall_metrics["total_successes"] += int(eval_tracker.pc_success > 0)
+                task_reward += eval_tracker.avg_sum_reward.sum
+                task_eval_time += eval_tracker.eval_s.sum
+                overall_metrics["total_successes"] += eval_tracker.pc_success.sum
                 overall_metrics["total_episodes"] += 1
-                overall_metrics["total_reward"] += eval_tracker.avg_sum_reward
-                overall_metrics["total_eval_time"] += eval_tracker.eval_s
+                overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
+                overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
                 
                 # Log episode-level metrics to wandb
                 if cfg.wandb_enable:
                     wandb.log({
-                        f"task_{task_idx}/episode_{episode_idx}/success_rate": eval_tracker.pc_success,
-                        f"task_{task_idx}/episode_{episode_idx}/avg_reward": eval_tracker.avg_sum_reward,
-                        f"task_{task_idx}/episode_{episode_idx}/eval_time": eval_tracker.eval_s,
+                        f"task_{task_idx}/episode_{episode_idx}/success_rate": eval_tracker.pc_success.avg,
+                        f"task_{task_idx}/episode_{episode_idx}/avg_reward": eval_tracker.avg_sum_reward.avg,
+                        f"task_{task_idx}/episode_{episode_idx}/eval_time_per_ep": eval_tracker.eval_s.avg,
                     })
                     
                     # Log videos if available
                     if "video_paths" in info and len(info["video_paths"]) > 0:
-                        wandb.log({
-                            f"task_{task_idx}/episode_{episode_idx}/video": wandb.Video(info["video_paths"][0], fps=10)
-                        })
+                        for i, ep_info in enumerate(info['per_episode']): 
+                            if ep_info['success']:
+                                wandb_prefix = 'success'
+                            else:
+                                wandb_prefix = 'failure'
+                            wandb.log({
+                                f"{wandb_prefix}/task_{task_idx}/episode_{episode_idx}/video": wandb.Video(info["video_paths"][0], fps=10)
+                            })
 
                 # Print current metrics
                 print(info["aggregated"])
