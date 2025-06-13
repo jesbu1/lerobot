@@ -218,19 +218,18 @@ def eval_main(cfg: EvalPipelineConfig):
             # first determine the valid episode list
             # this is to avoid making envs that don't have ground truth path/mask data
             VALID_EPISODE_LIST = []
-            env = make_libero_env(
-                env_cfg=cfg.env,
-                path_and_mask_h5_file=cfg.path_and_mask_h5_file,
-                draw_path=cfg.draw_path,
-                draw_mask=cfg.draw_mask,
-                image_key=cfg.image_key,
-                task_idx=task_idx,
-                start_episode_idx=0,
-                n_envs=1,
-            )
             for idx in range(50):
+                env = make_libero_env(
+                    env_cfg=cfg.env,
+                    path_and_mask_h5_file=cfg.path_and_mask_h5_file,
+                    draw_path=cfg.draw_path,
+                    draw_mask=cfg.draw_mask,
+                    image_key=cfg.image_key,
+                    task_idx=0,
+                    start_episode_idx=idx,
+                    n_envs=1,
+                )
                 try:
-                    env.envs[0].unwrapped.set_episode_idx(idx)
                     env.reset()
                     VALID_EPISODE_LIST.append(idx)
                 except KeyError as e:
