@@ -302,7 +302,7 @@ def eval_main(cfg: EvalPipelineConfig):
                         wandb.log(
                             {
                                 f"{wandb_prefix}/task_{task_idx}/video": wandb.Video(
-                                    info["video_paths"][i], fps=30
+                                    info["video_paths"][i], fps=30, format="mp4"
                                 )
                             }
                         )
