@@ -582,3 +582,6 @@ class LIBEROEnv(gym.Env):
 
     def render(self):
         return self.obs["pixels"]["image"]
+
+
+class BRIDGEEnv(gym.Env):
