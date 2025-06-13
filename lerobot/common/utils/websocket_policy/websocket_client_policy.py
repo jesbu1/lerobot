@@ -8,11 +8,11 @@ from urllib.parse import urlparse
 import websockets.sync.client
 from typing_extensions import override
 
-from openpi_client import base_policy as _base_policy
-from openpi_client import msgpack_numpy
+from lerobot.common.utils.websocket_policy.base_policy import BasePolicy
+from lerobot.common.utils.websocket_policy.msgpack_numpy import msgpack_numpy
 
 
-class WebsocketClientPolicy(_base_policy.BasePolicy):
+class WebsocketClientPolicy(BasePolicy):
     """Implements the Policy interface by communicating with a server over websocket.
 
     See WebsocketPolicyServer for a corresponding server implementation.
