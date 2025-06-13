@@ -72,7 +72,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_enable: bool = True
     wandb_project: str = "lerobot-eval"
     wandb_entity: str | None = None
-    wandb_name: str | None = None
+    wandb_name_suffix: str = ""
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
 
@@ -165,11 +165,13 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
+    wandb_name = f"libero_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
+
     if cfg.wandb_enable:
         wandb.init(
             project=cfg.wandb_project,
             entity=cfg.wandb_entity,
-            name=cfg.wandb_name,
+            name=wandb_name,
             notes=cfg.wandb_notes,
             config=asdict(cfg),
             mode=cfg.wandb_mode if cfg.wandb_mode in ["online", "offline", "disabled"] else "online",
