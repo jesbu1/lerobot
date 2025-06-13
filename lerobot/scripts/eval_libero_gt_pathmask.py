@@ -272,7 +272,10 @@ def eval_main(cfg: EvalPipelineConfig):
             eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
             eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
             task_successes += eval_tracker.pc_success.sum
-            task_episodes += 1
+            assert len(VALID_EPISODE_LIST) == len(
+                info["per_episode"]
+            ), "number of episodes in VALID_EPISODE_LIST and info['per_episode'] should be the same"
+            task_episodes += len(VALID_EPISODE_LIST)
             task_reward += eval_tracker.avg_sum_reward.sum
             task_eval_time += eval_tracker.eval_s.sum
             overall_metrics["total_successes"] += eval_tracker.pc_success.sum
