@@ -178,9 +178,9 @@ class LIBEROEnv(EnvConfig):
     features_map: dict[str, str] = field(
         default_factory=lambda: {
             "action": ACTION,
-            "agent_pos": OBS_ROBOT,  # agent_pos is required name for lerobot
-            "pixels/image": f"{OBS_IMAGES}.image", # need to make sure this matches with the pre-trained model's input name
-            "pixels/image_wrist": f"{OBS_IMAGES}.image_wrist", # need to make sure this matches 
+            "agent_pos": OBS_STATE,  # agent_pos is required name for lerobot
+            "pixels/image": f"{OBS_IMAGES}.image",  # need to make sure this matches with the pre-trained model's input name
+            "pixels/image_wrist": f"{OBS_IMAGES}.image_wrist",  # need to make sure this matches
         }
     )
 
