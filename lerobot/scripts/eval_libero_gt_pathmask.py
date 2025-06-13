@@ -295,6 +295,8 @@ def eval_main(cfg: EvalPipelineConfig):
                 # Log videos if available
                 if "video_paths" in info and len(info["video_paths"]) > 0:
                     for i, ep_info in enumerate(info["per_episode"]):
+                        if i > len(VALID_EPISODE_LIST):
+                            break
                         if ep_info["success"]:
                             wandb_prefix = "success"
                         else:
