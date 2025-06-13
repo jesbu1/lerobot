@@ -312,17 +312,18 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
             # mask directly
             img = mask[..., None] * img
 
-        img, _, _ = get_path_mask_from_vlm(
-            img,
-            "Center Crop",
-            self.env.task,
-            draw_path=self.draw_path,
-            draw_mask=False,
-            verbose=True,
-            vlm_server_ip=None,
-            path=self.current_path,
-            mask=None,
-        )
+        if self.draw_path:
+            img, _, _ = get_path_mask_from_vlm(
+                img,
+                "Center Crop",
+                self.env.task,
+                draw_path=self.draw_path,
+                draw_mask=False,
+                verbose=True,
+                vlm_server_ip=None,
+                path=self.current_path,
+                mask=None,
+            )
 
         obs["pixels"][self.image_key] = img
         return obs
