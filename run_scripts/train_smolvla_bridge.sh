@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=28
 #SBATCH --mem=120G
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:a40:1
+#SBATCH --gres=gpu:a100:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
@@ -18,7 +18,7 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
-RESUME=true
+RESUME=false
 
 EXP_NAME=train_smolvla_bridge_2cam
 PROJ_NAME=lerobot
