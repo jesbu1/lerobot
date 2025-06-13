@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
-#SBATCH --time=6:00:00
+#SBATCH --time=12:00:00
 #SBATCH --cpus-per-task=16
 #SBATCH --mem=48G
 #SBATCH --partition=gpu
@@ -26,7 +26,7 @@ wandb_name_suffix=test
 draw_path=false
 draw_mask=false
 
-RUN_SCRIPT="python lerobot/scripts/eval_libero_gt_pathmask.py \
+RUN_SCRIPT="conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_gt_pathmask.py \
     --env.type=libero \
     --policy.path=$policy_path \
     --policy.use_amp=false \
@@ -36,7 +36,7 @@ RUN_SCRIPT="python lerobot/scripts/eval_libero_gt_pathmask.py \
     --env.libero_hdf5_dir $libero_hdf5_dir \
     --eval.n_episodes=50 \
     --eval.batch_size 10 \
-    --wandb.name_suffix=$wandb_name_suffix \
+    --wandb_name_suffix=$wandb_name_suffix \
     --draw_path=$draw_path \
     --draw_mask=$draw_mask"
 
