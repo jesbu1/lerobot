@@ -225,7 +225,7 @@ def eval_main(cfg: EvalPipelineConfig):
                     draw_path=cfg.draw_path,
                     draw_mask=cfg.draw_mask,
                     image_key=cfg.image_key,
-                    task_idx=0,
+                    task_idx=task_idx,
                     start_episode_idx=idx,
                     n_envs=1,
                 )
@@ -233,7 +233,7 @@ def eval_main(cfg: EvalPipelineConfig):
                     env.reset()
                     VALID_EPISODE_LIST.append(idx)
                 except KeyError as e:
-                    logging.error(f"Error making environment for task {0} and episode {idx}: {e}")
+                    logging.error(f"Error making environment for task {task_idx} and episode {idx}: {e}")
                     continue
 
             logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
