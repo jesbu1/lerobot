@@ -262,7 +262,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 env,
                 policy,
                 len(VALID_EPISODE_LIST),
-                max_episodes_rendered=10,
+                max_episodes_rendered=len(VALID_EPISODE_LIST),
                 videos_dir=Path(cfg.output_dir) / "videos",
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
@@ -279,7 +279,7 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward += eval_tracker.avg_sum_reward.sum
             task_eval_time += eval_tracker.eval_s.sum
             overall_metrics["total_successes"] += eval_tracker.pc_success.sum
-            overall_metrics["total_episodes"] += 1
+            overall_metrics["total_episodes"] += len(VALID_EPISODE_LIST)
             overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
             overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
 
