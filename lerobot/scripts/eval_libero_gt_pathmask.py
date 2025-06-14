@@ -161,7 +161,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
-    wandb_name = f"libero_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
+    wandb_name = f"eval_{cfg.env.task_suite_name}_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
 
     if cfg.wandb_enable:
         wandb.init(
@@ -304,7 +304,7 @@ def eval_main(cfg: EvalPipelineConfig):
                             wandb_prefix = "failure"
                         wandb.log(
                             {
-                                f"{wandb_prefix}/task_{task_idx}/video": wandb.Video(
+                                f"task_{task_idx}/video_episode_{ep_info['episode_idx']}_{wandb_prefix}": wandb.Video(
                                     info["video_paths"][i], fps=30, format="mp4"
                                 )
                             }
