@@ -7,13 +7,17 @@ from pathlib import Path
 import h5py
 import numpy as np
 import torch
+from torchvision import transforms
 from tqdm import tqdm  # type: ignore
 
 from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img
 from vila_utils.utils.encode import scale_path, smooth_path_rdp
 
+# python examples/generate_masked_path_hackathon.py --repo-id minjunkevink/trossen_objects_pick_place --new-repo-id jesbu1/trossen_objects_pick_place_pathmask --push-to-hub  --hdf5-path ~/VILA/test_hackathon_labeling_5x/bridge_paths_masks.h5
+
 MASK_CAM_NAME = "stationary"
+RESOLUTION = 224
 
 
 def process_path_obs(sample_img, path, path_line_size=3, apply_rdp=False):
@@ -81,26 +85,30 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     Returns:
         LeRobotDataset: A new LeRobotDataset with the added `masked_path` observation.
     """
+    transform = transforms.Compose(
+        [
+            transforms.Resize(RESOLUTION, antialias=True),
+            transforms.CenterCrop(RESOLUTION),
+        ]
+    )
     # 1. Define the features for the new dataset, including the new `masked_path` observation.
     new_features = deepcopy(original_dataset.meta.info["features"])
 
     # Determine image shape from an existing camera key
-    camera_key = original_dataset.meta.camera_keys[0]
-    # In LeRobot datasets, info has (h, w, c) but data is (c, h, w)
-    if len(new_features[camera_key]["shape"]) == 3:
-        h, w, c = new_features[camera_key]["shape"]
-    else:
-        # Fallback for different conventions
-        c, h, w = original_dataset[0][camera_key].shape
-
+    for camera_key in original_dataset.meta.camera_keys:
+        new_features[f"{camera_key}"] = {
+            "shape": [RESOLUTION, RESOLUTION, 3],
+            "dtype": "video",
+            "names": ["height", "width", "channels"],
+        }
     new_features["observation.images.image_path"] = {
-        "shape": [3, h, w],
+        "shape": [RESOLUTION, RESOLUTION, 3],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
 
     new_features["observation.images.image_masked_path"] = {
-        "shape": [3, h, w],
+        "shape": [RESOLUTION, RESOLUTION, 3],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
@@ -122,6 +130,8 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     # 3. Iterate through episodes, load data, add mask, and save to new dataset.
     with h5py.File(hdf5_path, "r") as hdf5_file:
         for episode_idx in tqdm(range(original_dataset.num_episodes), desc="Processing episodes"):
+            if episode_idx > 4:
+                break
             # --- HDF5 Loading Logic ---
             # This is a placeholder for loading your HDF5 data.
             # You will need to adapt this based on the structure of your HDF5 file.
@@ -169,9 +179,21 @@ def convert_lerobot_dataset_to_masked_path_dataset(
                 frame = original_dataset[frame_idx]
                 new_frame = {}
                 for key, value in frame.items():
-                    new_frame[key] = value
-
-                original_img = frame[f"observation.images.{MASK_CAM_NAME}"]
+                    if "observation.images" in key:
+                        transformed_value = transform(value)
+                        new_frame[key] = (transformed_value.permute(1, 2, 0).numpy() * 255).astype(np.uint8)
+                    else:
+                        if key in [
+                            "task",
+                            "episode_index",
+                            "frame_index",
+                            "timestamp",
+                            "index",
+                            "task_index",
+                        ]:
+                            continue
+                        new_frame[key] = value
+                original_img = new_frame[f"observation.images.{MASK_CAM_NAME}"]
                 # Skip if any of the path or mask data is not available or if the camera is not present
                 if any(data is None for data in [path_data, path_lengths, mask_data, mask_lengths]):
                     new_frame["observation.images.image_path"] = np.zeros_like(original_img)
@@ -225,8 +247,7 @@ def convert_lerobot_dataset_to_masked_path_dataset(
                             path_line_size=path_line_size,
                         )
                         new_frame[f"observation.images.image_masked_path"] = masked_path_img
-                assert "task" in new_frame, "Task is required"
-                new_dataset.add_frame(new_frame)
+                new_dataset.add_frame(new_frame, task=frame["task"])
 
             new_dataset.save_episode()
 
