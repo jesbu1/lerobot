@@ -1,25 +1,22 @@
-import gymnasium as gym
-import os
-import math
-import pathlib
-import numpy as np
-import h5py
-from libero.libero import get_libero_path
-from libero.libero.envs import OffScreenRenderEnv
-from libero.libero import benchmark
-from gymnasium import spaces
-
-import re
-import time
-from PIL import Image
 import base64
-import cv2
-import numpy as np
-from openai import OpenAI
-from vila_utils.utils.prompts import get_prompt
-from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img, get_path_from_answer
-from vila_utils.utils.encode import scale_path
+import math
+import os
+import pathlib
+import time
 
+import cv2
+import gymnasium as gym
+import h5py
+import numpy as np
+import yaml
+from gymnasium import spaces
+from libero.libero import benchmark, get_libero_path
+from libero.libero.envs import OffScreenRenderEnv
+from openai import OpenAI
+from PIL import Image
+from vila_utils.utils.decode import add_mask_2d_to_img, add_path_2d_to_img_alt_fast, get_path_from_answer
+from vila_utils.utils.encode import scale_path
+from vila_utils.utils.prompts import get_prompt
 
 # Constants
 SERVER_IP = "https://whippet-pet-singularly.ngrok.app"
@@ -28,6 +25,7 @@ DOWNSAMPLE_RESOLUTION = 256
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
 PATH_MODEL_NAME = "vila_3b_oxe_sim_path"
 PATH_MODEL_NAME_MASK = "vila_3b_oxe_sim_path_mask"
+
 
 def convert_to_uint8(img: np.ndarray) -> np.ndarray:
     """Converts an image to uint8 if it is a float image.
@@ -296,7 +294,6 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         self.current_masked_images = None
         self.rng = np.random.default_rng()
 
-
     def _modify_observation(self, obs):
         """Applies path and mask drawing to a single observation."""
         if self.image_key not in obs["pixels"]:
@@ -304,10 +301,10 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 
         img = obs["pixels"][self.image_key].copy()
         mask = self.current_mask[self.env.current_step % len(self.current_mask)]
-        #mask_points = np.stack(mask.nonzero(), axis=1)
-        #min_in, max_in = np.zeros(2), np.array(mask.shape)
-        #min_out, max_out = np.zeros(2), np.ones(2)
-        #mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+        # mask_points = np.stack(mask.nonzero(), axis=1)
+        # min_in, max_in = np.zeros(2), np.array(mask.shape)
+        # min_out, max_out = np.zeros(2), np.ones(2)
+        # mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
         if self.draw_mask:
             # mask directly
             img = mask[..., None] * img
@@ -429,7 +426,7 @@ class LIBEROEnv(gym.Env):
         self.set_episode_idx(episode_idx)
         # load dummy env first
         # env, _ = self._get_libero_env()
-        self.metadata = {"render_fps" : 10}
+        self.metadata = {"render_fps": 10}
         self.render_mode = "rgb_array"
         self.observation_space = spaces.Dict(
             {
@@ -614,11 +611,14 @@ class TrossenActionWrapper(gym.Wrapper):
         self.image_key = image_key
         self.draw_path = draw_path
         self.draw_mask = draw_mask
-        
+
         # Initialize the ACT model for inference
-        from lerobot.inference import ACTInference
-        self.inference = ACTInference(config_path, checkpoint_path)
-        
+        with open(config_path, "r") as f:
+            self.config = yaml.safe_load(f)
+        # from lerobot.inference import ACTInference
+
+        # self.inference = ACTInference(config_path, checkpoint_path)
+
         # Initialize VLM query counter and storage
         self.vlm_query_counter = 0
         self.vlm_query_path = None
@@ -630,14 +630,15 @@ class TrossenActionWrapper(gym.Wrapper):
             return obs
 
         img = obs["pixels"][self.image_key].copy()
-        
+
         # Get path and mask from VLM if needed
-        if (self.draw_path or self.draw_mask) and (
-            self.vlm_query_counter % self.inference.config.vlm_query_freq == 0
-        ):
+        # if (self.draw_path or self.draw_mask) and (
+        #     self.vlm_query_counter % self.inference.config.vlm_query_freq == 0
+        # ):
+        if (self.draw_path or self.draw_mask) and (self.vlm_query_counter % self.config.vlm_query_freq == 0):
             self.vlm_query_mask = None
             self.vlm_query_path = None
-            
+
         img, path, mask = get_path_mask_from_vlm(
             img,
             "Center Crop",
@@ -645,11 +646,12 @@ class TrossenActionWrapper(gym.Wrapper):
             draw_path=self.draw_path,
             draw_mask=self.draw_mask,
             verbose=True,
-            vlm_server_ip=self.inference.config.vlm_server_ip,
+            # vlm_server_ip=self.inferenceconfig.vlm_server_ip,
+            vlm_server_ip=self.config.vlm_server_ip,
             path=self.vlm_query_path,
             mask=self.vlm_query_mask,
         )
-        
+
         self.vlm_query_path = path
         self.vlm_query_mask = mask
         self.vlm_query_counter += 1
@@ -661,10 +663,10 @@ class TrossenActionWrapper(gym.Wrapper):
         """Process the action and return the next observation."""
         # Get the next observation from the environment
         obs, reward, terminated, truncated, info = self.env.step(action)
-        
+
         # Modify observation with path/mask visualization
         obs = self._modify_observation(obs)
-        
+
         return obs, reward, terminated, truncated, info
 
     def reset(self, **kwargs):
