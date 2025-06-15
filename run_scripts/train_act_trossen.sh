@@ -1,10 +1,10 @@
 #!/bin/bash
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
-#SBATCH --time=48:00:00
+#SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=20
 #SBATCH --mem=64G
-#SBATCH --partition=gpu
+#SBATCH --partition=gpu,debug
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
@@ -19,7 +19,7 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
 RESUME=false
 
-EXP_NAME=train_act_trossen
+EXP_NAME=train_act_trossen_pathmask
 PROJ_NAME=lerobot
 
 BASE_TRAIN_CMD="--config_path=train_configs/train_act_trossen.yaml --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --wandb.run_id=$EXP_NAME"
