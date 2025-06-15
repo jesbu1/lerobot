@@ -1,5 +1,7 @@
 import argparse
 from copy import deepcopy
+from lerobot.common.datasets.lerobot_dataset import HF_LEROBOT_HOME
+import shutil
 from pathlib import Path
 
 import h5py
@@ -61,7 +63,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     original_dataset: LeRobotDataset,
     hdf5_path: str,
     new_repo_id: str,
-    new_dataset_root: str,
     path_line_size: int = 2,
     path_mask_ratio: float = 0.15,
     push_to_hub: bool = False,
@@ -74,7 +75,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
         original_dataset (LeRobotDataset): The source dataset.
         hdf5_path (str): Path to the HDF5 file containing the masked_path data.
         new_repo_id (str): Repository id for the new dataset.
-        new_dataset_root (str): The root directory where the new dataset will be written.
         push_to_hub (bool, optional): Whether to push the new dataset to the hub. Defaults to False.
 
 
@@ -94,22 +94,26 @@ def convert_lerobot_dataset_to_masked_path_dataset(
         c, h, w = original_dataset[0][camera_key].shape
 
     new_features["observation.images.image_path"] = {
-        "shape": [h, w, 3],
+        "shape": [3, h, w],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
 
     new_features["observation.images.image_masked_path"] = {
-        "shape": [h, w, 3],
+        "shape": [3, h, w],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
 
     # 2. Create a new (empty) LeRobotDataset for writing.
+    # if the dataset already exists, we will overwrite it
+    output_path = HF_LEROBOT_HOME / new_repo_id
+    if output_path.exists():
+        shutil.rmtree(output_path)
+
     new_dataset = LeRobotDataset.create(
         repo_id=new_repo_id,
         fps=original_dataset.fps,
-        root=new_dataset_root,
         robot_type=original_dataset.meta.robot_type,
         features=new_features,
         use_videos=len(original_dataset.meta.video_keys) > 0,
@@ -261,12 +265,6 @@ if __name__ == "__main__":
         help="The root directory of the LeRobot dataset.",
     )
     parser.add_argument(
-        "--new-dataset-root",
-        type=str,
-        default=None,
-        help="The root directory where the new dataset will be written.",
-    )
-    parser.add_argument(
         "--push-to-hub",
         action="store_true",
         help="Whether to push the new dataset to the hub.",
@@ -275,17 +273,11 @@ if __name__ == "__main__":
 
     dataset = LeRobotDataset(repo_id=args.repo_id, root=args.root)
 
-    new_dataset_root_path = args.new_dataset_root
-    if new_dataset_root_path is None:
-        new_dataset_root_path = Path(str(dataset.root or args.repo_id.split("/")[-1]) + "_masked_path")
-
     new_dataset = convert_lerobot_dataset_to_masked_path_dataset(
         original_dataset=dataset,
         hdf5_path=args.hdf5_path,
         new_repo_id=args.new_repo_id,
-        new_dataset_root=new_dataset_root_path,
         push_to_hub=args.push_to_hub,
-        task=args.task,
     )
 
-    print(f"Successfully created dataset at {new_dataset_root_path}")
+    print(f"Successfully created dataset at {new_dataset.root}")
