@@ -11,7 +11,7 @@ from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img
 from vila_utils.utils.encode import scale_path, smooth_path_rdp
 
-MASK_CAM_NAME = None  # TODO
+MASK_CAM_NAME = "stationary"
 
 
 def process_path_obs(sample_img, path, path_line_size=3, apply_rdp=False):
