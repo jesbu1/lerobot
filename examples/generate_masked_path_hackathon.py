@@ -130,8 +130,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     # 3. Iterate through episodes, load data, add mask, and save to new dataset.
     with h5py.File(hdf5_path, "r") as hdf5_file:
         for episode_idx in tqdm(range(original_dataset.num_episodes), desc="Processing episodes"):
-            if episode_idx > 4:
-                break
             # --- HDF5 Loading Logic ---
             # This is a placeholder for loading your HDF5 data.
             # You will need to adapt this based on the structure of your HDF5 file.
