@@ -29,14 +29,15 @@ import numpy as np
 import torch
 import torch.nn.functional as F  # noqa: N812
 import torchvision
+from sentence_transformers import SentenceTransformer
 from torch import Tensor, nn
 from torchvision.models._utils import IntermediateLayerGetter
 from torchvision.ops.misc import FrozenBatchNorm2d
-from sentence_transformers import SentenceTransformer
 
 from lerobot.common.policies.act.configuration_act import ACTConfig
 from lerobot.common.policies.normalize import Normalize, Unnormalize
 from lerobot.common.policies.pretrained import PreTrainedPolicy
+from lerobot.common.utils.eval_maskpath_utils import get_path_mask_from_vlm
 
 
 class ACTPolicy(PreTrainedPolicy):
@@ -79,6 +80,11 @@ class ACTPolicy(PreTrainedPolicy):
 
         if config.use_language:
             self.lang_encoder = SentenceTransformer("all-MiniLM-L6-v2").to(self.config.device)
+
+        if config.vlm_query_freq is not None:
+            self.vlm_query_counter = 0  # query vlm every `config.vlm_query_freq` steps
+            self.vlm_query_mask = None
+            self.vlm_query_path = None
         self.reset()
 
     def get_optim_params(self) -> dict:
@@ -104,6 +110,10 @@ class ACTPolicy(PreTrainedPolicy):
 
     def reset(self):
         """This should be called whenever the environment is reset."""
+        if self.config.vlm_query_freq is not None:
+            self.vlm_query_counter = 0
+            self.vlm_query_path = None
+            self.vlm_query_mask = None
         if self.config.temporal_ensemble_coeff is not None:
             self.temporal_ensembler.reset()
         else:
@@ -121,6 +131,31 @@ class ACTPolicy(PreTrainedPolicy):
 
         batch = self.normalize_inputs(batch)
         if self.config.image_features:
+            if (self.config.vlm_query_freq is not None) and (
+                self.vlm_query_counter % self.config.vlm_query_freq == 0
+            ):
+                self.vlm_query_mask = None
+                self.vlm_query_path = None
+            img, path, mask = get_path_mask_from_vlm(
+                batch["observation.image"],
+                "Center Crop",
+                str(batch["task"]),
+                draw_path=self.config.draw_path,
+                draw_mask=self.config.draw_mask,
+                verbose=True,
+                vlm_server_ip=self.config.vlm_server_ip,
+                path=self.vlm_query_path,
+                mask=self.vlm_query_mask,
+            )
+            batch["observation.image"] = img
+            self.vlm_query_path = path
+            self.vlm_query_mask = mask
+            self.vlm_query_counter += 1
+
+            # todo: is this needed if not using libero?
+            # img = image_tools.convert_to_uint8(
+            #         image_tools.resize_with_pad(img, self.config.resize_size, self.config.resize_size)
+            #     )
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = [batch[key] for key in self.config.image_features]
 
@@ -395,7 +430,6 @@ class ACT(nn.Module):
         # Final action regression head on the output of the transformer's decoder.
         self.action_head = nn.Linear(config.dim_model, self.config.action_feature.shape[0])
 
-
         self._reset_parameters()
 
     def _reset_parameters(self):
@@ -424,9 +458,9 @@ class ACT(nn.Module):
             latent dimension.
         """
         if self.config.use_vae and self.training:
-            assert (
-                "action" in batch or "actions" in batch
-            ), "actions must be provided when using the variational objective in training mode."
+            assert "action" in batch or "actions" in batch, (
+                "actions must be provided when using the variational objective in training mode."
+            )
 
         if "observation.images" in batch:
             batch_size = batch["observation.images"][0].shape[0]
