@@ -582,3 +582,95 @@ class LIBEROEnv(gym.Env):
 
     def render(self):
         return self.obs["pixels"]["image"]
+
+
+class TrossenActionWrapper(gym.Wrapper):
+    """
+    A gym wrapper that processes and visualizes actions for the Trossen model.
+    This wrapper handles action normalization and visualization of predicted actions.
+    """
+
+    def __init__(
+        self,
+        env,
+        config_path: str,
+        checkpoint_path: str,
+        draw_path: bool = True,
+        draw_mask: bool = True,
+        image_key: str = "image",
+    ):
+        """
+        Args:
+            env: The gym environment to wrap
+            config_path: Path to the model's config file
+            checkpoint_path: Path to the model's checkpoint directory
+            draw_path: Whether to draw the predicted path on the image
+            draw_mask: Whether to draw the predicted mask on the image
+            image_key: The key in the observation dictionary that contains the image
+        """
+        super().__init__(env)
+        self.config_path = config_path
+        self.checkpoint_path = checkpoint_path
+        self.image_key = image_key
+        self.draw_path = draw_path
+        self.draw_mask = draw_mask
+        
+        # Initialize the ACT model for inference
+        from lerobot.inference import ACTInference
+        self.inference = ACTInference(config_path, checkpoint_path)
+        
+        # Initialize VLM query counter and storage
+        self.vlm_query_counter = 0
+        self.vlm_query_path = None
+        self.vlm_query_mask = None
+
+    def _modify_observation(self, obs):
+        """Process the observation and add path/mask visualization if enabled."""
+        if self.image_key not in obs["pixels"]:
+            return obs
+
+        img = obs["pixels"][self.image_key].copy()
+        
+        # Get path and mask from VLM if needed
+        if (self.draw_path or self.draw_mask) and (
+            self.vlm_query_counter % self.inference.config.vlm_query_freq == 0
+        ):
+            self.vlm_query_mask = None
+            self.vlm_query_path = None
+            
+        img, path, mask = get_path_mask_from_vlm(
+            img,
+            "Center Crop",
+            str(self.env.task),
+            draw_path=self.draw_path,
+            draw_mask=self.draw_mask,
+            verbose=True,
+            vlm_server_ip=self.inference.config.vlm_server_ip,
+            path=self.vlm_query_path,
+            mask=self.vlm_query_mask,
+        )
+        
+        self.vlm_query_path = path
+        self.vlm_query_mask = mask
+        self.vlm_query_counter += 1
+
+        obs["pixels"][self.image_key] = img
+        return obs
+
+    def step(self, action):
+        """Process the action and return the next observation."""
+        # Get the next observation from the environment
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        
+        # Modify observation with path/mask visualization
+        obs = self._modify_observation(obs)
+        
+        return obs, reward, terminated, truncated, info
+
+    def reset(self, **kwargs):
+        """Reset the environment and initialize VLM query counter."""
+        obs, info = self.env.reset(**kwargs)
+        self.vlm_query_counter = 0
+        self.vlm_query_path = None
+        self.vlm_query_mask = None
+        return self._modify_observation(obs), info

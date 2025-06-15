@@ -7,8 +7,6 @@ from lerobot.inference import ACTInference
 from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 
 def main():
-    # Load dataset
-    dataset_id = "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"
     print(f"Loading dataset: {dataset_id}")
     dataset = LeRobotDataset(dataset_id)
     
@@ -22,8 +20,8 @@ def main():
     # Load default model
     model_id = "jesbu1/act-bridge-v2"
     print(f"Loading model: {model_id}")
-    config_path = os.path.join(os.path.expanduser("~"), ".cache", "huggingface", "hub", 
-                             "models--" + model_id.replace("/", "--"), "train_config.json")
+    config_path = "outputs/train_act_trossen_pathmask/train_config.json"
+    checkpoint_path = "outputs/train_act_trossen_pathmask/checkpoints"
     
     if not os.path.exists(config_path):
         print("Downloading config file...")
@@ -31,7 +29,7 @@ def main():
         config_path = hf_hub_download(repo_id=model_id, filename="train_config.json")
     
     # Initialize inference
-    inference = ACTInference(config_path, model_id)
+    inference = ACTInference(config_path, checkpoint_path)
     
     # Run inference
     print("Running inference...")
