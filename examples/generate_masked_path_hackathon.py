@@ -61,7 +61,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     original_dataset: LeRobotDataset,
     hdf5_path: str,
     new_repo_id: str,
-    new_dataset_root: str,
     path_line_size: int = 2,
     path_mask_ratio: float = 0.15,
     push_to_hub: bool = False,
@@ -108,7 +107,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     new_dataset = LeRobotDataset.create(
         repo_id=new_repo_id,
         fps=original_dataset.fps,
-        root=new_dataset_root,
         robot_type=original_dataset.meta.robot_type,
         features=new_features,
         use_videos=len(original_dataset.meta.video_keys) > 0,
@@ -258,12 +256,6 @@ if __name__ == "__main__":
         type=str,
         default=None,
         help="The root directory of the LeRobot dataset.",
-    )
-    parser.add_argument(
-        "--new-dataset-root",
-        type=str,
-        default=None,
-        help="The root directory where the new dataset will be written.",
     )
     parser.add_argument(
         "--push-to-hub",
