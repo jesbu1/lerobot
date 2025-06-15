@@ -18,6 +18,7 @@ from vila_utils.utils.encode import scale_path, smooth_path_rdp
 
 MASK_CAM_NAME = "stationary"
 RESOLUTION = 224
+FPS = 10
 
 
 def process_path_obs(sample_img, path, path_line_size=3, apply_rdp=False):
@@ -121,7 +122,7 @@ def convert_lerobot_dataset_to_masked_path_dataset(
 
     new_dataset = LeRobotDataset.create(
         repo_id=new_repo_id,
-        fps=original_dataset.fps,
+        fps=FPS,
         robot_type=original_dataset.meta.robot_type,
         features=new_features,
         use_videos=len(original_dataset.meta.video_keys) > 0,
