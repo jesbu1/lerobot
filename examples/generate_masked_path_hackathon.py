@@ -104,6 +104,9 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     }
 
     # 2. Create a new (empty) LeRobotDataset for writing.
+    # if the dataset already exists, we will overwrite it
+    if new_repo_id in LeRobotDataset.list_datasets():
+        LeRobotDataset.delete(new_repo_id)
     new_dataset = LeRobotDataset.create(
         repo_id=new_repo_id,
         fps=original_dataset.fps,
