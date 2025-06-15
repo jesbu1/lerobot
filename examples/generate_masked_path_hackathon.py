@@ -1,6 +1,6 @@
 import argparse
 from copy import deepcopy
-from lerobot.common.datasets.lerobot_dataset import LEROBOT_HOME
+from lerobot.common.datasets.lerobot_dataset import HF_LEROBOT_HOME
 import shutil
 from pathlib import Path
 
@@ -107,7 +107,7 @@ def convert_lerobot_dataset_to_masked_path_dataset(
 
     # 2. Create a new (empty) LeRobotDataset for writing.
     # if the dataset already exists, we will overwrite it
-    output_path = LEROBOT_HOME / new_repo_id
+    output_path = HF_LEROBOT_HOME / new_repo_id
     if output_path.exists():
         shutil.rmtree(output_path)
 
