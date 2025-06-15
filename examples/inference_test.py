@@ -37,35 +37,25 @@ def parse_args():
     
     args = parser.parse_args()
     
-    # Set default model if none specified
-    if not args.hf_model and not args.local_checkpoint:
-        args.local_checkpoint = "outputs/train_act_trossen_pathmask/checkpoints/last/pretrained_model"
+    # Always use the local model
+    args.local_checkpoint = "outputs/train_act_trossen_pathmask/checkpoints/last/pretrained_model"
     
     return args
 
 def load_model(args):
     """Load model based on the provided arguments."""
-    if args.hf_model:
-        print(f"[INFO] Loading model from Hugging Face Hub: {args.hf_model}")
-        # For HF models, we need to download the config file
-        config_path = os.path.join(os.path.expanduser("~"), ".cache", "huggingface", "hub", "models--" + args.hf_model.replace("/", "--"), "train_config.json")
-        if not os.path.exists(config_path):
-            print(f"[INFO] Downloading config file for {args.hf_model}...")
-            from huggingface_hub import hf_hub_download
-            config_path = hf_hub_download(repo_id=args.hf_model, filename="train_config.json")
-        return ACTInference(config_path, args.hf_model)
-    else:
-        print(f"[INFO] Loading model from local checkpoint: {args.local_checkpoint}")
-        if not args.config_path:
-            # Try to find train_config.json in the checkpoint directory
-            config_path = os.path.join(args.local_checkpoint, "train_config.json")
-            if not os.path.exists(config_path):
-                raise ValueError(f"No train_config.json found at {config_path}. Please specify --config_path")
-        else:
-            config_path = args.config_path
-        # Use the pretrained_model directory for both config and model
-        model_path = args.local_checkpoint
-        return ACTInference(config_path, model_path)
+    # Hardcode the absolute path to the model directory
+    model_dir = os.path.expanduser("~/lerobot/outputs/train_act_trossen_pathmask/checkpoints/last")
+    print(f"[INFO] Loading model from local checkpoint: {model_dir}")
+    
+    # Use both config files from the pretrained_model directory
+    train_config_path = os.path.join(model_dir, "train_config.json")
+    config_path = os.path.join(model_dir, "config.json")
+    # if not os.path.exists(train_config_path):
+    #     raise ValueError(f"No train_config.json found at {train_config_path}")
+    # if not os.path.exists(config_path):
+    #     raise ValueError(f"No config.json found at {config_path}")
+    # return ACTInference(train_config_path, model_dir)
 
 def main():
     args = parse_args()
