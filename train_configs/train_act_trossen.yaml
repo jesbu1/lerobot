@@ -7,8 +7,8 @@ log_freq: 50
 save_freq: 500
 save_checkpoint: true
 resume: true
-output_dir: "outputs/train_act_trossen"
-job_name: "train_act_trossen"
+output_dir: "outputs/train_act_trossen_pathmask"
+job_name: "train_act_trossen_pathmask"
 
 # Dataset configuration
 dataset:
@@ -80,6 +80,6 @@ eval:
 
 # Wandb configuration
 wandb:
-  enable: false
-  project: "lerobot"
-  run_id: "train_act_trossen" 
+  enable: true
+  project: "lerobot-hackathon"
+  run_id: "train_act_trossen_pathmask" 
