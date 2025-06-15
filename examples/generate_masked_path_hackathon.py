@@ -19,6 +19,7 @@ from vila_utils.utils.encode import scale_path, smooth_path_rdp
 MASK_CAM_NAME = "stationary"
 RESOLUTION = 224
 FPS = 10
+SKIP_EPISODES = [24]
 
 
 def process_path_obs(sample_img, path, path_line_size=3, apply_rdp=False):
@@ -131,6 +132,8 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     # 3. Iterate through episodes, load data, add mask, and save to new dataset.
     with h5py.File(hdf5_path, "r") as hdf5_file:
         for episode_idx in tqdm(range(original_dataset.num_episodes), desc="Processing episodes"):
+            if episode_idx in SKIP_EPISODES:
+                continue
             # --- HDF5 Loading Logic ---
             # This is a placeholder for loading your HDF5 data.
             # You will need to adapt this based on the structure of your HDF5 file.
