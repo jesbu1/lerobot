@@ -20,7 +20,6 @@ from lerobot.configs.policies import PreTrainedConfig
 from lerobot.configs.types import NormalizationMode
 
 
-
 @PreTrainedConfig.register_subclass("act")
 @dataclass
 class ACTConfig(PreTrainedConfig):
@@ -131,6 +130,10 @@ class ACTConfig(PreTrainedConfig):
     # Inference.
     # Note: the value used in ACT when temporal ensembling is enabled is 0.01.
     temporal_ensemble_coeff: float | None = None
+    vlm_query_freq: int | None = None
+    vlm_server_ip: str | None = None
+    draw_path: bool = False
+    draw_mask: bool = False
 
     # Training and loss computation.
     dropout: float = 0.1
