@@ -12,6 +12,7 @@ import numpy as np
 from PIL import Image
 from lerobot.inference import ACTInference
 from lerobot.common.datasets.lerobot_dataset import LeRobotDataset, LeRobotDatasetMetadata
+import torch
 
 def parse_args():
     parser = argparse.ArgumentParser(description='ACT Policy Inference')
@@ -57,45 +58,28 @@ def load_model(args):
     #     raise ValueError(f"No config.json found at {config_path}")
     # return ACTInference(train_config_path, model_dir)
 
+def generate_test_data():
+    """Generate synthetic test data for inference."""
+
+    state = torch.randn(7) 
+    
+    # Generate a random RGB image
+    image = torch.randn(3, 224, 224)  # Random image data
+    
+    print("[INFO] Generated test data:")
+    print(f"State shape: {state.shape}")
+    print(f"Image shape: {image.shape}")
+    
+    return state, [image]
+
 def main():
     args = parse_args()
     
-    # Load dataset metadata first to analyze structure
-    print(f"[INFO] Loading dataset metadata for {args.dataset}...")
-    ds_meta = LeRobotDatasetMetadata(args.dataset)
-    print("\nDataset Metadata:")
-    print(f"Total number of episodes: {ds_meta.total_episodes}")
-    print(f"Average number of frames per episode: {ds_meta.total_frames / ds_meta.total_episodes:.3f}")
-    print(f"Frames per second: {ds_meta.fps}")
-    print(f"Robot type: {ds_meta.robot_type}")
-    print(f"Camera keys: {ds_meta.camera_keys}")
-    print("\nFeatures:")
-    print(ds_meta.features)
+    state, images = generate_test_data()
     
-    # Load dataset
-    print(f"\n[INFO] Loading dataset {args.dataset}...")
-    dataset = LeRobotDataset(args.dataset)
-    print(f"[INFO] Dataset loaded. Number of frames: {dataset.num_frames}")
-    
-    # Get sample
-    sample = dataset[args.sample_idx]
-    print("\n[INFO] Sample keys:", sample.keys())
-    
-    # Extract state and images
-    print("\n[INFO] Extracting state and images from sample...")
-    state = sample["observation.state"]
-    images = [sample[key] for key in ds_meta.camera_keys] if ds_meta.camera_keys else []
-    
-    print("[INFO] State shape:", state.shape)
-    if images:
-        print("[INFO] Number of images:", len(images))
-        print("[INFO] Image shape:", images[0].shape)
-    
-    # Load model
     inference = load_model(args)
     print("[INFO] Model loaded successfully.")
     
-    # Run inference
     print("[INFO] Running inference...")
     action = inference.get_action(state, images)
     print("[INFO] Inference complete.")
