@@ -134,21 +134,20 @@ def make_policy(
 
     # remap ds_meta features if remap_keys is provided
     if ds_meta is not None:
-        if remap_keys or drop_keys:
-            if drop_keys:
-                input_output_features = {
-                    key: val for key, val in ds_meta.features.items() if key not in drop_keys
-                }
-                input_output_stats = {key: val for key, val in ds_meta.stats.items() if key not in drop_keys}
-            if remap_keys:
-                input_output_features = {
-                    remap_keys.get(key, key): val for key, val in input_output_features.items()
-                }
-                input_output_stats = {remap_keys.get(key, key): val for key, val in ds_meta.stats.items()}
-
-        else:
-            input_output_features = ds_meta.features
-            input_output_stats = ds_meta.stats
+        input_output_features = ds_meta.features
+        input_output_stats = ds_meta.stats
+        
+        if drop_keys:
+            input_output_features = {
+                key: val for key, val in input_output_features.items() if key not in drop_keys
+            }
+            input_output_stats = {key: val for key, val in input_output_stats.items() if key not in drop_keys}
+            
+        if remap_keys:
+            input_output_features = {
+                remap_keys.get(key, key): val for key, val in input_output_features.items()
+            }
+            input_output_stats = {remap_keys.get(key, key): val for key, val in input_output_stats.items()}
 
     # NOTE: Currently, if you try to run vqbet with mps backend, you'll get this error.
     # TODO(aliberts, rcadene): Implement a check_backend_compatibility in policies?

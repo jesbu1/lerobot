@@ -12,17 +12,41 @@ job_name: "train_smolvla_trossen"
 
 # Dataset configuration
 dataset:
-  type: "parquet_video"
-  data_path: "data/chunk-{episode_chunk:03d}/episode_{episode_index:06d}.parquet"
-  video_path: "videos/chunk-{episode_chunk:03d}/{video_key}/episode_{episode_index:06d}.mp4"
+  repo_id: minjunkevink/trossen_objects_pick_place
+  revision: main
+  split: train
   remap_keys:
-    state: "observation.state"
-    image: "observation.images.stationary"
-    actions: "action"
-  fps: 30
-  video_height: 480
-  video_width: 640
-  video_channels: 3
+    observation.images.stationary: image
+    observation.state: state
+    action: actions
+  drop_keys: []
+  use_imagenet_stats: true
+  video_backend: pyav
+  image_transforms:
+    enable: true
+    max_num_transforms: 3
+    random_order: false
+    tfs:
+      brightness:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          brightness: [0.8, 1.2]
+      contrast:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          contrast: [0.8, 1.2]
+      saturation:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          saturation: [0.5, 1.5]
+      sharpness:
+        type: SharpnessJitter
+        weight: 1.0
+        kwargs:
+          sharpness: [0.5, 1.5]
 
 # Policy configuration
 policy:
