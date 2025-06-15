@@ -6,7 +6,7 @@ num_workers: 12
 log_freq: 50
 save_freq: 500
 save_checkpoint: true
-resume: true
+resume: false
 output_dir: "outputs/train_act_trossen_pathmask"
 job_name: "train_act_trossen_pathmask"
 
