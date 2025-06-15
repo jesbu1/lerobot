@@ -13,10 +13,6 @@ job_name: "train_act_trossen"
 # Dataset configuration
 dataset:
   repo_id: "minjunkevink/trossen_objects_pick_place"  # Trossen dataset from Hugging Face
-  remap_keys: # remaps dataset keys from the original format to the format expected by the policy
-    state: "observation.state"
-    image: "observation.images.stationary"
-    actions: "action"
   drop_keys: []  # No keys to drop for Trossen data
   use_imagenet_stats: true
   video_backend: pyav
