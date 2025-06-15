@@ -1,0 +1,115 @@
+# Training configuration
+seed: 42
+steps: 1000000
+batch_size: 32  # Reduced batch size due to video data
+num_workers: 20
+log_freq: 100
+save_freq: 5000
+save_checkpoint: true
+resume: false
+output_dir: "outputs/train_smolvla_trossen"
+job_name: "train_smolvla_trossen"
+
+# Dataset configuration
+dataset:
+  repo_id: minjunkevink/trossen_objects_pick_place
+  revision: main
+  split: train
+  remap_keys:
+    observation.images.stationary: image
+    observation.state: state
+    action: actions
+  drop_keys: []
+  use_imagenet_stats: true
+  video_backend: pyav
+  image_transforms:
+    enable: true
+    max_num_transforms: 3
+    random_order: false
+    tfs:
+      brightness:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          brightness: [0.8, 1.2]
+      contrast:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          contrast: [0.8, 1.2]
+      saturation:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          saturation: [0.5, 1.5]
+      sharpness:
+        type: SharpnessJitter
+        weight: 1.0
+        kwargs:
+          sharpness: [0.5, 1.5]
+
+# Policy configuration
+policy:
+  type: "smolvla"
+  device: "cuda"
+  use_amp: true  # Enable mixed precision for video training
+  input_features:
+    state:
+      type: "STATE"
+      shape: [7]  # 7 joint states
+    image:
+      type: "VISUAL"
+      shape: [3, 224, 224]  # Resized from 480x640
+  output_features:
+    action:
+      type: "ACTION"
+      shape: [7]  # 7 joint actions
+  chunk_size: 30  # 1 second of video at 30fps
+  n_action_steps: 30
+  
+  # smolVLA specific configurations
+  vlm_model_name: "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
+  freeze_vision_encoder: true
+  train_expert_only: true
+  train_state_proj: true
+  attention_mode: "cross_attn"
+  num_expert_layers: -1  # Use same number of layers as VLM
+  num_vlm_layers: 16
+  self_attn_every_n_layers: 2
+  expert_width_multiplier: 0.75
+  min_period: 4e-3
+  max_period: 4.0
+  use_cache: true
+  add_image_special_tokens: false
+  prefix_length: -1
+  pad_language_to: "longest"
+
+# Optimizer configuration
+optimizer:
+  type: "adamw"
+  lr: 5e-5  # Lower learning rate for fine-tuning
+  betas: [0.9, 0.95]
+  eps: 1e-8
+  weight_decay: 1e-10
+  grad_clip_norm: 10.0
+
+# Scheduler configuration
+scheduler:
+  type: "cosine_decay_with_warmup"
+  num_warmup_steps: 500
+  num_decay_steps: 15000
+  peak_lr: 5e-5
+  decay_lr: 1e-6
+
+# Evaluation configuration
+eval_freq: 1000
+eval:
+  n_episodes: 5
+  batch_size: 1
+  use_async_envs: false
+
+# Wandb configuration
+wandb:
+  enable: true
+  project: "trossen-vla"
+  run_id: "train_smolvla_trossen" 
