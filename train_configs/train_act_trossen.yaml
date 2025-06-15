@@ -1,0 +1,87 @@
+# Training configuration
+seed: 42
+steps: 1000000
+batch_size: 32  # Reduced batch size due to video data
+num_workers: 20
+log_freq: 100
+save_freq: 5000
+save_checkpoint: true
+resume: true
+output_dir: "outputs/train_act_trossen"
+job_name: "train_act_trossen"
+
+# Dataset configuration
+dataset:
+  repo_id: "minjunkevink/trossen_objects_pick_place"  # Trossen dataset from Hugging Face
+  remap_keys: # remaps dataset keys from the original format to the format expected by the policy
+    state: "observation.state"
+    image: "observation.images.stationary"
+    actions: "action"
+  drop_keys: []  # No keys to drop for Trossen data
+  use_imagenet_stats: true
+  video_backend: pyav
+  image_transforms:
+    enable: true
+    max_num_transforms: 3
+    random_order: false
+    tfs:
+      brightness:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          brightness: [0.8, 1.2]
+      contrast:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          contrast: [0.8, 1.2]
+      saturation:
+        type: ColorJitter
+        weight: 1.0
+        kwargs:
+          saturation: [0.5, 1.5]
+      sharpness:
+        type: SharpnessJitter
+        weight: 1.0
+        kwargs:
+          sharpness: [0.5, 1.5]
+
+# Policy configuration
+policy:
+  type: "act"
+  device: "cuda"
+  use_amp: true
+  input_features:
+    state:
+      type: "STATE"
+      shape: [7]  # 7 joint states for Trossen robot
+    image:
+      type: "VISUAL"
+      shape: [3, 224, 224]  # Resized from 480x640
+  output_features:
+    action:
+      type: "ACTION"
+      shape: [7]  # 7 joint actions for Trossen robot
+  chunk_size: 10
+  n_action_steps: 10
+  use_language: false  # No language conditioning for Trossen data
+
+# Optimizer configuration
+optimizer:
+  type: "adamw"
+  lr: 0.003
+  weight_decay: 0.01
+  grad_clip_norm: 1.0
+
+# Evaluation configuration
+eval_freq: 0
+eval:
+  n_episodes: 10
+  batch_size: 1
+  use_async_envs: false
+
+# Wandb configuration
+wandb:
+  enable: false
+  project: "lerobot"
+  run_id: "train_act_trossen" 
