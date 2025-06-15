@@ -24,7 +24,7 @@ def parse_args():
                            help='Path to local checkpoint directory containing model files')
     
     # Dataset arguments
-    parser.add_argument('--dataset', type=str, default="jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask",
+    parser.add_argument('--dataset', type=str, default="minjunkevink/trossen_objects_pick_place",
                        help='Hugging Face dataset ID to use for inference')
     parser.add_argument('--split', type=str, default="train",
                        help='Dataset split to use')
@@ -39,7 +39,7 @@ def parse_args():
     
     # Set default model if none specified
     if not args.hf_model and not args.local_checkpoint:
-        args.hf_model = "jesbu1/act-bridge-v2"
+        args.local_checkpoint = "outputs/train_act_trossen_pathmask/checkpoints/last/pretrained_model"
     
     return args
 
@@ -63,7 +63,9 @@ def load_model(args):
                 raise ValueError(f"No train_config.json found at {config_path}. Please specify --config_path")
         else:
             config_path = args.config_path
-        return ACTInference(config_path, args.local_checkpoint)
+        # Use the pretrained_model directory for both config and model
+        model_path = args.local_checkpoint
+        return ACTInference(config_path, model_path)
 
 def main():
     args = parse_args()
