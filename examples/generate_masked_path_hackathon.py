@@ -74,7 +74,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
         original_dataset (LeRobotDataset): The source dataset.
         hdf5_path (str): Path to the HDF5 file containing the masked_path data.
         new_repo_id (str): Repository id for the new dataset.
-        new_dataset_root (str): The root directory where the new dataset will be written.
         push_to_hub (bool, optional): Whether to push the new dataset to the hub. Defaults to False.
 
 
@@ -275,16 +274,11 @@ if __name__ == "__main__":
 
     dataset = LeRobotDataset(repo_id=args.repo_id, root=args.root)
 
-    new_dataset_root_path = args.new_dataset_root
-    if new_dataset_root_path is None:
-        new_dataset_root_path = Path(str(dataset.root or args.repo_id.split("/")[-1]) + "_masked_path")
-
     new_dataset = convert_lerobot_dataset_to_masked_path_dataset(
         original_dataset=dataset,
         hdf5_path=args.hdf5_path,
         new_repo_id=args.new_repo_id,
-        new_dataset_root=new_dataset_root_path,
         push_to_hub=args.push_to_hub,
     )
 
-    print(f"Successfully created dataset at {new_dataset_root_path}")
+    print(f"Successfully created dataset at {new_dataset.root}")
