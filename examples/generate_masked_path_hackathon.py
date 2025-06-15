@@ -94,13 +94,13 @@ def convert_lerobot_dataset_to_masked_path_dataset(
         c, h, w = original_dataset[0][camera_key].shape
 
     new_features["observation.images.image_path"] = {
-        "shape": [h, w, 3],
+        "shape": [3, h, w],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
 
     new_features["observation.images.image_masked_path"] = {
-        "shape": [h, w, 3],
+        "shape": [3, h, w],
         "dtype": "video",
         "names": ["height", "width", "channels"],
     }
@@ -285,7 +285,6 @@ if __name__ == "__main__":
         new_repo_id=args.new_repo_id,
         new_dataset_root=new_dataset_root_path,
         push_to_hub=args.push_to_hub,
-        task=args.task,
     )
 
     print(f"Successfully created dataset at {new_dataset_root_path}")
