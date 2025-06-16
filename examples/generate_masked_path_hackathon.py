@@ -139,6 +139,8 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     # 3. Iterate through episodes, load data, add mask, and save to new dataset.
     with h5py.File(hdf5_path, "r") as hdf5_file:
         for episode_idx in tqdm(range(original_dataset.num_episodes), desc="Processing episodes"):
+            if episode_idx > 4:
+                break
             if episode_idx in SKIP_EPISODES:
                 continue
             # --- HDF5 Loading Logic ---
@@ -256,10 +258,10 @@ def convert_lerobot_dataset_to_masked_path_dataset(
                             path_line_size=path_line_size,
                         )
                         new_frame[f"observation.images.image_masked_path"] = masked_path_img
-                        task_description = episode_group["task_description"][()]
-                        print(task_description)
+                        task_description = episode_group.attrs["task_description"]
                 new_dataset.add_frame(new_frame, task=task_description)
 
+            print(task_description)
             new_dataset.save_episode()
 
     if push_to_hub:
