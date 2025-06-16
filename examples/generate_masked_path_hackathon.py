@@ -1,3 +1,11 @@
+""" 
+python examples/generate_masked_path_hackathon.py \
+    --repo-id minjunkevink/updated_hamster_dataset_v2 \
+    --new-repo-id jesbu1/trossen_objects_pick_place_pathmask \
+    --push-to-hub \
+    --hdf5-path ~/VILA/test_hackathon_labeling_5x/bridge_paths_masks.h5
+"""
+
 import argparse
 from copy import deepcopy
 from lerobot.common.datasets.lerobot_dataset import HF_LEROBOT_HOME
@@ -14,7 +22,6 @@ from lerobot.common.datasets.lerobot_dataset import LeRobotDataset
 from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img
 from vila_utils.utils.encode import scale_path, smooth_path_rdp
 
-# python examples/generate_masked_path_hackathon.py --repo-id minjunkevink/trossen_objects_pick_place --new-repo-id jesbu1/trossen_objects_pick_place_pathmask --push-to-hub  --hdf5-path ~/VILA/test_hackathon_labeling_5x/bridge_paths_masks.h5
 
 MASK_CAM_NAME = "stationary"
 RESOLUTION = 224
