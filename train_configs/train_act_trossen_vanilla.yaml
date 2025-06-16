@@ -58,8 +58,8 @@ policy:
     action:
       type: "ACTION"
       shape: [7]  # 7 joint actions for Trossen robot
-  chunk_size: 10
-  n_action_steps: 10
+  chunk_size: 50
+  n_action_steps: 50
   use_language: false  # No language conditioning for Trossen data
 
 # Optimizer configuration
