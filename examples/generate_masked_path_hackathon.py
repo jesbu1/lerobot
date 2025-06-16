@@ -249,7 +249,9 @@ def convert_lerobot_dataset_to_masked_path_dataset(
                             path_line_size=path_line_size,
                         )
                         new_frame[f"observation.images.image_masked_path"] = masked_path_img
-                new_dataset.add_frame(new_frame, task=frame["task"])
+                        task_description = episode_group["task_description"][()]
+                        print(task_description)
+                new_dataset.add_frame(new_frame, task=task_description)
 
             new_dataset.save_episode()
 
