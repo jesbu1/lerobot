@@ -1,7 +1,7 @@
 """ 
 python examples/generate_masked_path_hackathon.py \
     --repo-id minjunkevink/updated_hamster_dataset_v2 \
-    --new-repo-id jesbu1/trossen_objects_pick_place_pathmask \
+    --new-repo-id jesbu1/eval_trossen_objects_pick_place_pathmask \
     --push-to-hub \
     --hdf5-path ~/VILA/test_hackathon_labeling_5x/bridge_paths_masks.h5
 """
@@ -139,8 +139,6 @@ def convert_lerobot_dataset_to_masked_path_dataset(
     # 3. Iterate through episodes, load data, add mask, and save to new dataset.
     with h5py.File(hdf5_path, "r") as hdf5_file:
         for episode_idx in tqdm(range(original_dataset.num_episodes), desc="Processing episodes"):
-            if episode_idx > 4:
-                break
             if episode_idx in SKIP_EPISODES:
                 continue
             # --- HDF5 Loading Logic ---
