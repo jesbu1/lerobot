@@ -12,7 +12,7 @@ job_name: "train_act_trossen_pathmask"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/trossen_objects_pick_place_pathmask"  # Trossen dataset from Hugging Face
+  repo_id: "jesbu1/eval_trossen_objects_pick_place_pathmask"  # Trossen dataset from Hugging Face
   remap_keys: 
     observation.images.image_masked_path: "observation.images.stationary"
   drop_keys: ["observation.images.image_path", "observation.images.stationary"]  # No keys to drop for Trossen data
