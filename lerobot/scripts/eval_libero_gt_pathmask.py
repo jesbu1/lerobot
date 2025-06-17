@@ -304,7 +304,7 @@ def eval_main(cfg: EvalPipelineConfig):
                             wandb_prefix = "failure"
                         wandb.log(
                             {
-                                f"task_{task_idx}/video_episode_{ep_info['episode_idx']}_{wandb_prefix}": wandb.Video(
+                                f"task_{task_idx}/video_episode_{ep_info['episode_ix']}_{wandb_prefix}": wandb.Video(
                                     info["video_paths"][i], fps=30, format="mp4"
                                 )
                             }
