@@ -129,7 +129,7 @@ class ACTPolicy(PreTrainedPolicy):
                 batch["task"],
                 batch_size=len(batch["task"]),
                 convert_to_tensor=True,
-                device=batch["action"].device,
+                device=self.config.device,
                 show_progress_bar=False,
             )
 
