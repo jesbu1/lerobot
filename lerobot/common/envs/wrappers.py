@@ -263,8 +263,27 @@ def get_path_mask_from_vlm(
             continue
     raise Exception("Failed to get path and mask from VLM")
 
+class ObservationModificationWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
 
-class GroundTruthPathMaskWrapper(gym.Wrapper):
+    def reset(self, **kwargs):
+        obs, info = self.env.reset(**kwargs)
+        self._after_env_reset(obs, info)
+        return self._modify_observation(obs), info
+
+    def _after_env_reset(self, obs, info):
+        raise NotImplementedError("Subclasses must implement this method")
+
+    def _modify_observation(self, obs):
+        raise NotImplementedError("Subclasses must implement this method")
+
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
+        return self._modify_observation(obs), reward, terminated, truncated, info
+
+
+class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
     """
     A gym wrapper that draws a path and mask on the observation image.
     This wrapper is designed to work with a single environment.
@@ -296,7 +315,6 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         self.current_masked_images = None
         self.rng = np.random.default_rng()
 
-
     def _modify_observation(self, obs):
         """Applies path and mask drawing to a single observation."""
         if self.image_key not in obs["pixels"]:
@@ -304,10 +322,10 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 
         img = obs["pixels"][self.image_key].copy()
         mask = self.current_mask[self.env.current_step % len(self.current_mask)]
-        #mask_points = np.stack(mask.nonzero(), axis=1)
-        #min_in, max_in = np.zeros(2), np.array(mask.shape)
-        #min_out, max_out = np.zeros(2), np.ones(2)
-        #mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
+        # mask_points = np.stack(mask.nonzero(), axis=1)
+        # min_in, max_in = np.zeros(2), np.array(mask.shape)
+        # min_out, max_out = np.zeros(2), np.ones(2)
+        # mask_points = scale_path(mask_points, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
         if self.draw_mask:
             # mask directly
             img = mask[..., None] * img
@@ -328,14 +346,12 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
         obs["pixels"][self.image_key] = img
         return obs
 
-    def reset(self, **kwargs):
-        obs, info = self.env.reset(**kwargs)
+    def _after_env_reset(self, obs, info):
         self.current_path, self.current_mask = self._load_path_and_mask_from_h5(
             self.env.task,
             self.env.episode_idx,
             obs["pixels"][self.image_key].shape,
         )
-        return self._modify_observation(obs), info
 
     def _load_path_and_mask_from_h5(
         self,
@@ -383,10 +399,18 @@ class GroundTruthPathMaskWrapper(gym.Wrapper):
 
             return path, masked_images
 
-    def step(self, action):
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        obs = self._modify_observation(obs)
-        return obs, reward, terminated, truncated, info
+class VLMPathMaskWrapper(ObservationModificationWrapper):
+    def __init__(self, env, vlm_server_ip: str = SERVER_IP):
+        super().__init__(env)
+        self.vlm_server_ip = vlm_server_ip
+        self.current_path = None
+        self.current_mask = None
+
+    def _after_env_reset(self, obs, info):
+        pass
+
+    def _modify_observation(self, obs):
+        pass
 
 
 class LIBEROEnv(gym.Env):
