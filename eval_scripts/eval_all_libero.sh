@@ -19,9 +19,9 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
 
 # Common settings
-path_mask_h5_loc=/home1/jessez/scratch_data/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
+path_mask_h5_loc=/scratch1/jessez/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
 libero_env_suite=libero_10
-libero_hdf5_dir=/home1/jessez/scratch_data/libero_processed_256_05_12/
+libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
 
 # Define all model variants and their settings
 declare -A model_configs
