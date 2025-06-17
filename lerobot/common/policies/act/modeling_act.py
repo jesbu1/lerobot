@@ -124,6 +124,15 @@ class ACTPolicy(PreTrainedPolicy):
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
             batch["observation.images"] = [batch[key] for key in self.config.image_features]
 
+        if self.config.use_language:
+            batch["lang_embed"] = self.lang_encoder.encode(
+                batch["task"],
+                batch_size=len(batch["task"]),
+                convert_to_tensor=True,
+                device=batch["action"].device,
+                show_progress_bar=False,
+            )
+
         # If we are doing temporal ensembling, do online updates where we keep track of the number of actions
         # we are ensembling over.
         if self.config.temporal_ensemble_coeff is not None:
