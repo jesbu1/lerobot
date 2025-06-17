@@ -18,11 +18,11 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
-policy_path=outputs/train_act_libero/checkpoints/last/pretrained_model
-path_mask_h5_loc=/home1/jessez/scratch_data/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
+policy_path=outputs/train_act_libero_lang/checkpoints/last/pretrained_model
+path_mask_h5_loc=/scratch1/jessez/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
 libero_env_suite=libero_10
-libero_hdf5_dir=/home1/jessez/scratch_data/libero_processed_256_05_12/
-wandb_name_suffix=test
+libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
+wandb_name_suffix=act_lang
 draw_path=false
 draw_mask=false
 
@@ -40,7 +40,7 @@ RUN_SCRIPT="conda run -n lerobot --no-capture-output python lerobot/scripts/eval
     --draw_path=$draw_path \
     --draw_mask=$draw_mask"
 
-EXP_NAME=train_act_libero
+EXP_NAME=train_act_libero_lang
 PROJ_NAME=lerobot
 
 echo "Executing command: $RUN_SCRIPT"
