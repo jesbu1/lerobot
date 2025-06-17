@@ -41,10 +41,21 @@ run_eval() {
     local draw_mask=$3
     
     local policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
-    local wandb_name_suffix="${model_name}"
+    
+    # Create descriptive wandb name based on model and settings
+    local path_suffix=""
+    local mask_suffix=""
+    if [ "$draw_path" = "true" ]; then
+        path_suffix="_path"
+    fi
+    if [ "$draw_mask" = "true" ]; then
+        mask_suffix="_mask"
+    fi
+    local wandb_name_suffix="${model_name}${path_suffix}${mask_suffix}"
     
     echo "Running evaluation for ${model_name}"
     echo "Path: ${draw_path}, Mask: ${draw_mask}"
+    echo "Wandb name: ${wandb_name_suffix}"
     
     RUN_SCRIPT="conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_gt_pathmask.py \
         --env.type=libero \
