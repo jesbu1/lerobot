@@ -25,11 +25,11 @@ libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
 # Define task suites to cycle through
 declare -a task_suites=("libero_10" "libero_spatial" "libero_object" "libero_goal")
 
-# Define ACT model variants and their settings
+# Define SmolVLA model variants and their settings
 declare -A model_configs
-model_configs["train_act_libero_lang"]="false false lang"
-model_configs["train_act_libero_path_lang"]="true false path"
-model_configs["train_act_libero_path_mask_lang"]="true true path+mask"
+model_configs["train_smolvla_libero"]="false false lang"
+model_configs["train_smolvla_libero_path"]="true false path"
+model_configs["train_smolvla_libero_path_mask"]="true true path+mask"
 
 # Function to run evaluation for a single model
 run_eval() {
@@ -40,7 +40,7 @@ run_eval() {
     local task_suite=$5
     
     local policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
-    local wandb_name="ACT_${suffix}_${task_suite}"
+    local wandb_name="SmolVLA_${suffix}_${task_suite}"
     
     echo "Running evaluation for ${model_name} on ${task_suite}"
     echo "Path: ${draw_path}, Mask: ${draw_mask}"
@@ -73,4 +73,4 @@ for task_suite in "${task_suites[@]}"; do
         read -r draw_path draw_mask suffix <<< "${model_configs[$model_name]}"
         run_eval "$model_name" "$draw_path" "$draw_mask" "$suffix" "$task_suite"
     done
-done
+done 
