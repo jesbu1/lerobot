@@ -12,7 +12,7 @@
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <model_name> <task_suite>"
-    echo "Available models: train_act_libero_lang, train_act_libero_path_lang, train_act_libero_path_mask_lang"
+    echo "Available models: train_smolvla_libero, train_smolvla_libero_path, train_smolvla_libero_path_mask"
     echo "Available task suites: libero_10, libero_spatial, libero_object, libero_goal"
     exit 1
 fi
@@ -30,11 +30,11 @@ export MUJOCO_GL=egl
 path_mask_h5_loc=/scratch1/jessez/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
 libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
 
-# Define ACT model variants and their settings
+# Define SmolVLA model variants and their settings
 declare -A model_configs
-model_configs["train_act_libero_lang"]="false false lang"
-model_configs["train_act_libero_path_lang"]="true false path"
-model_configs["train_act_libero_path_mask_lang"]="true true path+mask"
+model_configs["train_smolvla_libero"]="false false lang"
+model_configs["train_smolvla_libero_path"]="true false path"
+model_configs["train_smolvla_libero_path_mask"]="true true path+mask"
 
 # Get command line arguments
 model_name=$1
@@ -58,7 +58,7 @@ fi
 # Run evaluation
 read -r draw_path draw_mask suffix <<< "${model_configs[$model_name]}"
 policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
-wandb_name="ACT_${suffix}_${task_suite}"
+wandb_name="SmolVLA_${suffix}_${task_suite}"
 
 echo "Running evaluation for ${model_name} on ${task_suite}"
 echo "Path: ${draw_path}, Mask: ${draw_mask}"
@@ -79,4 +79,4 @@ RUN_SCRIPT="conda run -n lerobot --no-capture-output python lerobot/scripts/eval
     --draw_mask=$draw_mask"
 
 echo "Executing command: $RUN_SCRIPT"
-$RUN_SCRIPT
+$RUN_SCRIPT 
