@@ -264,8 +264,9 @@ def get_path_mask_from_vlm(
     raise Exception("Failed to get path and mask from VLM")
 
 class ObservationModificationWrapper(gym.Wrapper):
-    def __init__(self, env):
+    def __init__(self, env, image_key: str):
         super().__init__(env)
+        self.image_key = image_key
 
     def reset(self, **kwargs):
         obs, info = self.env.reset(**kwargs)
@@ -305,9 +306,8 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             draw_mask: Whether to draw the mask on the image
             image_key: The key in the observation dictionary that contains the image.
         """
-        super().__init__(env)
+        super().__init__(env, image_key=image_key)
         self.path_and_mask_h5_file = path_and_mask_h5_file
-        self.image_key = image_key
         self.draw_path = draw_path
         self.draw_mask = draw_mask
 
@@ -400,17 +400,64 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             return path, masked_images
 
 class VLMPathMaskWrapper(ObservationModificationWrapper):
-    def __init__(self, env, vlm_server_ip: str = SERVER_IP):
-        super().__init__(env)
+    def __init__(
+        self,
+        env,
+        image_key: str,
+        vlm_server_ip: str = SERVER_IP,
+        vlm_query_frequency: int = 50,
+        draw_path: bool = True,
+        draw_mask: bool = True,
+    ):
+        super().__init__(env, image_key=image_key)
         self.vlm_server_ip = vlm_server_ip
         self.current_path = None
         self.current_mask = None
+        self.current_step = 0
+        self.vlm_query_frequency = vlm_query_frequency
+        self.draw_path = draw_path
+        self.draw_mask = draw_mask
 
     def _after_env_reset(self, obs, info):
-        pass
+        self.current_step = 0
 
     def _modify_observation(self, obs):
-        pass
+        img = obs["pixels"][self.image_key].copy()
+        if self.current_step % self.vlm_query_frequency == 0:
+            try:
+                img, self.current_path, self.current_mask = get_path_mask_from_vlm(
+                    image=img,
+                    crop_type="Center Crop",
+                    task_instr=self.env.task,
+                    draw_path=self.draw_path,
+                    draw_mask=self.draw_mask,
+                    verbose=False,
+                    vlm_server_ip=self.vlm_server_ip,
+                )
+            except Exception as e:
+                print(f"Error: {e}")
+                self.current_path = None
+                self.current_mask = None
+        if self.current_path is not None or self.current_mask is not None:
+            # draw without querying by passing the current path and mask
+            img, _, _ = get_path_mask_from_vlm(
+                image=img,
+                crop_type="Center Crop",
+                task_instr=self.env.task,
+                draw_path=self.draw_path,
+                draw_mask=self.draw_mask,
+                verbose=False,
+                vlm_server_ip=None,
+                path=self.current_path,
+                mask=self.current_mask,
+            )
+
+        obs["pixels"][self.image_key] = img
+        return obs
+
+    def step(self, action):
+        self.current_step += 1
+        return super().step(action)
 
 
 class LIBEROEnv(gym.Env):
