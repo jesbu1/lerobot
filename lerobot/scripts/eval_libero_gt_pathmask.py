@@ -162,7 +162,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
-    wandb_name = f"libero_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
+    wandb_name = f"eval_{cfg.env.task_suite_name}_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
 
     if cfg.wandb_enable:
         wandb.init(
@@ -226,7 +226,7 @@ def eval_main(cfg: EvalPipelineConfig):
                     draw_path=cfg.draw_path,
                     draw_mask=cfg.draw_mask,
                     image_key=cfg.image_key,
-                    task_idx=0,
+                    task_idx=task_idx,
                     start_episode_idx=idx,
                     n_envs=1,
                 )
@@ -234,7 +234,7 @@ def eval_main(cfg: EvalPipelineConfig):
                     env.reset()
                     VALID_EPISODE_LIST.append(idx)
                 except KeyError as e:
-                    logging.error(f"Error making environment for task {0} and episode {idx}: {e}")
+                    logging.error(f"Error making environment for task {task_idx} and episode {idx}: {e}")
                     continue
 
             logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
@@ -262,8 +262,8 @@ def eval_main(cfg: EvalPipelineConfig):
             info = eval_policy(
                 env,
                 policy,
-                cfg.eval.n_episodes,
-                max_episodes_rendered=10,
+                len(VALID_EPISODE_LIST),
+                max_episodes_rendered=len(VALID_EPISODE_LIST),
                 videos_dir=Path(cfg.output_dir) / "videos",
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
@@ -280,7 +280,7 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward += eval_tracker.avg_sum_reward.sum
             task_eval_time += eval_tracker.eval_s.sum
             overall_metrics["total_successes"] += eval_tracker.pc_success.sum
-            overall_metrics["total_episodes"] += 1
+            overall_metrics["total_episodes"] += len(VALID_EPISODE_LIST)
             overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
             overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
 
@@ -297,7 +297,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 # Log videos if available
                 if "video_paths" in info and len(info["video_paths"]) > 0:
                     for i, ep_info in enumerate(info["per_episode"]):
-                        if i > len(info["video_paths"]):
+                        if i >= len(info["video_paths"]):
                             break
                         if ep_info["success"]:
                             wandb_prefix = "success"
@@ -305,7 +305,7 @@ def eval_main(cfg: EvalPipelineConfig):
                             wandb_prefix = "failure"
                         wandb.log(
                             {
-                                f"{wandb_prefix}/task_{task_idx}/video": wandb.Video(
+                                f"task_{task_idx}/video_episode_{ep_info['episode_ix']}_{wandb_prefix}": wandb.Video(
                                     info["video_paths"][i], fps=30, format="mp4"
                                 )
                             }
