@@ -58,7 +58,7 @@ fi
 # Run evaluation
 read -r draw_path draw_mask suffix <<< "${model_configs[$model_name]}"
 policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
-wandb_name="SmolVLA_${suffix}_${task_suite}"
+wandb_name="${model_name}_${task_suite}_PATH${draw_path}_MASK${draw_mask}"
 
 echo "Running evaluation for ${model_name} on ${task_suite}"
 echo "Path: ${draw_path}, Mask: ${draw_mask}"
