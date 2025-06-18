@@ -1,19 +1,16 @@
 import gymnasium as gym
+import numpy as np
+import h5py
+import time
+import base64
+import cv2
 import os
 import math
 import pathlib
-import numpy as np
-import h5py
+from gymnasium import spaces
 from libero.libero import get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
 from libero.libero import benchmark
-from gymnasium import spaces
-
-import re
-import time
-from PIL import Image
-import base64
-import cv2
 import numpy as np
 from openai import OpenAI
 from vila_utils.utils.prompts import get_prompt

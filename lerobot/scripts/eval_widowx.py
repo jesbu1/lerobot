@@ -15,8 +15,8 @@ import numpy as np
 from pynput import keyboard
 
 # --- openpi specific imports ---
-from openpi_client import websocket_client_policy as _websocket_client_policy
-from openpi_client import image_tools
+from lerobot.common.utils import websocket_client_policy as _websocket_client_policy
+from lerobot.common.envs.utils import resize_with_pad
 
 # --- widowx specific imports (assuming installed from widowx_envs or similar) ---
 # Need to ensure these imports are correct based on the actual widowx_envs structure
@@ -158,7 +158,7 @@ def format_observation(raw_obs: Dict[str, Any], cameras: List[str], prompt: str)
         img = raw_obs[img_key]
 
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
-        obs_for_policy[f"images/{cam_name}"] = image_tools.resize_with_pad(img, resolution, resolution)
+        obs_for_policy[f"images/{cam_name}"] = resize_with_pad(img, resolution, resolution)
 
     return obs_for_policy
 
