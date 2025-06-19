@@ -215,6 +215,8 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward = 0.0
             task_eval_time = 0.0
 
+            eval_tracker.reset_averages()
+
             # first determine the valid episode list
             # this is to avoid making envs that don't have ground truth path/mask data
             VALID_EPISODE_LIST = []
@@ -271,16 +273,22 @@ def eval_main(cfg: EvalPipelineConfig):
             eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
             eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
             eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
-            task_successes += eval_tracker.pc_success.sum
+
+            task_successes = sum(e["success"] for e in info["per_episode"])
+
             assert len(VALID_EPISODE_LIST) == len(
                 info["per_episode"]
             ), "number of episodes in VALID_EPISODE_LIST and info['per_episode'] should be the same"
             task_episodes += len(VALID_EPISODE_LIST)
-            task_reward += eval_tracker.avg_sum_reward.sum
+
+            total_reward_for_task = sum(e["sum_reward"] for e in info["per_episode"])
+            task_reward += total_reward_for_task
+
             task_eval_time += eval_tracker.eval_s.sum
-            overall_metrics["total_successes"] += eval_tracker.pc_success.sum
+
+            overall_metrics["total_successes"] += task_successes
             overall_metrics["total_episodes"] += len(VALID_EPISODE_LIST)
-            overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
+            overall_metrics["total_reward"] += total_reward_for_task
             overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
 
             # Log episode-level metrics to wandb
