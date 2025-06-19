@@ -216,6 +216,13 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward = 0.0
             task_eval_time = 0.0
 
+            # Clear videos directory to avoid logging videos from previous tasks
+            videos_dir = Path(cfg.output_dir) / "videos"
+            if videos_dir.exists():
+                import shutil
+
+                shutil.rmtree(videos_dir)
+
             eval_tracker.reset_averages()
 
             # first determine the valid episode list
@@ -266,7 +273,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 policy,
                 len(VALID_EPISODE_LIST),
                 max_episodes_rendered=len(VALID_EPISODE_LIST),
-                videos_dir=Path(cfg.output_dir) / "videos",
+                videos_dir=videos_dir,
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
             )
