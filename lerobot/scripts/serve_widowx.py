@@ -20,7 +20,7 @@ class WidowXEvalConfig:
     # (useful for debugging). This argument is mutually exclusive with `--config`.
     draw_path: bool = True
     draw_mask: bool = True
-    image_keys: list[str] = ["image_0", "image_1"]
+    image_keys: list[str] = ["external_img", "over_shoulder"]
     env: envs.EnvConfig
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None

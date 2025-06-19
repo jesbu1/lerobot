@@ -11,6 +11,7 @@ import websockets.frames
 from lerobot.common.policies.pretrained import PreTrainedPolicy
 from lerobot.common.utils.websocket_policy import msgpack_numpy
 from lerobot.common.envs.widowx_env import WidowXMessageFormat
+from lerobot.common.envs.utils import preprocess_observation
 
 
 class WebsocketPolicyServer:
@@ -57,18 +58,24 @@ class WebsocketPolicyServer:
             try:
                 obs: WidowXMessageFormat = msgpack_numpy.unpackb(await websocket.recv())
                 policy_obs = {
-                    "state": obs["state"],
+                    "observation.state": obs["state"],
                     "task": obs["prompt"],
                 }
                 for cam_name, img in obs["images"].items():
-                    policy_obs[f"pixels/{cam_name}"] = img
+                    policy_obs[f"observation.images.{cam_name}"] = img
+                policy_obs = preprocess_observation(policy_obs)
+
+                policy_obs = {
+                    key: policy_obs[key].to(self._device, non_blocking=self._device.type == "cuda")
+                    for key in policy_obs
+                }
                 with torch.inference_mode():
                     self._policy.reset()  # clears the action chunk
-                    action = self._policy.select_action_chunk(policy_obs)  # get full action chunk
+                    action = self._policy.select_action_chunk(policy_obs).to("cpu")  # get full action chunk
                     assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
                     assert action.shape[1] == 1, "Batch size should be 1"
                 action = action[1]  # get first batch item from the chunk
-                action = {"actions": action.to(self._device, non_blocking=self._device.type == "cuda")}
+                action = {"actions": action.tolist()}
                 await websocket.send(packer.pack(action))
             except websockets.ConnectionClosed:
                 logging.info(f"Connection from {websocket.remote_address} closed")
