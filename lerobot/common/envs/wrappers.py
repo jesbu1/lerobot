@@ -536,6 +536,10 @@ class LIBEROEnv(gym.Env):
         return self._episode_idx
 
     @property
+    def task_idx(self):
+        return self._task_idx
+
+    @property
     def num_tasks(self):
         return self._libero_task_suite.n_tasks
 
