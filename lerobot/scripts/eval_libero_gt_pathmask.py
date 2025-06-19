@@ -310,14 +310,6 @@ def eval_main(cfg: EvalPipelineConfig):
 
             # Log episode-level metrics to wandb
             if cfg.wandb_enable:
-                wandb.log(
-                    {
-                        f"task_{task_idx}/success_rate": eval_tracker.pc_success.avg,
-                        f"task_{task_idx}/avg_reward": eval_tracker.avg_sum_reward.avg,
-                        f"task_{task_idx}/eval_time_per_ep": eval_tracker.eval_s.avg,
-                    }
-                )
-
                 # Log videos if available
                 if "video_paths" in info and len(info["video_paths"]) > 0:
                     for i, ep_info in enumerate(info["per_episode"]):
