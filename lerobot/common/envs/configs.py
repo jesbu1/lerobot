@@ -339,8 +339,8 @@ class WidowXEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "state": OBS_STATE,
-            "pixels/external": f"{OBS_IMAGES}.image_0",
-            "pixels/over_shoulder": f"{OBS_IMAGES}.image_1",
+            "pixels/external": f"{OBS_IMAGES}.external",
+            # "pixels/over_shoulder": f"{OBS_IMAGES}.over_shoulder",
         }
     )
 
@@ -348,9 +348,9 @@ class WidowXEnv(EnvConfig):
         self.features["pixels/external"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
-        self.features["pixels/over_shoulder"] = PolicyFeature(
-            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
-        )
+        # self.features["pixels/over_shoulder"] = PolicyFeature(
+        #    type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        # )
 
     @property
     def gym_kwargs(self) -> dict:
