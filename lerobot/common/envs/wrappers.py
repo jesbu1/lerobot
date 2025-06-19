@@ -1,22 +1,24 @@
 import gymnasium as gym
-import numpy as np
-import h5py
-import time
-import base64
-import cv2
 import os
 import math
 import pathlib
-from gymnasium import spaces
+import numpy as np
+import h5py
 from libero.libero import get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
 from libero.libero import benchmark
+from gymnasium import spaces
+
+import re
+import time
+from PIL import Image
+import base64
+import cv2
 import numpy as np
 from openai import OpenAI
 from vila_utils.utils.prompts import get_prompt
 from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img, get_path_from_answer
 from vila_utils.utils.encode import scale_path
-from lerobot.common.envs.utils import convert_to_uint8, resize_with_pad
 
 
 # Constants
@@ -26,6 +28,64 @@ DOWNSAMPLE_RESOLUTION = 256
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
 PATH_MODEL_NAME = "vila_3b_oxe_sim_path"
 PATH_MODEL_NAME_MASK = "vila_3b_oxe_sim_path_mask"
+
+
+def convert_to_uint8(img: np.ndarray) -> np.ndarray:
+    """Converts an image to uint8 if it is a float image.
+
+    This is important for reducing the size of the image when sending it over the network.
+    """
+    if np.issubdtype(img.dtype, np.floating):
+        img = (255 * img).astype(np.uint8)
+    return img
+
+
+def _resize_with_pad_pil(image: Image.Image, height: int, width: int, method: int) -> Image.Image:
+    """Replicates tf.image.resize_with_pad for one image using PIL. Resizes an image to a target height and
+    width without distortion by padding with zeros.
+
+    Unlike the jax version, note that PIL uses [width, height, channel] ordering instead of [batch, h, w, c].
+    """
+    cur_width, cur_height = image.size
+    if cur_width == width and cur_height == height:
+        return image  # No need to resize if the image is already the correct size.
+
+    ratio = max(cur_width / width, cur_height / height)
+    resized_height = int(cur_height / ratio)
+    resized_width = int(cur_width / ratio)
+    resized_image = image.resize((resized_width, resized_height), resample=method)
+
+    zero_image = Image.new(resized_image.mode, (width, height), 0)
+    pad_height = max(0, int((height - resized_height) / 2))
+    pad_width = max(0, int((width - resized_width) / 2))
+    zero_image.paste(resized_image, (pad_width, pad_height))
+    assert zero_image.size == (width, height)
+    return zero_image
+
+
+def resize_with_pad(images: np.ndarray, height: int, width: int, method=Image.BILINEAR) -> np.ndarray:
+    """Replicates tf.image.resize_with_pad for multiple images using PIL. Resizes a batch of images to a target height.
+
+    Args:
+        images: A batch of images in [..., height, width, channel] format.
+        height: The target height of the image.
+        width: The target width of the image.
+        method: The interpolation method to use. Default is bilinear.
+
+    Returns:
+        The resized images in [..., height, width, channel].
+    """
+    # If the images are already the correct size, return them as is.
+    if images.shape[-3:-1] == (height, width):
+        return images
+
+    original_shape = images.shape
+
+    images = images.reshape(-1, *original_shape[-3:])
+    resized = np.stack(
+        [_resize_with_pad_pil(Image.fromarray(im), height, width, method=method) for im in images]
+    )
+    return resized.reshape(*original_shape[:-3], *resized.shape[-3:])
 
 
 def draw_onto_image(vlm_path_mask_output, prompt_type, img, verbose=False):
@@ -477,6 +537,10 @@ class LIBEROEnv(gym.Env):
     @property
     def episode_idx(self):
         return self._episode_idx
+
+    @property
+    def task_idx(self):
+        return self._task_idx
 
     @property
     def num_tasks(self):
