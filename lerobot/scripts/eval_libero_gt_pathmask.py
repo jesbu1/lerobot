@@ -91,7 +91,9 @@ def reset_callback(envs: gym.vector.VectorEnv):
     global VALID_EPISODE_LIST, CURRENT_EPISODE_IDX
     for env in envs.envs:
         new_idx = CURRENT_EPISODE_IDX % len(VALID_EPISODE_LIST)
-        print(f"Setting episode idx to {VALID_EPISODE_LIST[new_idx]} with task idx {CURRENT_EPISODE_IDX}")
+        print(
+            f"Setting episode idx to {VALID_EPISODE_LIST[new_idx]} with actual iterator idx {CURRENT_EPISODE_IDX}"
+        )
         env.set_episode_idx(VALID_EPISODE_LIST[new_idx])
         CURRENT_EPISODE_IDX += 1
 
