@@ -17,6 +17,7 @@ from pynput import keyboard
 # --- openpi specific imports ---
 from lerobot.common.utils import websocket_client_policy as _websocket_client_policy
 from lerobot.common.envs.utils import resize_with_pad
+from lerobot.common.envs.widowx_env import WidowXMessageFormat
 
 # --- widowx specific imports (assuming installed from widowx_envs or similar) ---
 # Need to ensure these imports are correct based on the actual widowx_envs structure
@@ -146,14 +147,12 @@ def format_observation(
     raw_obs: Dict[str, Any], cameras: List[str], prompt: str, reset: bool
 ) -> Dict[str, Any]:
     """Formats raw observation from robot into the structure expected by the policy."""
-    obs_for_policy = {
+    obs_for_policy: WidowXMessageFormat = {
         "state": raw_obs["state"],
         "prompt": prompt,
+        "reset": reset,
+        "images": {},
     }
-    if reset:
-        obs_for_policy["reset"] = True
-    else:
-        obs_for_policy["reset"] = False
     for cam_name in cameras:
         # Map camera name to the key used in raw_obs
         assert (

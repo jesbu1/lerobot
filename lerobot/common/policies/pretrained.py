@@ -197,3 +197,8 @@ class PreTrainedPolicy(nn.Module, HubMixin, abc.ABC):
         with caching.
         """
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def select_action_chunk(self, batch: dict[str, Tensor]) -> Tensor:
+        """Return a chunk of actions to run in the environment (potentially in batch mode)."""
+        raise NotImplementedError

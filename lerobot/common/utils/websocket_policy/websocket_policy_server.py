@@ -10,12 +10,13 @@ import websockets.frames
 
 from lerobot.common.policies.pretrained import PreTrainedPolicy
 from lerobot.common.utils.websocket_policy import msgpack_numpy
+from lerobot.common.envs.widowx_env import WidowXMessageFormat
 
 
 class WebsocketPolicyServer:
     """Serves a policy using the websocket protocol. See websocket_client_policy.py for a client implementation.
 
-    Currently only implements the `load` and `infer` methods.
+    Currently only implements the `infer` method.
     """
 
     def __init__(
@@ -54,17 +55,20 @@ class WebsocketPolicyServer:
 
         while True:
             try:
-                obs = msgpack_numpy.unpackb(await websocket.recv())
-                obs["task"] = obs.pop("prompt")
-                if obs.get("reset", False):
-                    self._policy.reset()
-                with torch.inference_mode():
-                    action = self._policy.select_action(obs)
-                assert action.ndim == 2, "Action dimensions should be (batch, action_dim)"
-                action = {
-                    key: action[key].to(self._device, non_blocking=self._device.type == "cuda")
-                    for key in action
+                obs: WidowXMessageFormat = msgpack_numpy.unpackb(await websocket.recv())
+                policy_obs = {
+                    "state": obs["state"],
+                    "task": obs["prompt"],
                 }
+                for cam_name, img in obs["images"].items():
+                    policy_obs[f"pixels/{cam_name}"] = img
+                with torch.inference_mode():
+                    self._policy.reset()  # clears the action chunk
+                    action = self._policy.select_action_chunk(policy_obs)  # get full action chunk
+                    assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
+                    assert action.shape[1] == 1, "Batch size should be 1"
+                action = action[1]  # get first batch item from the chunk
+                action = {"actions": action.to(self._device, non_blocking=self._device.type == "cuda")}
                 await websocket.send(packer.pack(action))
             except websockets.ConnectionClosed:
                 logging.info(f"Connection from {websocket.remote_address} closed")

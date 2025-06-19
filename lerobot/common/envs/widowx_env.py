@@ -1,6 +1,15 @@
 from gymnasium import spaces
 import gymnasium as gym
 import numpy as np
+from typing_extensions import TypedDict
+
+
+class WidowXMessageFormat(TypedDict):
+    """Message format for the WidowX client-server environment."""
+
+    state: np.ndarray
+    prompt: str  # from the eval_widowx code
+    images: dict[str, np.ndarray]
 
 
 class WidowXEnv(gym.Env):
