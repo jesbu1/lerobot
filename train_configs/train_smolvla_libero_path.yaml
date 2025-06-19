@@ -46,7 +46,7 @@ policy:
   # smolVLA specific configurations
   vlm_model_name: "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
   freeze_vision_encoder: true
-  train_expert_only: true
+  train_expert_only: false
   train_state_proj: true
   attention_mode: "cross_attn"
   num_expert_layers: -1  # Use same number of layers as VLM
