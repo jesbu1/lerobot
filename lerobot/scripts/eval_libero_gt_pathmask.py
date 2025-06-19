@@ -77,16 +77,17 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
 
 VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
+CURRENT_TASK_IDX = 0  # for the reset callback to properly set the next task idx
 
 
 def reset_callback(envs: gym.vector.VectorEnv):
     # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
-    global VALID_EPISODE_LIST
-    number_of_envs = len(envs.envs)
+    global VALID_EPISODE_LIST, CURRENT_TASK_IDX
     for env in envs.envs:
-        original_episode_idx = env.episode_idx
-        new_idx = (original_episode_idx + number_of_envs) % len(VALID_EPISODE_LIST)
+        new_idx = CURRENT_TASK_IDX % len(VALID_EPISODE_LIST)
+        print(f"Setting episode idx to {VALID_EPISODE_LIST[new_idx]} with task idx {CURRENT_TASK_IDX}")
         env.set_episode_idx(VALID_EPISODE_LIST[new_idx])
+        CURRENT_TASK_IDX += 1
 
 
 def make_libero_env(
@@ -125,7 +126,7 @@ def make_libero_env(
 
     env = gym.vector.SyncVectorEnv(
         [
-            lambda: GroundTruthPathMaskWrapper(
+            lambda i=i: GroundTruthPathMaskWrapper(
                 LIBEROEnv(
                     task_suite_name=env_cfg.task_suite_name,
                     seed=env_cfg.seed,
@@ -133,7 +134,7 @@ def make_libero_env(
                     libero_hdf5_dir=env_cfg.libero_hdf5_dir,
                     load_gt_initial_states=env_cfg.load_gt_initial_states,
                     task_idx=task_idx,
-                    episode_idx=start_episode_idx + i,
+                    episode_idx=start_episode_idx,
                 ),
                 path_and_mask_h5_file=path_and_mask_h5_file,
                 draw_path=draw_path,
