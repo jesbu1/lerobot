@@ -32,9 +32,9 @@ libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
 
 # Define SmolVLA model variants and their settings
 declare -A model_configs
-model_configs["train_smolvla_libero"]="false false lang"
-model_configs["train_smolvla_libero_path"]="true false path"
-model_configs["train_smolvla_libero_path_mask"]="true true path+mask"
+model_configs["train_smolvla_libero"]="false false LANG"
+model_configs["train_smolvla_libero_path"]="true false PATH"
+model_configs["train_smolvla_libero_path_mask"]="true true PATH_MASK"
 
 # Get command line arguments
 model_name=$1
@@ -58,7 +58,25 @@ fi
 # Run evaluation
 read -r draw_path draw_mask suffix <<< "${model_configs[$model_name]}"
 policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
-wandb_name="${model_name}_${task_suite}_PATH${draw_path}_MASK${draw_mask}"
+
+# Convert task suite to display format
+case $task_suite in
+    "libero_10")
+        task_display="LIBERO10"
+        ;;
+    "libero_spatial")
+        task_display="LIBERO_SPATIAL"
+        ;;
+    "libero_object")
+        task_display="LIBERO_OBJECT"
+        ;;
+    "libero_goal")
+        task_display="LIBERO_GOAL"
+        ;;
+esac
+
+# Construct simplified wandb name
+wandb_name="SMOLVLA_${suffix}_${task_display}"
 
 echo "Running evaluation for ${model_name} on ${task_suite}"
 echo "Path: ${draw_path}, Mask: ${draw_mask}"

@@ -42,16 +42,25 @@ run_eval() {
     
     local policy_path="outputs/${model_name}/checkpoints/last/pretrained_model"
     
-    # Create descriptive wandb name based on model and settings
-    local path_suffix=""
-    local mask_suffix=""
-    if [ "$draw_path" = "true" ]; then
-        path_suffix="_path"
+    # Determine model type and variant
+    local model_type=""
+    local variant=""
+    
+    if [[ $model_name == *"smolvla"* ]]; then
+        model_type="SMOLVLA"
+    elif [[ $model_name == *"act"* ]]; then
+        model_type="ACT"
     fi
-    if [ "$draw_mask" = "true" ]; then
-        mask_suffix="_mask"
+    
+    if [ "$draw_path" = "true" ] && [ "$draw_mask" = "true" ]; then
+        variant="PATH_MASK"
+    elif [ "$draw_path" = "true" ]; then
+        variant="PATH"
+    else
+        variant="LANG"
     fi
-    local wandb_name_suffix="${model_name}${path_suffix}${mask_suffix}"
+    
+    local wandb_name_suffix="${model_type}_${variant}_LIBERO10"
     
     echo "Running evaluation for ${model_name}"
     echo "Path: ${draw_path}, Mask: ${draw_mask}"

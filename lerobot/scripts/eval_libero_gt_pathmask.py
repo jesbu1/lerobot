@@ -161,7 +161,8 @@ def eval_main(cfg: EvalPipelineConfig):
 
     logging.info(colored("Output dir:", "yellow", attrs=["bold"]) + f" {cfg.output_dir}")
 
-    wandb_name = f"eval_{cfg.env.task_suite_name}_gt_pathmask_draw{cfg.draw_path}_mask{cfg.draw_mask}_{cfg.wandb_name_suffix}"
+    # Use the passed wandb name directly
+    wandb_name = cfg.wandb_name_suffix
 
     if cfg.wandb_enable:
         wandb.init(
