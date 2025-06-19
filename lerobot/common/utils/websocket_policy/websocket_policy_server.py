@@ -1,14 +1,15 @@
 """Taken from OpenPI: https://github.com/Physical-Intelligence/openpi/blob/main/packages/openpi-client/src/openpi/serving/websocket_policy_server.py"""
 
 import asyncio
-import torch
 import logging
 import traceback
 
-from lerobot.common.utils.websocket_policy import msgpack_numpy
-from lerobot.common.utils.websocket_policy.base_policy import BasePolicy
+import torch
 import websockets.asyncio.server
 import websockets.frames
+
+from lerobot.common.policies.pretrained import PreTrainedPolicy
+from lerobot.common.utils.websocket_policy import msgpack_numpy
 
 
 class WebsocketPolicyServer:
@@ -19,7 +20,7 @@ class WebsocketPolicyServer:
 
     def __init__(
         self,
-        policy: BasePolicy,
+        policy: PreTrainedPolicy,
         device: torch.device,
         host: str = "0.0.0.0",
         port: int = 8000,
@@ -55,6 +56,8 @@ class WebsocketPolicyServer:
             try:
                 obs = msgpack_numpy.unpackb(await websocket.recv())
                 obs["task"] = obs.pop("prompt")
+                if obs.get("reset", False):
+                    self._policy.reset()
                 with torch.inference_mode():
                     action = self._policy.select_action(obs)
                 assert action.ndim == 2, "Action dimensions should be (batch, action_dim)"

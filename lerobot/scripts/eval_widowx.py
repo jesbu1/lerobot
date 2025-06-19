@@ -142,12 +142,18 @@ def wait_for_observation(client: WidowXClient, timeout: int = 60) -> Dict:
         print(f"⏳ Waiting for robot observation... (elapsed: {elapsed:.1f}s)")
 
 
-def format_observation(raw_obs: Dict[str, Any], cameras: List[str], prompt: str) -> Dict[str, Any]:
+def format_observation(
+    raw_obs: Dict[str, Any], cameras: List[str], prompt: str, reset: bool
+) -> Dict[str, Any]:
     """Formats raw observation from robot into the structure expected by the policy."""
     obs_for_policy = {
         "state": raw_obs["state"],
         "prompt": prompt,
     }
+    if reset:
+        obs_for_policy["reset"] = True
+    else:
+        obs_for_policy["reset"] = False
     for cam_name in cameras:
         # Map camera name to the key used in raw_obs
         assert (
@@ -205,7 +211,7 @@ def run_inference_loop(
         while True:  # Loop until stop, reset, or error
             # 1. Format observation for policy
             try:
-                obs_for_policy = format_observation(raw_obs, args.cameras, args.prompt)
+                obs_for_policy = format_observation(raw_obs, args.cameras, args.prompt, reset=num_steps == 0)
             except ValueError as e:
                 print(f"Error formatting observation: {e}. Stopping rollout.")
                 return False, "Error formatting observation"
