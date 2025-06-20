@@ -75,27 +75,14 @@ class WidowXEvalConfig:
     port: int = 8001  # Port to serve the policy on.
 
     def __post_init__(self):
-        # Check if policy path is provided via CLI
+        # HACK: We parse again the cli args here to get the pretrained path if there was one.
         policy_path = parser.get_path_arg("policy")
-        policy_type = parser.get_type_arg("policy")
-        
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
-            # Use robust filter to remove all --type and --policy.type overrides
-            cli_overrides = filter_type_overrides(cli_overrides)
-            
-            # If both path and type are specified, we need to handle this specially
-            if policy_type:
-                # Create a temporary config with the specified type to get the right class
-                from lerobot.common.policies.factory import make_policy_config
-                temp_config = make_policy_config(policy_type)
-                # Load the config from the path but use the CLI overrides
-                self.policy = temp_config.__class__.from_pretrained(policy_path, cli_overrides=cli_overrides)
-            else:
-                # Standard case: just load from path
-                self.policy = PreTrainedConfig.from_pretrained(policy_path, cli_overrides=cli_overrides)
+            self.policy = PreTrainedConfig.from_pretrained(policy_path, cli_overrides=cli_overrides)
             self.policy.pretrained_path = policy_path
-        elif self.policy is None:
+
+        else:
             logging.warning(
                 "No pretrained path was provided, evaluated policy will be built from scratch (random weights)."
             )
@@ -142,8 +129,9 @@ def main(cfg: WidowXEvalConfig) -> None:
 
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
-        host="1.0.0.0",
+        host="0.0.0.0",
         port=cfg.port,
+        device=policy.config.device,
     )
     server.serve_forever()
 
