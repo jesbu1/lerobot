@@ -44,7 +44,8 @@ def custom_wrap():
                 policy_path = get_path_arg("policy", cli_args)
                 policy_type = get_type_arg("policy", cli_args)
                 
-                # Filter out policy arguments from CLI args for draccus parsing
+                # Filter out ONLY policy arguments from CLI args for draccus parsing
+                # Keep other arguments like --env
                 cli_args = [arg for arg in cli_args if not arg.startswith("--policy.")]
                 
                 cfg = draccus.parse(config_class=argtype, args=cli_args)
@@ -65,7 +66,7 @@ class WidowXEvalConfig:
     # saved using `Policy.save_pretrained`. If not provided, the policy is initialized from scratch
     # (useful for debugging). This argument is mutually exclusive with `--config`.
 
-    env: envs.EnvConfig
+    env: envs.EnvConfig = field(default_factory=lambda: envs.WidowXEnv())
     draw_path: bool = True
     draw_mask: bool = True
     # image_keys: list[str] = ["external_img", "over_shoulder"]
@@ -80,6 +81,9 @@ class WidowXEvalConfig:
         
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
+            # Filter out the type argument from CLI overrides as it's not valid for config loading
+            cli_overrides = [arg for arg in cli_overrides if not arg.startswith("--type=")]
+            
             # If both path and type are specified, we need to handle this specially
             if policy_type:
                 # Create a temporary config with the specified type to get the right class
