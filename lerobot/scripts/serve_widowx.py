@@ -81,8 +81,8 @@ class WidowXEvalConfig:
         
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
-            # Filter out the type argument from CLI overrides as it's not valid for config loading
-            cli_overrides = [arg for arg in cli_overrides if not arg.startswith("--type=")]
+            # Filter out both --type=... and --policy.type=... from CLI overrides
+            cli_overrides = [arg for arg in cli_overrides if not (arg.startswith("--type=") or arg.startswith("--policy.type="))]
             
             # If both path and type are specified, we need to handle this specially
             if policy_type:
