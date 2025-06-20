@@ -20,6 +20,7 @@ import einops
 import gymnasium as gym
 import numpy as np
 import torch
+from PIL import Image
 from torch import Tensor
 
 from lerobot.common.envs.configs import EnvConfig
