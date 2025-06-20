@@ -4,15 +4,15 @@ steps: 1000000
 batch_size: 64
 num_workers: 20
 log_freq: 100
-save_freq: 5000
+save_freq: 50_000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_smolvla_libero_path_mask"
-job_name: "train_smolvla_libero_path_mask"
+output_dir: "outputs/train_smolvla_libero_path_mask_vlm"
+job_name: "train_smolvla_libero_path_mask_vlm"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"
+  repo_id: "jesbu1/libero_90_lerobot_pathmask_vlm_labeled"
   remap_keys:
     state: "observation.state"
     masked_path_image: "observation.image"
@@ -88,4 +88,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_smolvla_libero_path_mask" 
+  run_id: "train_smolvla_libero_path_mask_vlm" 

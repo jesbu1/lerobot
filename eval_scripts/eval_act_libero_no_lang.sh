@@ -12,7 +12,7 @@
 # Check if required arguments are provided
 if [ "$#" -ne 2 ]; then
     echo "Usage: $0 <model_name> <task_suite>"
-    echo "Available models: train_smolvla_libero, train_smolvla_libero_path, train_smolvla_libero_path_mask"
+    echo "Available models: train_act_libero_path, train_act_libero_path_mask"
     echo "Available task suites: libero_10, libero_spatial, libero_object, libero_goal"
     exit 1
 fi
@@ -30,11 +30,10 @@ export MUJOCO_GL=egl
 path_mask_h5_loc=/scratch1/jessez/libero_processed_256_05_12/masked_vla_data/dataset_movement_and_masks.h5
 libero_hdf5_dir=/scratch1/jessez/libero_processed_256_05_12/
 
-# Define SmolVLA model variants and their settings
+# Define ACT model variants and their settings (no language)
 declare -A model_configs
-model_configs["train_smolvla_libero"]="false false LANG"
-model_configs["train_smolvla_libero_path"]="true false PATH"
-model_configs["train_smolvla_libero_path_mask"]="true true PATH_MASK"
+model_configs["train_act_libero_path"]="true false PATH"
+model_configs["train_act_libero_path_mask"]="true true PATH_MASK"
 
 # Get command line arguments
 model_name=$1
@@ -76,7 +75,7 @@ case $task_suite in
 esac
 
 # Construct simplified wandb name
-wandb_name="SMOLVLA_${suffix}_${task_display}"
+wandb_name="NO_LANG_ACT_${suffix}_${task_display}"
 
 echo "Running evaluation for ${model_name} on ${task_suite}"
 echo "Path: ${draw_path}, Mask: ${draw_mask}"
