@@ -18,13 +18,14 @@ class WidowXEvalConfig:
     # Either the repo ID of a model hosted on the Hub or a path to a directory containing weights
     # saved using `Policy.save_pretrained`. If not provided, the policy is initialized from scratch
     # (useful for debugging). This argument is mutually exclusive with `--config`.
+
+    env: envs.EnvConfig
     draw_path: bool = True
     draw_mask: bool = True
     # image_keys: list[str] = ["external_img", "over_shoulder"]
-    env: envs.EnvConfig
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None
-    port: int = 8000  # Port to serve the policy on.
+    port: int = 8001  # Port to serve the policy on.
 
     def __post_init__(self):
         # HACK: We parse again the cli args here to get the pretrained path if there was one.
@@ -37,6 +38,7 @@ class WidowXEvalConfig:
             logging.warning(
                 "No pretrained path was provided, evaluated policy will be built from scratch (random weights)."
             )
+
 
     @classmethod
     def __get_path_fields__(cls) -> list[str]:
@@ -62,7 +64,7 @@ def main(cfg: WidowXEvalConfig) -> None:
 
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
-        host="0.0.0.0",
+        host="1.0.0.0",
         port=cfg.port,
     )
     server.serve_forever()
