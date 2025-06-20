@@ -66,12 +66,6 @@ class WidowXConfigs:
     }
 
 
-camera_to_name_map = {
-    "external_img": "external",
-    "over_shoulder_img": "over_shoulder",
-}
-
-
 def on_press(key):
     """Callback for key press events"""
     global key_pressed
@@ -156,11 +150,9 @@ def format_observation(
     for cam_name in cameras:
         # Map camera name to the key used in raw_obs
         assert (
-            f"{cam_name}_img" in raw_obs
-        ), f"Camera image key '{cam_name}_img' not found in raw observation. Available keys: {raw_obs.keys()}"
-        img_key = f"{cam_name}_img"
-
-        img = raw_obs[img_key]
+            f"{cam_name}" in raw_obs
+        ), f"Camera image key '{cam_name}' not found in raw observation. Available keys: {raw_obs.keys()}"
+        img = raw_obs[cam_name]
 
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
         obs_for_policy[f"images/{cam_name}"] = resize_with_pad(img, resolution, resolution)
@@ -380,7 +372,8 @@ def main():
     parser.add_argument(
         "--cameras",
         nargs="+",
-        default=["external", "over_shoulder"],
+        # default=["external", "over_shoulder"],
+        default=["image0"],
         help="List of camera names to use (e.g., external over_shoulder). Should match policy expectations.",
     )
     parser.add_argument("--prompt", type=str, required=True, help="Task prompt for the policy.")
