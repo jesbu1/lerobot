@@ -12,7 +12,7 @@ job_name: "train_smolvla_widowx"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/widowx_lerobot"
+  repo_id: "jesbu1/usc_widowx_6_19_lerobot"
 
 # Policy configuration
 policy:
