@@ -28,22 +28,17 @@ class WidowXEvalConfig:
     port: int = 8001  # Port to serve the policy on.
 
     def __post_init__(self):
-        # HACK: We parse again the cli args here to get the pretrained path if there was one.
+        # Check if policy path is provided via CLI
         policy_path = parser.get_path_arg("policy")
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
             self.policy = PreTrainedConfig.from_pretrained(policy_path, cli_overrides=cli_overrides)
             self.policy.pretrained_path = policy_path
-        else:
+        elif self.policy is None:
             logging.warning(
                 "No pretrained path was provided, evaluated policy will be built from scratch (random weights)."
             )
 
-
-    @classmethod
-    def __get_path_fields__(cls) -> list[str]:
-        """This enables the parser to load config from the policy using `--policy.path=local/dir`"""
-        return ["policy"]
 
 @parser.wrap()
 def main(cfg: WidowXEvalConfig) -> None:
