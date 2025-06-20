@@ -38,7 +38,7 @@ policy:
       type: "ACTION"
       shape: [7]
   chunk_size: 50
-  n_action_steps: 50
+  n_action_steps: 10
   
   # smolVLA specific configurations
   vlm_model_name: "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
