@@ -54,7 +54,7 @@ policy:
     action:
       type: "ACTION"
       shape: [7]
-  chunk_size: 10
+  chunk_size: 50
   n_action_steps: 10
   use_language: true
 

@@ -593,10 +593,19 @@ class LIBEROEnv(gym.Env):
         self.current_step += 1
         truncated = self.current_step >= self._max_episode_steps
         self.obs = self._construct_obs(obs)
-        if terminated:
-            info["is_success"] = True
-        else:
-            info["is_success"] = False
+
+        # Only set is_success if the underlying environment hasn't already provided it
+        if "is_success" not in info:
+            if terminated:
+                info["is_success"] = True
+            else:
+                info["is_success"] = False
+        # If terminated is True but the underlying env set is_success to False,
+        # this likely means the task wasn't actually completed successfully
+        elif terminated and not info["is_success"]:
+            # Keep the underlying environment's success determination
+            pass
+
         return self.obs, reward, terminated, truncated, info
 
     def _load_initial_states_from_h5(self, episode_idx: int):
