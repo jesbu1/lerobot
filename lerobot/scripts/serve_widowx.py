@@ -81,8 +81,8 @@ class WidowXEvalConfig:
         
         if policy_path:
             cli_overrides = parser.get_cli_overrides("policy")
-            # Filter out both --type=... and --policy.type=... from CLI overrides
-            cli_overrides = [arg for arg in cli_overrides if not (arg.startswith("--type=") or arg.startswith("--policy.type="))]
+            # Use robust filter to remove all --type and --policy.type overrides
+            cli_overrides = filter_type_overrides(cli_overrides)
             
             # If both path and type are specified, we need to handle this specially
             if policy_type:
@@ -104,6 +104,23 @@ class WidowXEvalConfig:
     def __get_path_fields__(cls) -> list[str]:
         """This enables the parser to load config from the policy using `--policy.path=local/dir`"""
         return ["policy"]
+
+
+def filter_type_overrides(overrides):
+    filtered = []
+    skip_next = False
+    for i, arg in enumerate(overrides):
+        if skip_next:
+            skip_next = False
+            continue
+        # Remove --type or --policy.type and their value if split
+        if arg in ("--type", "--policy.type"):
+            skip_next = True
+            continue
+        if arg.startswith("--type=") or arg.startswith("--policy.type="):
+            continue
+        filtered.append(arg)
+    return filtered
 
 
 @custom_wrap()
