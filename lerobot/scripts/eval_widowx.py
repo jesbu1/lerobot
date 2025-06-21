@@ -2,6 +2,8 @@
 """Inference script for USC WidowX using openpi policy server.
 
 Example usage:
+# MAKE SURE NUMPY < 2 is installed!!!
+pip install 'numpy<2'
 python scripts/eval_widowx.py --policy-server-address https://whippet-pet-singularly.ngrok.app --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
 """
 

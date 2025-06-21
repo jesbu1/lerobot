@@ -74,7 +74,6 @@ class WebsocketPolicyServer:
                     self._policy.reset()  # clears the action chunk
                     action = self._policy.select_action_chunk(policy_obs) # get full action chunk
                     action = torch.stack(list(action), dim=0).to("cpu")
-                    print(action.shape)# debugging
                     assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
                     assert action.shape[1] == 1, "Batch size should be 1"
                 action = action[1]  # get first batch item from the chunk
