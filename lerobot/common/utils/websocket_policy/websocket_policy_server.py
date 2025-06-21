@@ -58,7 +58,7 @@ class WebsocketPolicyServer:
             try:
                 obs: WidowXMessageFormat = msgpack_numpy.unpackb(await websocket.recv())
                 policy_obs = {
-                    "observation.state": obs["state"],
+                    "agent_pos": obs["state"].copy(),
                     "task": obs["prompt"],
                 }
                 for cam_name, img in obs["images"].items():

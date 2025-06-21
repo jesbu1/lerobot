@@ -9,7 +9,7 @@ import websockets.sync.client
 from typing_extensions import override
 
 from lerobot.common.utils.websocket_policy.base_policy import BasePolicy
-from lerobot.common.utils.websocket_policy.msgpack_numpy import msgpack_numpy
+import lerobot.common.utils.websocket_policy.msgpack_numpy as msgpack_numpy
 
 
 class WebsocketClientPolicy(BasePolicy):

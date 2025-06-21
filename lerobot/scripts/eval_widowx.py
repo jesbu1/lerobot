@@ -15,9 +15,10 @@ import numpy as np
 from pynput import keyboard
 
 # --- openpi specific imports ---
-from lerobot.common.utils import websocket_client_policy as _websocket_client_policy
+from lerobot.common.utils.websocket_policy import websocket_client_policy as _websocket_client_policy
 from lerobot.common.envs.utils import resize_with_pad
 from lerobot.common.envs.widowx_env import WidowXMessageFormat
+from edgeml.action import ActionConfig
 
 # --- widowx specific imports (assuming installed from widowx_envs or similar) ---
 # Need to ensure these imports are correct based on the actual widowx_envs structure
@@ -60,11 +61,24 @@ class WidowXConfigs:
         "return_full_image": False,
         "camera_topics": [
             {"name": "/D435/color/image_raw"},
-            {"name": "/blue/image_raw"},
+            #{"name": "/blue/image_raw"},
             # {"name": "/yellow/image_raw"},
         ],
     }
+    #DefaultActionConfig = ActionConfig(
+    #port_number=5556,
+    #    action_keys=["init", "move", "gripper", "reset", "step_action", "reboot_motor"],
+    #    observation_keys=[
+    #        "image",
+    #        "image0",
+    #        "state",
+    #        #"external_img",
+    #        #"wrist_img",
+    #    ],
+    #    broadcast_port=5557,
+    #)
 
+cameras = dict(full_image="image0")
 
 def on_press(key):
     """Callback for key press events"""
@@ -138,7 +152,7 @@ def wait_for_observation(client: WidowXClient, timeout: int = 60) -> Dict:
 
 
 def format_observation(
-    raw_obs: Dict[str, Any], cameras: List[str], prompt: str, reset: bool
+    raw_obs: Dict[str, Any], prompt: str, reset: bool
 ) -> Dict[str, Any]:
     """Formats raw observation from robot into the structure expected by the policy."""
     obs_for_policy: WidowXMessageFormat = {
@@ -202,7 +216,7 @@ def run_inference_loop(
         while True:  # Loop until stop, reset, or error
             # 1. Format observation for policy
             try:
-                obs_for_policy = format_observation(raw_obs, args.cameras, args.prompt, reset=num_steps == 0)
+                obs_for_policy = format_observation(raw_obs, args.prompt, reset=num_steps == 0)
             except ValueError as e:
                 print(f"Error formatting observation: {e}. Stopping rollout.")
                 return False, "Error formatting observation"
@@ -369,13 +383,13 @@ def main():
     parser.add_argument(
         "--robot-port", type=int, default=5556, help="IP address of the WidowX robot controller."
     )
-    parser.add_argument(
-        "--cameras",
-        nargs="+",
-        # default=["external", "over_shoulder"],
-        default=["image0"],
-        help="List of camera names to use (e.g., external over_shoulder). Should match policy expectations.",
-    )
+    #parser.add_argument(
+    #    "--cameras",
+    #    nargs="+",
+    #    # default=["external", "over_shoulder"],
+    #    default=["image0"],
+    #    help="List of camera names to use (e.g., external over_shoulder). Should match policy expectations.",
+    #)
     parser.add_argument("--prompt", type=str, required=True, help="Task prompt for the policy.")
     parser.add_argument(
         "--max-action-length",

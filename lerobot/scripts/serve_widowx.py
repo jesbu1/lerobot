@@ -13,6 +13,8 @@ from lerobot.configs import parser
 from lerobot.configs.default import EvalConfig
 from lerobot.configs.policies import PreTrainedConfig
 
+import torch
+
 
 def custom_wrap():
     """Custom wrapper that allows both --policy.path and --policy.type arguments"""
@@ -126,12 +128,13 @@ def main(cfg: WidowXEvalConfig) -> None:
     hostname = socket.gethostname()
     local_ip = socket.gethostbyname(hostname)
     logging.info("Creating server (host: %s, ip: %s)", hostname, local_ip)
-
+    print("hostname:", hostname)
+    print("local_ip:", local_ip)
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
         host="0.0.0.0",
         port=cfg.port,
-        device=policy.config.device,
+        device=torch.device(policy.config.device),
     )
     server.serve_forever()
 
