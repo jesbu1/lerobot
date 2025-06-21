@@ -169,7 +169,7 @@ def format_observation(
         img = raw_obs[cam_name]
 
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
-        obs_for_policy[f"images/{cam_name}"] = resize_with_pad(img, resolution, resolution)
+        obs_for_policy["images"][cameras[cam_name]] = resize_with_pad(img, resolution, resolution)
 
     return obs_for_policy
 

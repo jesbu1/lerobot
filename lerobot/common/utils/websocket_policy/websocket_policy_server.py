@@ -59,23 +59,26 @@ class WebsocketPolicyServer:
                 obs: WidowXMessageFormat = msgpack_numpy.unpackb(await websocket.recv())
                 policy_obs = {
                     "agent_pos": obs["state"].copy(),
-                    "task": obs["prompt"],
+                    "pixels": {},
                 }
                 for cam_name, img in obs["images"].items():
-                    policy_obs[f"observation.images.{cam_name}"] = img
+                    policy_obs["pixels"][cam_name] = img
                 policy_obs = preprocess_observation(policy_obs)
 
                 policy_obs = {
                     key: policy_obs[key].to(self._device, non_blocking=self._device.type == "cuda")
                     for key in policy_obs
                 }
+                policy_obs["task"] = obs["prompt"]
                 with torch.inference_mode():
                     self._policy.reset()  # clears the action chunk
-                    action = self._policy.select_action_chunk(policy_obs).to("cpu")  # get full action chunk
+                    action = self._policy.select_action_chunk(policy_obs) # get full action chunk
+                    action = torch.stack(list(action), dim=0).to("cpu")
+                    print(action.shape)# debugging
                     assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
                     assert action.shape[1] == 1, "Batch size should be 1"
                 action = action[1]  # get first batch item from the chunk
-                action = {"actions": action.tolist()}
+                action = {"actions": action.numpy().tolist()}  # convert to list for JSON serialization
                 await websocket.send(packer.pack(action))
             except websockets.ConnectionClosed:
                 logging.info(f"Connection from {websocket.remote_address} closed")
