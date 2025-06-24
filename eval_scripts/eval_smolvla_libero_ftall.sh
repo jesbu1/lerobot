@@ -76,7 +76,7 @@ case $task_suite in
 esac
 
 # Construct simplified wandb name
-wandb_name="SMOLVLA_${suffix}_${task_display}"
+wandb_name="SMOLVLA_${suffix}_FTALL_${task_display}"
 
 echo "Running evaluation for ${model_name} on ${task_suite}"
 echo "Path: ${draw_path}, Mask: ${draw_mask}"
