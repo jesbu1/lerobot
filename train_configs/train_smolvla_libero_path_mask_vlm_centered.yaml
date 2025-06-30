@@ -15,11 +15,11 @@ dataset:
   repo_id: "jesbu1/libero_90_lerobot_pathmask_vlm_labeled"
   remap_keys:
     state: "observation.state"
-    masked_path_image: "observation.image"
+    masked_path_centered_image: "observation.image"
     wrist_image: "observation.wrist_image"
     actions: "action"
   drop_keys:
-    ["masked_image", "image", "path_image", "masked_path_centered_image"]
+    ["masked_image", "image", "path_image", "masked_path_image"]
 
 # Policy configuration
 policy:
