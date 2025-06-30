@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=22
 #SBATCH --mem=64G
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:1
+#SBATCH --gres=gpu:l40s:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
