@@ -30,6 +30,7 @@ from huggingface_hub import HfApi, snapshot_download
 from huggingface_hub.constants import REPOCARD_NAME
 from huggingface_hub.errors import RevisionNotFoundError
 
+import random
 from lerobot.common.constants import HF_LEROBOT_HOME
 from lerobot.common.datasets.compute_stats import aggregate_stats, compute_episode_stats
 from lerobot.common.datasets.image_writer import AsyncImageWriter, write_image
@@ -710,36 +711,41 @@ class LeRobotDataset(torch.utils.data.Dataset):
         return self.num_frames
 
     def __getitem__(self, idx) -> dict:
-        item = self.hf_dataset[idx]
-        ep_idx = item["episode_index"].item()
+        try:
+            item = self.hf_dataset[idx]
+            ep_idx = item["episode_index"].item()
 
-        query_indices = None
-        if self.delta_indices is not None:
-            query_indices, padding = self._get_query_indices(idx, ep_idx)
-            query_result = self._query_hf_dataset(query_indices)
-            item = {**item, **padding}
-            for key, val in query_result.items():
-                item[key] = val
+            query_indices = None
+            if self.delta_indices is not None:
+                query_indices, padding = self._get_query_indices(idx, ep_idx)
+                query_result = self._query_hf_dataset(query_indices)
+                item = {**item, **padding}
+                for key, val in query_result.items():
+                    item[key] = val
 
-        if len(self.meta.video_keys) > 0:
-            current_ts = item["timestamp"].item()
-            query_timestamps = self._get_query_timestamps(current_ts, query_indices)
-            video_frames = self._query_videos(query_timestamps, ep_idx)
-            item = {**video_frames, **item}
+            if len(self.meta.video_keys) > 0:
+                current_ts = item["timestamp"].item()
+                query_timestamps = self._get_query_timestamps(current_ts, query_indices)
+                video_frames = self._query_videos(query_timestamps, ep_idx)
+                item = {**video_frames, **item}
 
-        if self.drop_keys:  # drop unnecessary features
-            item = {key: val for key, val in item.items() if key not in self.drop_keys}
-        if self.remap_keys:  # remap feature keys
-            item = {self.remap_keys.get(key, key): val for key, val in item.items()}
+            if self.drop_keys:  # drop unnecessary features
+                item = {key: val for key, val in item.items() if key not in self.drop_keys}
+            if self.remap_keys:  # remap feature keys
+                item = {self.remap_keys.get(key, key): val for key, val in item.items()}
 
-        if self.image_transforms is not None:
-            image_keys = self.meta.camera_keys
-            for cam in image_keys:
-                item[cam] = self.image_transforms(item[cam])
+            if self.image_transforms is not None:
+                image_keys = self.meta.camera_keys
+                for cam in image_keys:
+                    item[cam] = self.image_transforms(item[cam])
 
-        # Add task as a string
-        task_idx = item["task_index"].item()
-        item["task"] = self.meta.tasks[task_idx]
+            # Add task as a string
+            task_idx = item["task_index"].item()
+            item["task"] = self.meta.tasks[task_idx]
+
+        except Exception as e:
+            print(f"Error at index {idx}: {e}")
+            return self.__getitem__(random.randint(0, len(self) - 1))
 
         return item
 
