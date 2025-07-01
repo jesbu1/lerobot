@@ -69,6 +69,8 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     draw_path: bool = True
     draw_mask: bool = True
     image_key: str = "image"
+    flip_image: bool = True
+    center_image_on_path: bool = False
     # Wandb configuration
     wandb_enable: bool = True
     wandb_project: str = "lerobot-eval"
@@ -79,16 +81,25 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
 
 
 VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
+CURRENT_EPISODE_IDX = 0  # for the reset callback to properly set the next task idx
+
+
+def finished_task():
+    global CURRENT_EPISODE_IDX, VALID_EPISODE_LIST
+    CURRENT_EPISODE_IDX = 0
+    VALID_EPISODE_LIST = []
 
 
 def reset_callback(envs: gym.vector.VectorEnv):
     # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
-    global VALID_EPISODE_LIST
-    number_of_envs = len(envs.envs)
+    global VALID_EPISODE_LIST, CURRENT_EPISODE_IDX
     for env in envs.envs:
-        original_episode_idx = env.episode_idx
-        new_idx = (original_episode_idx + number_of_envs) % len(VALID_EPISODE_LIST)
+        new_idx = CURRENT_EPISODE_IDX % len(VALID_EPISODE_LIST)
+        print(
+            f"Setting episode idx to {VALID_EPISODE_LIST[new_idx]} with actual iterator idx {CURRENT_EPISODE_IDX}"
+        )
         env.set_episode_idx(VALID_EPISODE_LIST[new_idx])
+        CURRENT_EPISODE_IDX += 1
 
 
 def make_libero_env(
@@ -101,6 +112,8 @@ def make_libero_env(
     task_idx: int,
     start_episode_idx: int,
     n_envs: int,
+    flip_image: bool,
+    center_image_on_path: bool,
 ) -> gym.vector.VectorEnv | None:
     """Makes a gym vector environment according to the config.
 
@@ -128,7 +141,7 @@ def make_libero_env(
 
     env = gym.vector.SyncVectorEnv(
         [
-            lambda: VLMPathMaskWrapper(
+            lambda i=i: VLMPathMaskWrapper(
                 LIBEROEnv(
                     task_suite_name=env_cfg.task_suite_name,
                     seed=env_cfg.seed,
@@ -136,13 +149,15 @@ def make_libero_env(
                     libero_hdf5_dir=env_cfg.libero_hdf5_dir,
                     load_gt_initial_states=env_cfg.load_gt_initial_states,
                     task_idx=task_idx,
-                    episode_idx=start_episode_idx + i,
+                    episode_idx=start_episode_idx,
                 ),
                 vlm_server_ip=vlm_server_ip,
                 vlm_query_frequency=vlm_query_frequency,
                 draw_path=draw_path,
                 draw_mask=draw_mask,
                 image_key=image_key,
+                flip_image=flip_image,
+                center_image_on_path=center_image_on_path,
             )
             for i in range(n_envs)
         ]
@@ -213,8 +228,10 @@ def eval_main(cfg: EvalPipelineConfig):
         task_idx=0,
         start_episode_idx=0,
         n_envs=1,
+        flip_image=cfg.flip_image,
+        center_image_on_path=cfg.center_image_on_path,
     )
-    global VALID_EPISODE_LIST
+    global VALID_EPISODE_LIST, CURRENT_EPISODE_IDX
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
             task_successes = 0
@@ -222,19 +239,31 @@ def eval_main(cfg: EvalPipelineConfig):
             task_reward = 0.0
             task_eval_time = 0.0
 
+            # Clear videos directory to avoid logging videos from previous tasks
+            videos_dir = Path(cfg.output_dir) / "videos"
+            if videos_dir.exists():
+                import shutil
+
+                shutil.rmtree(videos_dir)
+
+            eval_tracker.reset_averages()
+
             # first determine the valid episode list
             # this is to avoid making envs that don't have ground truth path/mask data
-            VALID_EPISODE_LIST = []
+            finished_task()
             for idx in range(50):
                 env = make_libero_env(
                     env_cfg=cfg.env,
-                    path_and_mask_h5_file=cfg.path_and_mask_h5_file,
+                    vlm_server_ip=cfg.vlm_server_ip,
+                    vlm_query_frequency=cfg.vlm_query_frequency,
                     draw_path=cfg.draw_path,
                     draw_mask=cfg.draw_mask,
                     image_key=cfg.image_key,
                     task_idx=task_idx,
                     start_episode_idx=idx,
                     n_envs=1,
+                    flip_image=cfg.flip_image,
+                    center_image_on_path=cfg.center_image_on_path,
                 )
                 try:
                     env.reset()
@@ -256,9 +285,11 @@ def eval_main(cfg: EvalPipelineConfig):
                 task_idx=task_idx,
                 start_episode_idx=0,
                 n_envs=cfg.eval.batch_size,
+                flip_image=cfg.flip_image,
+                center_image_on_path=cfg.center_image_on_path,
             )
 
-            logging.info("Wrapping environment with VLMPathMaskWrapper.")
+            logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
             logging.info("Making policy.")
 
             policy = make_policy(
@@ -271,7 +302,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 policy,
                 len(VALID_EPISODE_LIST),
                 max_episodes_rendered=len(VALID_EPISODE_LIST),
-                videos_dir=Path(cfg.output_dir) / "videos",
+                videos_dir=videos_dir,
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
             )
@@ -279,28 +310,26 @@ def eval_main(cfg: EvalPipelineConfig):
             eval_tracker.eval_s = info["aggregated"].pop("eval_s", 0)
             eval_tracker.avg_sum_reward = info["aggregated"].pop("avg_sum_reward", 0)
             eval_tracker.pc_success = info["aggregated"].pop("pc_success", 0)
-            task_successes += eval_tracker.pc_success.sum
+
+            task_successes = sum(e["success"] for e in info["per_episode"])
+
             assert len(VALID_EPISODE_LIST) == len(
                 info["per_episode"]
             ), "number of episodes in VALID_EPISODE_LIST and info['per_episode'] should be the same"
             task_episodes += len(VALID_EPISODE_LIST)
-            task_reward += eval_tracker.avg_sum_reward.sum
+
+            total_reward_for_task = sum(e["sum_reward"] for e in info["per_episode"])
+            task_reward += total_reward_for_task
+
             task_eval_time += eval_tracker.eval_s.sum
-            overall_metrics["total_successes"] += eval_tracker.pc_success.sum
+
+            overall_metrics["total_successes"] += task_successes
             overall_metrics["total_episodes"] += len(VALID_EPISODE_LIST)
-            overall_metrics["total_reward"] += eval_tracker.avg_sum_reward.sum
+            overall_metrics["total_reward"] += total_reward_for_task
             overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
 
             # Log episode-level metrics to wandb
             if cfg.wandb_enable:
-                wandb.log(
-                    {
-                        f"task_{task_idx}/success_rate": eval_tracker.pc_success.avg,
-                        f"task_{task_idx}/avg_reward": eval_tracker.avg_sum_reward.avg,
-                        f"task_{task_idx}/eval_time_per_ep": eval_tracker.eval_s.avg,
-                    }
-                )
-
                 # Log videos if available
                 if "video_paths" in info and len(info["video_paths"]) > 0:
                     for i, ep_info in enumerate(info["per_episode"]):

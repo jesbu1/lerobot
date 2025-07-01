@@ -1,25 +1,24 @@
-import gymnasium as gym
-import os
+import base64
 import math
+import os
 import pathlib
-import numpy as np
-import h5py
-from libero.libero import get_libero_path
-from libero.libero.envs import OffScreenRenderEnv
-from libero.libero import benchmark
-from gymnasium import spaces
-
 import re
 import time
-from PIL import Image
-import base64
-import cv2
-import numpy as np
-from openai import OpenAI
-from vila_utils.utils.prompts import get_prompt
-from vila_utils.utils.decode import add_path_2d_to_img_alt_fast, add_mask_2d_to_img, get_path_from_answer
-from vila_utils.utils.encode import scale_path
 
+import cv2
+import gymnasium as gym
+import h5py
+import numpy as np
+import torch
+import torch.nn.functional as F
+from gymnasium import spaces
+from libero.libero import benchmark, get_libero_path
+from libero.libero.envs import OffScreenRenderEnv
+from openai import OpenAI
+from PIL import Image
+from vila_utils.utils.decode import add_mask_2d_to_img, add_path_2d_to_img_alt_fast, get_path_from_answer
+from vila_utils.utils.encode import scale_path
+from vila_utils.utils.prompts import get_prompt
 
 # Constants
 SERVER_IP = "https://whippet-pet-singularly.ngrok.app"
@@ -396,7 +395,7 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             min_in, max_in = np.zeros(2), np.array([w, h])
             min_out, max_out = np.zeros(2), np.ones(2)
             path = scale_path(path, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
-
+            # center image on path
             return path, masked_images
 
 class VLMPathMaskWrapper(ObservationModificationWrapper):
@@ -408,6 +407,8 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         vlm_query_frequency: int = 50,
         draw_path: bool = True,
         draw_mask: bool = True,
+        flip_image: bool = False,
+        center_image_on_path: bool = False,
     ):
         super().__init__(env, image_key=image_key)
         self.vlm_server_ip = vlm_server_ip
@@ -417,12 +418,17 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         self.vlm_query_frequency = vlm_query_frequency
         self.draw_path = draw_path
         self.draw_mask = draw_mask
+        self.flip_image = flip_image
+        self.center_image_on_path = center_image_on_path
 
     def _after_env_reset(self, obs, info):
         self.current_step = 0
 
     def _modify_observation(self, obs):
         img = obs["pixels"][self.image_key].copy()
+        if self.flip_image:
+            for key in obs["pixels"]:
+                obs["pixels"][key] = np.fliplr(obs["pixels"][key])
         if self.current_step % self.vlm_query_frequency == 0:
             try:
                 img, self.current_path, self.current_mask = get_path_mask_from_vlm(
@@ -451,6 +457,23 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
                 path=self.current_path,
                 mask=self.current_mask,
             )
+        if self.center_image_on_path and self.current_path is not None:
+            first_point = self.current_path[0]
+            height, width = img.shape[:2]
+
+            # Convert first_point to pixel coordinates
+            # Assuming first_point is in normalized coordinates [0, 1]
+            center_x = int(first_point[0] * width)
+            center_y = int(first_point[1] * height)
+
+            # Calculate crop boundaries
+            crop_size = min(height, width) // 2  # Use half the smaller dimension
+            top = center_y - crop_size
+            left = center_x - crop_size
+
+            img_tensor = torch.from_numpy(img).permute(2, 0, 1)
+            cropped_tensor = F.crop(img_tensor, top, left, height, width)
+            img = cropped_tensor.numpy().permute(1, 2, 0)
 
         obs["pixels"][self.image_key] = img
         return obs
