@@ -443,7 +443,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
                 print(f"Error: {e}")
                 self.current_path = None
                 self.current_mask = None
-        if self.current_path is not None or self.current_mask is not None:
+        elif self.current_path is not None or self.current_mask is not None:
             # draw without querying by passing the current path and mask
             img, _, _ = get_path_mask_from_vlm(
                 image=img,
