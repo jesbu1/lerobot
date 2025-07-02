@@ -39,6 +39,10 @@ from lerobot.common.utils.logging_utils import AverageMeter, MetricsTracker
 from lerobot.configs import parser
 from lerobot.configs.eval import EvalPipelineConfig as BaseEvalPipelineConfig
 
+import os
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 
 @dataclass
 class EvalPipelineConfig(BaseEvalPipelineConfig):
@@ -59,25 +63,15 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
 
 
 VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
-CURRENT_EPISODE_IDX = 0  # for the reset callback to properly set the next task idx
 
 
 def finished_task():
-    global CURRENT_EPISODE_IDX, VALID_EPISODE_LIST
-    CURRENT_EPISODE_IDX = 0
+    global VALID_EPISODE_LIST
     VALID_EPISODE_LIST = []
 
 
 def reset_callback(envs: gym.vector.VectorEnv):
-    # increment the episode idx by the number of envs so that we can do parallel eval of all episodes in each task
-    global VALID_EPISODE_LIST, CURRENT_EPISODE_IDX
-    for env in envs.envs:
-        new_idx = CURRENT_EPISODE_IDX % len(VALID_EPISODE_LIST)
-        print(
-            f"Setting episode idx to {VALID_EPISODE_LIST[new_idx]} with actual iterator idx {CURRENT_EPISODE_IDX}"
-        )
-        env.set_episode_idx(VALID_EPISODE_LIST[new_idx])
-        CURRENT_EPISODE_IDX += 1
+    pass
 
 
 def make_libero_env(
@@ -208,7 +202,7 @@ def eval_main(cfg: EvalPipelineConfig):
         flip_image=cfg.flip_image,
         center_image_on_path=cfg.center_image_on_path,
     )
-    global VALID_EPISODE_LIST, CURRENT_EPISODE_IDX
+    global VALID_EPISODE_LIST
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
             task_successes = 0
@@ -226,29 +220,8 @@ def eval_main(cfg: EvalPipelineConfig):
             eval_tracker.reset_averages()
 
             # first determine the valid episode list
-            # this is to avoid making envs that don't have ground truth path/mask data
             finished_task()
-            for idx in range(50):
-                env = make_libero_env(
-                    env_cfg=cfg.env,
-                    vlm_server_ip=cfg.vlm_server_ip,
-                    vlm_query_frequency=cfg.vlm_query_frequency,
-                    draw_path=cfg.draw_path,
-                    draw_mask=cfg.draw_mask,
-                    image_key=cfg.image_key,
-                    task_idx=task_idx,
-                    start_episode_idx=idx,
-                    n_envs=1,
-                    flip_image=cfg.flip_image,
-                    center_image_on_path=cfg.center_image_on_path,
-                )
-                try:
-                    env.reset()
-                    VALID_EPISODE_LIST.append(idx)
-                except KeyError as e:
-                    logging.error(f"Error making environment for task {task_idx} and episode {idx}: {e}")
-                    continue
-
+            VALID_EPISODE_LIST = list(range(50))  # evaluate all episodes
             logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
 
             logging.info(f"Making environment for task {task_idx}.")
@@ -265,9 +238,6 @@ def eval_main(cfg: EvalPipelineConfig):
                 flip_image=cfg.flip_image,
                 center_image_on_path=cfg.center_image_on_path,
             )
-
-            logging.info("Wrapping environment with GroundTruthPathMaskWrapper.")
-            logging.info("Making policy.")
 
             policy = make_policy(
                 cfg=cfg.policy,
