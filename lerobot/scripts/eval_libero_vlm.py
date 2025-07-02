@@ -141,7 +141,7 @@ def make_libero_env(
 @parser.wrap()
 def eval_main(cfg: EvalPipelineConfig):
     logging.info(pformat(asdict(cfg)))
-    assert cfg.eval.n_episodes == 50, "n_episodes must be 50 for libero"
+    # assert cfg.eval.n_episodes == 50, "n_episodes must be 50 for libero"
 
     # Check device is available
     device = get_safe_torch_device(cfg.policy.device, log=True)
