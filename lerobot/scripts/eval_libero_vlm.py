@@ -1,34 +1,13 @@
-"""Evaluate a policy on an environment with ground truth path/mask visualizations.
-
-Usage examples:
-
-You want to evaluate a model from the hub (eg: https://huggingface.co/lerobot/diffusion_pusht)
-for 10 episodes.
-
-```
-python lerobot/scripts/eval.py \
-    --policy.path=lerobot/diffusion_pusht \
-    --env.type=pusht \
-    --eval.batch_size=10 \
-    --eval.n_episodes=10 \
-    --use_amp=false \
-    --device=cuda
-```
-
-OR, you want to evaluate a model checkpoint from the LeRobot training script for 10 episodes.
-```
-python lerobot/scripts/eval.py \
-    --policy.path=outputs/train/diffusion_pusht/checkpoints/005000/pretrained_model \
-    --env.type=pusht \
-    --eval.batch_size=10 \
-    --eval.n_episodes=10 \
-    --use_amp=false \
-    --device=cuda
-```
-
-Note that in both examples, the repo/folder should contain at least `config.json` and `model.safetensors` files.
-
-You can learn about the CLI options for this script in the `EvalPipelineConfig` in lerobot/configs/eval.py
+"""
+python lerobot/scripts/eval_libero_vlm.py \
+    --env.type=libero \
+    --policy.path=outputs/train_act_libero_path_mask_vlm/checkpoints/last/pretrained_model/ \
+    --policy.use_amp=false \
+    --policy.device=cuda \
+    --env.task_suite_name libero_object \
+    --eval.n_episodes=50 \
+    --eval.batch_size 1 \
+    --wandb_name_suffix=fml_test --draw_path=true --draw_mask=true
 """
 
 import json
@@ -48,7 +27,6 @@ import wandb
 from lerobot.common.envs.factory import make_env
 from lerobot.common.policies.factory import make_policy
 from lerobot.scripts.eval import eval_policy
-import importlib
 import gymnasium as gym
 from lerobot.common.envs import LIBEROEnv as LIBEROEnvConfig
 from lerobot.common.envs.wrappers import LIBEROEnv, VLMPathMaskWrapper
