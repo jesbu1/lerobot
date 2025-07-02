@@ -64,7 +64,7 @@ from lerobot.configs.eval import EvalPipelineConfig as BaseEvalPipelineConfig
 
 @dataclass
 class EvalPipelineConfig(BaseEvalPipelineConfig):
-    vlm_server_ip: str = "127.0.0.1"
+    vlm_server_ip: str = "https://whippet-pet-singularly.ngrok.app"
     vlm_query_frequency: int = 50
     draw_path: bool = True
     draw_mask: bool = True
