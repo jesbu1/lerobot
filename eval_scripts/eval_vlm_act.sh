@@ -36,5 +36,5 @@ for env in $libero_envs; do
         --draw_path=true \
         --draw_mask=true"
     echo "Executing command: $CMD"
-    $TRAIN_CMD
+    $CMD
 done
