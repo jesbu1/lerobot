@@ -424,10 +424,10 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         self.current_step = 0
 
     def _modify_observation(self, obs):
-        img = obs["pixels"][self.image_key].copy()
         if self.flip_image:
             for key in obs["pixels"]:
                 obs["pixels"][key] = np.fliplr(obs["pixels"][key])
+        img = obs["pixels"][self.image_key].copy()
         if self.current_step % self.vlm_query_frequency == 0:
             try:
                 img, self.current_path, self.current_mask = get_path_mask_from_vlm(
