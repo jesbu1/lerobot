@@ -10,7 +10,7 @@ import gymnasium as gym
 import h5py
 import numpy as np
 import torch
-import torch.nn.functional as F
+import torchvision.transforms.functional as F
 from gymnasium import spaces
 from libero.libero import benchmark, get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
