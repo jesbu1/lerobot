@@ -221,7 +221,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
             # first determine the valid episode list
             finished_task()
-            VALID_EPISODE_LIST = list(range(50))  # evaluate all episodes
+            VALID_EPISODE_LIST = list(range(cfg.eval.n_episodes))  # evaluate all episodes
             logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
 
             logging.info(f"Making environment for task {task_idx}.")
