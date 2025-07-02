@@ -422,6 +422,8 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
 
     def _after_env_reset(self, obs, info):
         self.current_step = 0
+        self.current_path = None
+        self.current_mask = None
 
     def _modify_observation(self, obs):
         if self.flip_image:
@@ -456,7 +458,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
                 path=self.current_path,
                 mask=self.current_mask,
             )
-        if self.center_image_on_path and self.current_path is not None:
+        if self.center_image_on_path and self.current_path is not None and len(self.current_path) > 0:
             first_point = self.current_path[0]
             height, width = img.shape[:2]
 
@@ -471,7 +473,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
             left = center_x - crop_size
 
             img_tensor = torch.from_numpy(img).permute(2, 0, 1)
-            cropped_tensor = F.crop(img_tensor, top, left, height, width)
+            cropped_tensor = F.crop(img_tensor, top, left, crop_size * 2, crop_size * 2)
             img = cropped_tensor.permute(1, 2, 0).numpy()
 
         obs["pixels"][self.image_key] = img
