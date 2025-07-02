@@ -472,7 +472,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
 
             img_tensor = torch.from_numpy(img).permute(2, 0, 1)
             cropped_tensor = F.crop(img_tensor, top, left, height, width)
-            img = cropped_tensor.numpy().permute(1, 2, 0)
+            img = cropped_tensor.permute(1, 2, 0).numpy()
 
         obs["pixels"][self.image_key] = img
         return obs
