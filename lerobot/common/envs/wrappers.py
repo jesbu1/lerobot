@@ -508,6 +508,9 @@ class DownsampleObservationWrapper(ObservationModificationWrapper):
                 )
         return obs
 
+    def _after_env_reset(self, obs, info):
+        pass
+
 
 class LIBEROEnv(gym.Env):
     LIBERO_DUMMY_ACTION = [0.0] * 6 + [-1.0]
