@@ -26,7 +26,7 @@ DOWNSAMPLE_RESOLUTION = 256
 OLD_PROMPT = False
 # PATH_MODEL_NAME = "vila_3b_oxe_no_droid"
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
-PATH_MODEL_NAME_MASK = PATH_MODEL_NAME = "vila_13b_path_mask_new"
+PATH_MODEL_NAME_MASK = PATH_MODEL_NAME = "vila_3b_path_mask_fast"
 
 def convert_to_uint8(img: np.ndarray) -> np.ndarray:
     """Converts an image to uint8 if it is a float image.
