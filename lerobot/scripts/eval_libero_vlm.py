@@ -60,6 +60,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_name_suffix: str = ""
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
+    downsample_resolution: int = 224
 
 
 VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
@@ -86,6 +87,7 @@ def make_libero_env(
     n_envs: int,
     flip_image: bool,
     center_image_on_path: bool,
+    downsample_resolution: int,
 ) -> gym.vector.VectorEnv | None:
     """Makes a gym vector environment according to the config.
 
@@ -122,6 +124,7 @@ def make_libero_env(
                     load_gt_initial_states=env_cfg.load_gt_initial_states,
                     task_idx=task_idx,
                     episode_idx=start_episode_idx,
+                    downsample_resolution=downsample_resolution,
                 ),
                 vlm_server_ip=vlm_server_ip,
                 vlm_query_frequency=vlm_query_frequency,
@@ -201,6 +204,7 @@ def eval_main(cfg: EvalPipelineConfig):
         n_envs=1,
         flip_image=cfg.flip_image,
         center_image_on_path=cfg.center_image_on_path,
+        downsample_resolution=cfg.downsample_resolution,
     )
     global VALID_EPISODE_LIST
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
@@ -237,6 +241,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 n_envs=cfg.eval.batch_size,
                 flip_image=cfg.flip_image,
                 center_image_on_path=cfg.center_image_on_path,
+                downsample_resolution=cfg.downsample_resolution,
             )
 
             policy = make_policy(
