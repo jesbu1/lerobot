@@ -263,9 +263,8 @@ def get_path_mask_from_vlm(
     raise Exception("Failed to get path and mask from VLM")
 
 class ObservationModificationWrapper(gym.Wrapper):
-    def __init__(self, env, image_key: str):
+    def __init__(self, env):
         super().__init__(env)
-        self.image_key = image_key
 
     def reset(self, **kwargs):
         obs, info = self.env.reset(**kwargs)
@@ -305,7 +304,8 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             draw_mask: Whether to draw the mask on the image
             image_key: The key in the observation dictionary that contains the image.
         """
-        super().__init__(env, image_key=image_key)
+        super().__init__(env)
+        self.image_key = image_key
         self.path_and_mask_h5_file = path_and_mask_h5_file
         self.draw_path = draw_path
         self.draw_mask = draw_mask
@@ -410,7 +410,8 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         flip_image: bool = False,
         center_image_on_path: bool = False,
     ):
-        super().__init__(env, image_key=image_key)
+        super().__init__(env)
+        self.image_key = image_key
         self.vlm_server_ip = vlm_server_ip
         self.current_path = None
         self.current_mask = None
@@ -487,8 +488,8 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
 
 
 class DownsampleObservationWrapper(ObservationModificationWrapper):
-    def __init__(self, env, image_key: str, downsample_resolution: int = 224):
-        super().__init__(env, image_key=image_key)
+    def __init__(self, env, downsample_resolution: int = 224):
+        super().__init__(env)
         self.downsample_resolution = downsample_resolution
         if self.downsample_resolution != self.env.resolution:
             for key in self.env.observation_space["pixels"]:
