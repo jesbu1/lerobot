@@ -523,7 +523,7 @@ class LIBEROEnv(gym.Env):
         load_gt_initial_states: bool = False,
     ):
         super().__init__()
-        self.LIBERO_ENV_RESOLUTION = resolution
+        self.resolution = resolution
         self.num_steps_wait = 10
         self._task = None
         self.task_suite_name = task_suite_name
@@ -558,13 +558,13 @@ class LIBEROEnv(gym.Env):
                         "image": spaces.Box(
                             0,
                             255,
-                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            shape=(self.resolution, self.resolution, 3),
                             dtype=np.uint8,
                         ),
                         "image_wrist": spaces.Box(
                             0,
                             255,
-                            shape=(self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION, 3),
+                            shape=(self.resolution, self.resolution, 3),
                             dtype=np.uint8,
                         ),
                     }
@@ -605,10 +605,10 @@ class LIBEROEnv(gym.Env):
         pixels = {}
         # following stupid lerobot hardcoded pixels naming...
         pixels["image"] = convert_to_uint8(
-            resize_with_pad(flipped_agentview, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
+            resize_with_pad(flipped_agentview, self.resolution, self.resolution)
         )
         pixels["image_wrist"] = convert_to_uint8(
-            resize_with_pad(flipped_eye_in_hand, self.LIBERO_ENV_RESOLUTION, self.LIBERO_ENV_RESOLUTION)
+            resize_with_pad(flipped_eye_in_hand, self.resolution, self.resolution)
         )
         new_obs["pixels"] = pixels
         # following stupid lerobot hardcoded agent_pos naming...
@@ -681,8 +681,8 @@ class LIBEROEnv(gym.Env):
         )
         env_args = {
             "bddl_file_name": task_bddl_file,
-            "camera_heights": self.LIBERO_ENV_RESOLUTION,
-            "camera_widths": self.LIBERO_ENV_RESOLUTION,
+            "camera_heights": self.resolution,
+            "camera_widths": self.resolution,
         }
         env = OffScreenRenderEnv(**env_args)
         env.seed(
