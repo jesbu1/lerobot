@@ -29,7 +29,7 @@ from lerobot.common.policies.factory import make_policy
 from lerobot.scripts.eval import eval_policy
 import gymnasium as gym
 from lerobot.common.envs import LIBEROEnv as LIBEROEnvConfig
-from lerobot.common.envs.wrappers import LIBEROEnv, VLMPathMaskWrapper
+from lerobot.common.envs.wrappers import LIBEROEnv, VLMPathMaskWrapper, DownsampleObservationWrapper
 from lerobot.common.utils.random_utils import set_seed
 from lerobot.common.utils.utils import (
     get_safe_torch_device,
@@ -112,26 +112,27 @@ def make_libero_env(
     # except ModuleNotFoundError as e:
     #    print(f"{package_name} is not installed. Please install it with `pip install 'lerobot[{cfg.type}]'`")
     #    raise e
-
     env = gym.vector.SyncVectorEnv(
         [
-            lambda i=i: VLMPathMaskWrapper(
-                LIBEROEnv(
-                    task_suite_name=env_cfg.task_suite_name,
-                    seed=env_cfg.seed,
-                    resolution=env_cfg.resolution,
-                    libero_hdf5_dir=env_cfg.libero_hdf5_dir,
-                    load_gt_initial_states=env_cfg.load_gt_initial_states,
-                    task_idx=task_idx,
-                    episode_idx=start_episode_idx,
+            lambda i=i: DownsampleObservationWrapper(
+                VLMPathMaskWrapper(
+                    LIBEROEnv(
+                        task_suite_name=env_cfg.task_suite_name,
+                        seed=env_cfg.seed,
+                        resolution=env_cfg.resolution,
+                        libero_hdf5_dir=env_cfg.libero_hdf5_dir,
+                        load_gt_initial_states=env_cfg.load_gt_initial_states,
+                        task_idx=task_idx,
+                        episode_idx=start_episode_idx,
+                    ),
+                    vlm_server_ip=vlm_server_ip,
+                    vlm_query_frequency=vlm_query_frequency,
+                    draw_path=draw_path,
+                    draw_mask=draw_mask,
+                    image_key=image_key,
+                    flip_image=flip_image,
+                    center_image_on_path=center_image_on_path,
                 ),
-                vlm_server_ip=vlm_server_ip,
-                vlm_query_frequency=vlm_query_frequency,
-                draw_path=draw_path,
-                draw_mask=draw_mask,
-                image_key=image_key,
-                flip_image=flip_image,
-                center_image_on_path=center_image_on_path,
                 downsample_resolution=downsample_resolution,
             )
             for i in range(n_envs)

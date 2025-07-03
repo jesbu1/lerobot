@@ -409,7 +409,6 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         draw_mask: bool = True,
         flip_image: bool = False,
         center_image_on_path: bool = False,
-        downsample_resolution: int = 224,
     ):
         super().__init__(env, image_key=image_key)
         self.vlm_server_ip = vlm_server_ip
@@ -421,7 +420,6 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         self.draw_mask = draw_mask
         self.flip_image = flip_image
         self.center_image_on_path = center_image_on_path
-        self.downsample_resolution = downsample_resolution
 
     def _after_env_reset(self, obs, info):
         self.current_step = 0
@@ -481,16 +479,33 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
 
         obs["pixels"][self.image_key] = img
 
-        # downsample all pixel images
-        for key in obs["pixels"]:
-            obs["pixels"][key] = cv2.resize(
-                obs["pixels"][key], (self.downsample_resolution, self.downsample_resolution)
-            )
         return obs
 
     def step(self, action):
         self.current_step += 1
         return super().step(action)
+
+
+class DownsampleObservationWrapper(ObservationModificationWrapper):
+    def __init__(self, env, image_key: str, downsample_resolution: int = 224):
+        super().__init__(env, image_key=image_key)
+        self.downsample_resolution = downsample_resolution
+        if self.downsample_resolution != self.env.resolution:
+            for key in self.env.observation_space["pixels"]:
+                self.env.observation_space["pixels"][key] = spaces.Box(
+                    0,
+                    255,
+                    shape=(self.downsample_resolution, self.downsample_resolution, 3),
+                    dtype=np.uint8,
+                )
+
+    def _modify_observation(self, obs):
+        if self.downsample_resolution != self.env.resolution:
+            for key in obs["pixels"]:
+                obs["pixels"][key] = cv2.resize(
+                    obs["pixels"][key], (self.downsample_resolution, self.downsample_resolution)
+                )
+        return obs
 
 
 class LIBEROEnv(gym.Env):
