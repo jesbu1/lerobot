@@ -124,7 +124,6 @@ def make_libero_env(
                     load_gt_initial_states=env_cfg.load_gt_initial_states,
                     task_idx=task_idx,
                     episode_idx=start_episode_idx,
-                    downsample_resolution=downsample_resolution,
                 ),
                 vlm_server_ip=vlm_server_ip,
                 vlm_query_frequency=vlm_query_frequency,
@@ -133,6 +132,7 @@ def make_libero_env(
                 image_key=image_key,
                 flip_image=flip_image,
                 center_image_on_path=center_image_on_path,
+                downsample_resolution=downsample_resolution,
             )
             for i in range(n_envs)
         ]
