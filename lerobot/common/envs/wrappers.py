@@ -22,7 +22,7 @@ from vila_utils.utils.prompts import get_prompt
 
 # Constants
 SERVER_IP = "https://whippet-pet-singularly.ngrok.app"
-DOWNSAMPLE_RESOLUTION = 256
+VLM_DOWNSAMPLE_RESOLUTION = 256
 OLD_PROMPT = False
 # PATH_MODEL_NAME = "vila_3b_oxe_no_droid"
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
@@ -134,7 +134,7 @@ def preprocess_image(image, crop_type):
         start_y = (height - crop_size) // 2
         image = image[start_y : start_y + crop_size, start_x : start_x + crop_size]
     # then, resize the image to DOWNSAMPLE_RESOLUTION x DOWNSAMPLE_RESOLUTION
-    return cv2.resize(image, (DOWNSAMPLE_RESOLUTION, DOWNSAMPLE_RESOLUTION))
+    return cv2.resize(image, (VLM_DOWNSAMPLE_RESOLUTION, VLM_DOWNSAMPLE_RESOLUTION))
 
 
 def send_request(
