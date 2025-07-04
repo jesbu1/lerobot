@@ -18,7 +18,7 @@ export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
 
-EXP_NAME=train_act_libero_path_mask_vlm_centered_nolang
+EXP_NAME=train_act_libero_path_mask_vlm_centered_nolang_0.1mask
 PROJ_NAME=lerobot
 RESUME=false
 
