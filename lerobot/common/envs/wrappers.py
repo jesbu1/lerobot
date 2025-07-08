@@ -86,7 +86,7 @@ def resize_with_pad(images: np.ndarray, height: int, width: int, method=Image.BI
     return resized.reshape(*original_shape[:-3], *resized.shape[-3:])
 
 
-def draw_onto_image(vlm_path_mask_output, prompt_type, img, verbose=False):
+def draw_onto_image(vlm_path_mask_output, prompt_type, img, mask_ratio=0.15, verbose=False):
     # default inference code which is a bit different from the original data processing code because of legacy code reasons.
     h, w, c = img.shape
     scaled_mask = None
@@ -116,7 +116,7 @@ def draw_onto_image(vlm_path_mask_output, prompt_type, img, verbose=False):
     if "mask" in prompt_type and scaled_mask is not None:
         if verbose:
             print("adding mask")
-        img = add_mask_2d_to_img(img, scaled_mask, mask_pixels=int(h * 0.15))
+        img = add_mask_2d_to_img(img, scaled_mask, mask_pixels=int(h * mask_ratio))
 
     if "path" in prompt_type and scaled_path is not None:
         if verbose:
@@ -229,6 +229,7 @@ def get_path_mask_from_vlm(
     vlm_server_ip: str = SERVER_IP,
     path=None,
     mask=None,
+    mask_ratio=0.15,
 ):
     # used for VLM inference during eval
     assert draw_path or draw_mask
@@ -249,10 +250,10 @@ def get_path_mask_from_vlm(
                 )
                 path, mask = get_path_from_answer(response_text, prompt_type)
             if draw_path:
-                drawn_rgb = draw_onto_image((path, mask), "path", image.copy())
+                drawn_rgb = draw_onto_image((path, mask), "path", image.copy(), mask_ratio=mask_ratio)
                 image = drawn_rgb
             if draw_mask:
-                masked_rgb = draw_onto_image((path, mask), "mask", image.copy())
+                masked_rgb = draw_onto_image((path, mask), "mask", image.copy(), mask_ratio=mask_ratio)
                 image = masked_rgb
 
             return image, path, mask
@@ -295,6 +296,7 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
         draw_path: bool,
         draw_mask: bool,
         image_key="image",
+        mask_ratio: float = 0.15,
     ):
         """
         Args:
@@ -303,13 +305,14 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             draw_path: Whether to draw the path on the image
             draw_mask: Whether to draw the mask on the image
             image_key: The key in the observation dictionary that contains the image.
+            mask_ratio: The ratio of the image to mask.
         """
         super().__init__(env)
         self.image_key = image_key
         self.path_and_mask_h5_file = path_and_mask_h5_file
         self.draw_path = draw_path
         self.draw_mask = draw_mask
-
+        self.mask_ratio = mask_ratio
         self.current_path = None
         self.current_masked_images = None
         self.rng = np.random.default_rng()
@@ -340,6 +343,7 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
                 vlm_server_ip=None,
                 path=self.current_path,
                 mask=None,
+                mask_ratio=self.mask_ratio,
             )
 
         obs["pixels"][self.image_key] = img
@@ -409,6 +413,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         draw_mask: bool = True,
         flip_image: bool = False,
         center_image_on_path: bool = False,
+        mask_ratio: float = 0.15,
     ):
         super().__init__(env)
         self.image_key = image_key
@@ -421,6 +426,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         self.draw_mask = draw_mask
         self.flip_image = flip_image
         self.center_image_on_path = center_image_on_path
+        self.mask_ratio = mask_ratio
 
     def _after_env_reset(self, obs, info):
         self.current_step = 0
@@ -442,6 +448,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
                     draw_mask=self.draw_mask,
                     verbose=False,
                     vlm_server_ip=self.vlm_server_ip,
+                    mask_ratio=self.mask_ratio,
                 )
             except Exception as e:
                 print(f"Error: {e}")

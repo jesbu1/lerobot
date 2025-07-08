@@ -53,6 +53,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     image_key: str = "image"
     flip_image: bool = True
     center_image_on_path: bool = False
+    mask_ratio: float = 0.15
     # Wandb configuration
     wandb_enable: bool = True
     wandb_project: str = "lerobot-eval"
@@ -88,6 +89,7 @@ def make_libero_env(
     flip_image: bool,
     center_image_on_path: bool,
     downsample_resolution: int,
+    mask_ratio: float = 0.15,
 ) -> gym.vector.VectorEnv | None:
     """Makes a gym vector environment according to the config.
 
@@ -132,6 +134,7 @@ def make_libero_env(
                     image_key=image_key,
                     flip_image=flip_image,
                     center_image_on_path=center_image_on_path,
+                    mask_ratio=mask_ratio,
                 ),
                 downsample_resolution=downsample_resolution,
             )
