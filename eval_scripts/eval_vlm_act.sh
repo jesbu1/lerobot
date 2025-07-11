@@ -18,13 +18,15 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
-policy_path="outputs/train_act_libero_path_mask_vlm_0.1mask/checkpoints/last/pretrained_model"
+policy_path="outputs/train_act_libero_path_mask_vlm_0.1mask_nowrist/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
-    name="eval_fixres_vlm_act_5ep_0.1mask_$env"
+    #name="eval_fixres_vlm_act_5ep_0.1mask_$env"
+    name="eval_fixres_vlm_act_0.1mask_nowrist_5ep_$env"
     CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
         --env.type=libero \
+        --env.include_wrist_image=false \
         --policy.path=$policy_path \
         --policy.use_amp=false \
         --policy.device=cuda \
