@@ -284,6 +284,7 @@ class LIBEROEnv(EnvConfig):
     load_gt_initial_states: bool = False
     image_key: str = "image"
     wrist_image_key: str = "wrist_image"
+    include_wrist_image: bool = True
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
@@ -305,9 +306,10 @@ class LIBEROEnv(EnvConfig):
         self.features[f"pixels/image"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
-        self.features["pixels/image_wrist"] = PolicyFeature(
-            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
-        )
+        if self.include_wrist_image:
+            self.features["pixels/image_wrist"] = PolicyFeature(
+                type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+            )
 
     @property
     def gym_kwargs(self) -> dict:

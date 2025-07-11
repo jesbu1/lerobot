@@ -531,6 +531,7 @@ class LIBEROEnv(gym.Env):
         resolution: int = 256,
         libero_hdf5_dir: str = None,
         load_gt_initial_states: bool = False,
+        include_wrist_image: bool = True,
     ):
         super().__init__()
         self.resolution = resolution
@@ -557,6 +558,7 @@ class LIBEROEnv(gym.Env):
         self.current_step = 0
         self.set_task_idx(task_idx)
         self.set_episode_idx(episode_idx)
+        self.include_wrist_image = include_wrist_image
         # load dummy env first
         # env, _ = self._get_libero_env()
         self.metadata = {"render_fps" : 10}
@@ -582,6 +584,8 @@ class LIBEROEnv(gym.Env):
                 "agent_pos": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
         )
+        if not self.include_wrist_image:
+            self.observation_space["pixels"].pop("image_wrist")
         self.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
         self.spec = {}
         self.spec["max_episode_steps"] = self._max_episode_steps
@@ -617,9 +621,10 @@ class LIBEROEnv(gym.Env):
         pixels["image"] = convert_to_uint8(
             resize_with_pad(flipped_agentview, self.resolution, self.resolution)
         )
-        pixels["image_wrist"] = convert_to_uint8(
-            resize_with_pad(flipped_eye_in_hand, self.resolution, self.resolution)
-        )
+        if self.include_wrist_image:
+            pixels["image_wrist"] = convert_to_uint8(
+                resize_with_pad(flipped_eye_in_hand, self.resolution, self.resolution)
+            )
         new_obs["pixels"] = pixels
         # following stupid lerobot hardcoded agent_pos naming...
         new_obs["agent_pos"] = np.concatenate(

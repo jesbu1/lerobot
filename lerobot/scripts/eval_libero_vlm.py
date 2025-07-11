@@ -126,6 +126,7 @@ def make_libero_env(
                         load_gt_initial_states=env_cfg.load_gt_initial_states,
                         task_idx=task_idx,
                         episode_idx=start_episode_idx,
+                        include_wrist_image=env_cfg.include_wrist_image,
                     ),
                     vlm_server_ip=vlm_server_ip,
                     vlm_query_frequency=vlm_query_frequency,
