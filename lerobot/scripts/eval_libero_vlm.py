@@ -51,7 +51,9 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     draw_path: bool = True
     draw_mask: bool = True
     image_key: str = "image"
-    flip_image: bool = True
+    flip_image: bool = (
+        True  # flips the image horizontally to match with how we labeled the LIBERO dataset with the VLM
+    )
     center_image_on_path: bool = False
     mask_ratio: float = 0.15
     # Wandb configuration
