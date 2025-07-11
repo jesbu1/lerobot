@@ -34,7 +34,7 @@ for env in $libero_envs; do
         --wandb_name_suffix=$name \
         --draw_path=true \
         --draw_mask=true \
-	--mask_ratio=0.1 \
+        --mask_ratio=0.1 \
         --center_image_on_path=true"
     echo "Executing command: $CMD"
     $CMD

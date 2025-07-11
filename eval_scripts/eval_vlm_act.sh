@@ -33,7 +33,7 @@ for env in $libero_envs; do
         --eval.batch_size 1 \
         --wandb_name_suffix=$name \
         --draw_path=true \
-	--mask_ratio=0.1 \
+        --mask_ratio=0.1 \
         --draw_mask=true"
     echo "Executing command: $CMD"
     $CMD
