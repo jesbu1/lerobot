@@ -212,6 +212,7 @@ def eval_main(cfg: EvalPipelineConfig):
         flip_image=cfg.flip_image,
         center_image_on_path=cfg.center_image_on_path,
         downsample_resolution=cfg.downsample_resolution,
+        mask_ratio=cfg.mask_ratio,
     )
     global VALID_EPISODE_LIST
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
@@ -249,6 +250,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 flip_image=cfg.flip_image,
                 center_image_on_path=cfg.center_image_on_path,
                 downsample_resolution=cfg.downsample_resolution,
+                mask_ratio=cfg.mask_ratio,
             )
 
             policy = make_policy(

@@ -428,6 +428,10 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
         self.center_image_on_path = center_image_on_path
         self.mask_ratio = mask_ratio
 
+        print(
+            f"VLMPathMaskWrapper initialized with mask_ratio: {self.mask_ratio}, draw_path: {self.draw_path}, draw_mask: {self.draw_mask}, center_image_on_path: {self.center_image_on_path}"
+        )
+
     def _after_env_reset(self, obs, info):
         self.current_step = 0
         self.current_path = None
