@@ -573,19 +573,18 @@ class LIBEROEnv(gym.Env):
                             shape=(self.resolution, self.resolution, 3),
                             dtype=np.uint8,
                         ),
-                        "image_wrist": spaces.Box(
-                            0,
-                            255,
-                            shape=(self.resolution, self.resolution, 3),
-                            dtype=np.uint8,
-                        ),
                     }
                 ),
                 "agent_pos": spaces.Box(-np.inf, np.inf, shape=(8,)),
             }
         )
-        if not self.include_wrist_image:
-            self.observation_space["pixels"].pop("image_wrist")
+        if self.include_wrist_image:
+            self.observation_space["pixels"]["image_wrist"] = spaces.Box(
+                0,
+                255,
+                shape=(self.resolution, self.resolution, 3),
+                dtype=np.uint8,
+            )
         self.action_space = spaces.Box(-1.0, 1.0, shape=(7,))
         self.spec = {}
         self.spec["max_episode_steps"] = self._max_episode_steps
