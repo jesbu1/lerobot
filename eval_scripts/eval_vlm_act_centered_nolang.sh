@@ -31,7 +31,7 @@ for env in $libero_envs; do
         --policy.use_amp=false \
         --policy.device=cuda \
         --env.task_suite_name $env \
-        --eval.n_episodes=5 \
+        --eval.n_episodes=10 \
         --eval.batch_size 1 \
         --wandb_name_suffix=$name \
         --draw_path=true \
