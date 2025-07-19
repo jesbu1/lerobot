@@ -14,7 +14,7 @@
 
 # Training configuration
 seed: 42
-steps: 1000000
+steps: 500000
 batch_size: 64
 num_workers: 16
 log_freq: 100
@@ -26,14 +26,16 @@ job_name: "train_act_libero_path_mask"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
+  #repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"  # Replace with your LIBERO dataset name
+  repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp"
   remap_keys: # remaps dataset keys from the original format to the format expected by the policy
     state: "observation.state"
     masked_path_image: "observation.images.image"
     wrist_image: "observation.images.image_wrist"
     actions: "action"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["masked_image", "image", "path_image"]
+    #["masked_image", "image", "path_image"]
+    ["image", "path_image"]
 
 # Policy configuration
 policy:

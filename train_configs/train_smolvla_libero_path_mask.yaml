@@ -1,10 +1,10 @@
 # Training configuration
 seed: 42
-steps: 1000000
-batch_size: 64
-num_workers: 20
+steps: 50000
+batch_size: 128
+num_workers: 16
 log_freq: 100
-save_freq: 5000
+save_freq: 10000
 save_checkpoint: true
 resume: false
 output_dir: "outputs/train_smolvla_libero_path_mask"
@@ -12,14 +12,16 @@ job_name: "train_smolvla_libero_path_mask"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"
+  #repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp_full_path_mask"
+  repo_id: "jesbu1/libero_90_lerobot_pathmask_rdp"
   remap_keys:
     state: "observation.state"
     masked_path_image: "observation.image"
     wrist_image: "observation.wrist_image"
     actions: "action"
   drop_keys:
-    ["masked_image", "image", "path_image"]
+    #["masked_image", "image", "path_image"]
+    ["image", "path_image"]
 
 # Policy configuration
 policy:
@@ -46,7 +48,7 @@ policy:
   # smolVLA specific configurations
   vlm_model_name: "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
   freeze_vision_encoder: true
-  train_expert_only: false
+  train_expert_only: true
   train_state_proj: true
   attention_mode: "cross_attn"
   num_expert_layers: -1  # Use same number of layers as VLM
