@@ -21,7 +21,7 @@ dataset:
     actions: "action"
   drop_keys:
     #["masked_image", "image", "masked_path_image"]
-    ["image", "path_image"]
+    ["image", "masked_path_image"]
 
 # Policy configuration
 policy:
