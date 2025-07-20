@@ -18,7 +18,7 @@ module load git-lfs
 export PATH="/apps/conda/.local/bin:$PATH"
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
 export MUJOCO_GL=egl
-RESUME=true
+RESUME=false
 
 EXP_NAME=train_act_libero_lang
 PROJ_NAME=lerobot
