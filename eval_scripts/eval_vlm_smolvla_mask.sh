@@ -22,14 +22,13 @@ conda run -n vila --no-capture-output /bin/bash -c "CUDA_VISIBLE_DEVICES=$VILA_G
 # Wait for the model to load
 sleep 30
 
-policy_path="outputs/train_act_libero_path_mask_0.01_0.12/checkpoints/last/pretrained_model"
+policy_path="outputs/train_smolvla_libero_path_mask_0.01_0.12/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
     for mask_ratio in 0.05 0.08 0.12; do
-        #name="eval_fixres_vlm_act_5ep_0.1mask_$env"
-        #name="eval_vlm_act_0.1mask_nowrist_5ep_$env"
-        name="eval_vlm_act_gttrain_0.01-0.12mask_${mask_ratio}mask_25ep_$env"
+        #name="eval_vlm_smolvla_5ep_0.1mask_nowrist_$env"
+        name="eval_vlm_smolvla_0.01-0.12mask_${mask_ratio}mask_25ep_$env"
         CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
             --env.type=libero \
             --env.include_wrist_image=false \
@@ -43,7 +42,7 @@ for env in $libero_envs; do
             --draw_path=true \
             --mask_ratio=$mask_ratio \
             --draw_mask=true"
-            echo "Executing command: $CMD"
-            $CMD
+        echo "Executing command: $CMD"
+        $CMD
     done
 done
