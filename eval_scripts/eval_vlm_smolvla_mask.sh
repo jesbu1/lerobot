@@ -29,7 +29,7 @@ for env in $libero_envs; do
     for mask_ratio in 0.05 0.08 0.12; do
         #name="eval_vlm_smolvla_5ep_0.1mask_nowrist_$env"
         name="eval_vlm_smolvla_0.01-0.12mask_${mask_ratio}mask_25ep_$env"
-        CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
+        CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
             --vlm_server_ip=http://0.0.0.0:8000 \
             --env.type=libero \
             --env.include_wrist_image=false \
@@ -44,6 +44,6 @@ for env in $libero_envs; do
             --mask_ratio=$mask_ratio \
             --draw_mask=true"
         echo "Executing command: $CMD"
-        $CMD
+        conda run -n lerobot --no-capture-output /bin/bash -c $CMD
     done
 done
