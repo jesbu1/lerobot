@@ -31,6 +31,7 @@ for env in $libero_envs; do
         #name="eval_vlm_act_0.1mask_nowrist_5ep_$env"
         name="eval_vlm_act_gttrain_0.01-0.12mask_${mask_ratio}mask_25ep_$env"
         CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
+            --vlm_server_ip=http://0.0.0.0:8000 \
             --env.type=libero \
             --env.include_wrist_image=false \
             --policy.path=$policy_path \

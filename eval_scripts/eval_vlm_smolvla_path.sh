@@ -28,6 +28,7 @@ libero_envs="libero_goal libero_spatial libero_10 libero_object"
 for env in $libero_envs; do
     name="eval_vlm_smolvla_path_25ep_$env"
     CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
+        --vlm_server_ip=http://0.0.0.0:8000 \
         --env.type=libero \
         --env.include_wrist_image=false \
         --policy.path=$policy_path \
