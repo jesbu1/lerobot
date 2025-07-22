@@ -42,5 +42,5 @@ for env in $libero_envs; do
         --draw_mask=false"
     FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""
     echo "Executing command: $FINAL_CMD"
-    $FINAL_CMD
+    eval $FINAL_CMD
 done
