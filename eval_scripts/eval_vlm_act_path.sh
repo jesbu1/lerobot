@@ -40,7 +40,7 @@ for env in $libero_envs; do
         --wandb_name_suffix=$name \
         --draw_path=true \
         --draw_mask=false"
-        FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""
-        echo "Executing command: $FINAL_CMD"
-        $FINAL_CMD
+    FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""
+    echo "Executing command: $FINAL_CMD"
+    $FINAL_CMD
 done
