@@ -21,19 +21,19 @@ log_freq: 100
 save_freq: 100_000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_act_libero_path_mask_vlm_centered"
-job_name: "train_act_libero_path_mask_vlm_centered"
+output_dir: "outputs/train_act_libero_path_vlm"
+job_name: "train_act_libero_path_vlm"
 
 # Dataset configuration
 dataset:
   repo_id: "jesbu1/libero_90_lerobot_pathmask_vlm_labeled"  # Replace with your LIBERO dataset name
   remap_keys: # remaps dataset keys from the original format to the format expected by the policy
     state: "observation.state"
-    masked_path_centered_image: "observation.images.image"
+    path_image: "observation.images.image"
     wrist_image: "observation.images.image_wrist"
     actions: "action"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["masked_image", "image", "path_image", "masked_path_image"]
+    ["masked_image", "image", "masked_path_image", "masked_path_centered_image"]
 
 # Policy configuration
 policy:
