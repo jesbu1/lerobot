@@ -47,7 +47,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 @dataclass
 class EvalPipelineConfig(BaseEvalPipelineConfig):
     vlm_server_ip: str = "https://whippet-pet-singularly.ngrok.app"
-    vlm_query_frequency: int = 50
+    vlm_query_frequency: int = 80
     draw_path: bool = True
     draw_mask: bool = True
     image_key: str = "image"
