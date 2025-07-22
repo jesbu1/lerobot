@@ -20,7 +20,7 @@ echo "Running VILA server"
 conda run -n vila --no-capture-output /bin/bash -c "CUDA_VISIBLE_DEVICES=$VILA_GPU_ID python -W ignore vila_3b_server.py --model-paths ~/.cache/huggingface/hub/models--memmelma--vila_3b_path_mask_fast/snapshots/12df7a04221a50e88733cd2f1132eb01257aba0d/checkpoint-11700/" &
 
 # Wait for the model to load
-sleep 30
+sleep 90
 
 policy_path="outputs/train_act_libero_path_mask_0.01_0.12/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
@@ -44,7 +44,8 @@ for env in $libero_envs; do
             --draw_path=true \
             --mask_ratio=$mask_ratio \
             --draw_mask=true"
-            echo "Executing command: $CMD"
-        conda run -n lerobot --no-capture-output /bin/bash -c $CMD
+        FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""
+        echo "Executing command: $FINAL_CMD"
+        $FINAL_CMD
     done
 done
