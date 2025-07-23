@@ -470,6 +470,7 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
                 vlm_server_ip=None,
                 path=self.current_path,
                 mask=self.current_mask,
+                mask_ratio=self.mask_ratio,
             )
         if self.center_image_on_path and self.current_path is not None and len(self.current_path) > 0:
             first_point = self.current_path[0]
