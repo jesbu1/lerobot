@@ -3,13 +3,13 @@
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
 #SBATCH --cpus-per-task=20
-#SBATCH --mem=48G
+#SBATCH --mem=32G
 #SBATCH --partition=gpu
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
-VILA_GPU_ID=1
+VILA_GPU_ID=0
 POLICY_GPU_ID=0
 
 source ~/.bashrc
