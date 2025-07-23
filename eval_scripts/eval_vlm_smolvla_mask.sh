@@ -22,6 +22,8 @@ conda run -n vila --no-capture-output /bin/bash -c "CUDA_VISIBLE_DEVICES=$VILA_G
 # Wait for the model to load
 sleep 90
 
+cd /home1/jessez/nvidia/my_lerobot
+
 policy_path="outputs/train_smolvla_libero_path_mask_0.01_0.12/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
