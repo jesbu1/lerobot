@@ -711,7 +711,7 @@ class LIBEROEnv(gym.Env):
         if self.load_gt_initial_states:
             initial_states = self._load_initial_states_from_h5(self._episode_idx)
         else:
-            initial_states = None
+            initial_states = self._libero_task_suite.get_task_init_states(self._task_idx)[self._episode_idx]
 
         return env, initial_states
 
