@@ -11,14 +11,6 @@
 
 
 source ~/.bashrc
-module load cuda
-module load glew
-module load patchelf
-module load git-lfs
-export PATH="/apps/conda/.local/bin:$PATH"
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
-export MUJOCO_GL=egl
-#olicy_path="outputs/train_act_libero_path_mask_vlm_centered/checkpoints/last/pretrained_model"
 policy_path="outputs/train_act_libero_test_10ep/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
