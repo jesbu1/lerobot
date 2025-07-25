@@ -29,6 +29,7 @@ libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
     name="eval_vlm_smolvla_path_test_10ep_$env"
+    group="eval_vlm_smolvla_path_test_10ep"
     CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
         --vlm_server_ip=http://0.0.0.0:8000 \
         --env.type=libero \
@@ -40,6 +41,7 @@ for env in $libero_envs; do
         --eval.n_episodes=50 \
         --eval.batch_size 5 \
         --wandb_name_suffix=$name \
+        --wandb_group=$group \
         --draw_path=true \
         --draw_mask=false"
     FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""

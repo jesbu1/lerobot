@@ -61,6 +61,7 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     wandb_project: str = "lerobot-eval"
     wandb_entity: str | None = None
     wandb_name_suffix: str = ""
+    wandb_group: str = ""
     wandb_notes: str | None = None
     wandb_mode: str = "online"  # Allowed values: 'online', 'offline', 'disabled'
     downsample_resolution: int = 224
@@ -174,6 +175,7 @@ def eval_main(cfg: EvalPipelineConfig):
             project=cfg.wandb_project,
             entity=cfg.wandb_entity,
             name=wandb_name,
+            group=cfg.wandb_group if cfg.wandb_group else None,
             notes=cfg.wandb_notes,
             config=asdict(cfg),
             mode=cfg.wandb_mode if cfg.wandb_mode in ["online", "offline", "disabled"] else "online",

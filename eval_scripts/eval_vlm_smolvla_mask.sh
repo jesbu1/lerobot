@@ -31,6 +31,7 @@ for env in $libero_envs; do
     for mask_ratio in 0.08; do
         #name="eval_vlm_smolvla_5ep_0.1mask_nowrist_$env"
         name="eval_vlm_smolvla_mask_test_10ep_${mask_ratio}mask_$env"
+        group="eval_vlm_smolvla_mask_test_10ep_${mask_ratio}mask"
         CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
             --vlm_server_ip=http://0.0.0.0:8000 \
             --env.type=libero \
@@ -42,6 +43,7 @@ for env in $libero_envs; do
             --eval.n_episodes=50 \
             --eval.batch_size 5 \
             --wandb_name_suffix=$name \
+            --wandb_group=$group \
             --draw_path=true \
             --mask_ratio=$mask_ratio \
             --draw_mask=true"
