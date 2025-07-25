@@ -66,16 +66,20 @@ class EvalPipelineConfig(BaseEvalPipelineConfig):
     downsample_resolution: int = 224
 
 
-VALID_EPISODE_LIST = []  # list of valid episodes, not all have ground truth path/mask data
+CURRENT_EPISODE_IDX = 0
 
 
 def finished_task():
-    global VALID_EPISODE_LIST
-    VALID_EPISODE_LIST = []
+    global CURRENT_EPISODE_IDX
+    CURRENT_EPISODE_IDX = 0
 
 
 def reset_callback(envs: gym.vector.VectorEnv):
-    pass
+    global CURRENT_EPISODE_IDX
+    for env in envs.envs:
+        env.set_episode_idx(CURRENT_EPISODE_IDX)
+        print(f"setting episode idx to {CURRENT_EPISODE_IDX}")
+        CURRENT_EPISODE_IDX += 1
 
 
 def make_libero_env(
@@ -214,7 +218,6 @@ def eval_main(cfg: EvalPipelineConfig):
         downsample_resolution=cfg.downsample_resolution,
         mask_ratio=cfg.mask_ratio,
     )
-    global VALID_EPISODE_LIST
     with torch.no_grad(), torch.autocast(device_type=device.type) if cfg.policy.use_amp else nullcontext():
         for task_idx in range(env.envs[0].num_tasks):
             task_successes = 0
@@ -231,10 +234,7 @@ def eval_main(cfg: EvalPipelineConfig):
 
             eval_tracker.reset_averages()
 
-            # first determine the valid episode list
-            finished_task()
-            VALID_EPISODE_LIST = list(range(cfg.eval.n_episodes))  # evaluate all episodes
-            logging.info(f"Valid episode list: {VALID_EPISODE_LIST}")
+            finished_task() # reset the episode idx to 0 for the next task
 
             logging.info(f"Making environment for task {task_idx}.")
             env = make_libero_env(
@@ -261,8 +261,8 @@ def eval_main(cfg: EvalPipelineConfig):
             info = eval_policy(
                 env,
                 policy,
-                len(VALID_EPISODE_LIST),
-                max_episodes_rendered=len(VALID_EPISODE_LIST),
+                cfg.eval.n_episodes,
+                max_episodes_rendered=cfg.eval.n_episodes,
                 videos_dir=videos_dir,
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
@@ -274,10 +274,10 @@ def eval_main(cfg: EvalPipelineConfig):
 
             task_successes = sum(e["success"] for e in info["per_episode"])
 
-            assert len(VALID_EPISODE_LIST) == len(
+            assert cfg.eval.n_episodes == len(
                 info["per_episode"]
             ), "number of episodes in VALID_EPISODE_LIST and info['per_episode'] should be the same"
-            task_episodes += len(VALID_EPISODE_LIST)
+            task_episodes += cfg.eval.n_episodes
 
             total_reward_for_task = sum(e["sum_reward"] for e in info["per_episode"])
             task_reward += total_reward_for_task
@@ -285,7 +285,7 @@ def eval_main(cfg: EvalPipelineConfig):
             task_eval_time += eval_tracker.eval_s.sum
 
             overall_metrics["total_successes"] += task_successes
-            overall_metrics["total_episodes"] += len(VALID_EPISODE_LIST)
+            overall_metrics["total_episodes"] += cfg.eval.n_episodes
             overall_metrics["total_reward"] += total_reward_for_task
             overall_metrics["total_eval_time"] += eval_tracker.eval_s.sum
 
