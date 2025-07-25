@@ -24,13 +24,12 @@ sleep 90
 
 cd /home1/jessez/nvidia/my_lerobot
 
-policy_path="outputs/train_smolvla_libero_path_test_10ep/checkpoints/last/pretrained_model"
+policy_path="outputs/train_smolvla_libero_test_10ep/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
-    name="eval_vlm_smolvla_path_test_10ep_$env"
+    name="eval_vlm_smolvla_test_10ep_$env"
     CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
-        --vlm_server_ip=http://0.0.0.0:8000 \
         --env.type=libero \
         --env.include_wrist_image=false \
         --policy.path=$policy_path \
@@ -40,7 +39,7 @@ for env in $libero_envs; do
         --eval.n_episodes=50 \
         --eval.batch_size 5 \
         --wandb_name_suffix=$name \
-        --draw_path=true \
+        --draw_path=false \
         --draw_mask=false"
     FINAL_CMD="conda run -n lerobot --no-capture-output /bin/bash -c \"$CMD\""
     echo "Executing command: $FINAL_CMD"

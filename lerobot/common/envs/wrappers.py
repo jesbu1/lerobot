@@ -442,53 +442,54 @@ class VLMPathMaskWrapper(ObservationModificationWrapper):
             for key in obs["pixels"]:
                 obs["pixels"][key] = np.fliplr(obs["pixels"][key])
         img = obs["pixels"][self.image_key].copy()
-        if self.current_step % self.vlm_query_frequency == 0:
-            try:
-                img, self.current_path, self.current_mask = get_path_mask_from_vlm(
+        if self.draw_path or self.draw_mask:
+            if self.current_step % self.vlm_query_frequency == 0:
+                try:
+                    img, self.current_path, self.current_mask = get_path_mask_from_vlm(
+                        image=img,
+                        crop_type="Center Crop",
+                        task_instr=self.env.task,
+                        draw_path=self.draw_path,
+                        draw_mask=self.draw_mask,
+                        verbose=False,
+                        vlm_server_ip=self.vlm_server_ip,
+                        mask_ratio=self.mask_ratio,
+                    )
+                except Exception as e:
+                    print(f"Error: {e}")
+                    self.current_path = None
+                    self.current_mask = None
+            elif self.current_path is not None or self.current_mask is not None:
+                # draw without querying by passing the current path and mask
+                img, _, _ = get_path_mask_from_vlm(
                     image=img,
                     crop_type="Center Crop",
                     task_instr=self.env.task,
                     draw_path=self.draw_path,
                     draw_mask=self.draw_mask,
                     verbose=False,
-                    vlm_server_ip=self.vlm_server_ip,
+                    vlm_server_ip=None,
+                    path=self.current_path,
+                    mask=self.current_mask,
                     mask_ratio=self.mask_ratio,
                 )
-            except Exception as e:
-                print(f"Error: {e}")
-                self.current_path = None
-                self.current_mask = None
-        elif self.current_path is not None or self.current_mask is not None:
-            # draw without querying by passing the current path and mask
-            img, _, _ = get_path_mask_from_vlm(
-                image=img,
-                crop_type="Center Crop",
-                task_instr=self.env.task,
-                draw_path=self.draw_path,
-                draw_mask=self.draw_mask,
-                verbose=False,
-                vlm_server_ip=None,
-                path=self.current_path,
-                mask=self.current_mask,
-                mask_ratio=self.mask_ratio,
-            )
-        if self.center_image_on_path and self.current_path is not None and len(self.current_path) > 0:
-            first_point = self.current_path[0]
-            height, width = img.shape[:2]
+            if self.center_image_on_path and self.current_path is not None and len(self.current_path) > 0:
+                first_point = self.current_path[0]
+                height, width = img.shape[:2]
 
-            # Convert first_point to pixel coordinates
-            # Assuming first_point is in normalized coordinates [0, 1]
-            center_x = int(first_point[0] * width)
-            center_y = int(first_point[1] * height)
+                # Convert first_point to pixel coordinates
+                # Assuming first_point is in normalized coordinates [0, 1]
+                center_x = int(first_point[0] * width)
+                center_y = int(first_point[1] * height)
 
-            # Calculate crop boundaries
-            crop_size = min(height, width) // 2  # Use half the smaller dimension
-            top = center_y - crop_size
-            left = center_x - crop_size
+                # Calculate crop boundaries
+                crop_size = min(height, width) // 2  # Use half the smaller dimension
+                top = center_y - crop_size
+                left = center_x - crop_size
 
-            img_tensor = torch.from_numpy(img).permute(2, 0, 1)
-            cropped_tensor = F.crop(img_tensor, top, left, crop_size * 2, crop_size * 2)
-            img = cropped_tensor.permute(1, 2, 0).numpy()
+                img_tensor = torch.from_numpy(img).permute(2, 0, 1)
+                cropped_tensor = F.crop(img_tensor, top, left, crop_size * 2, crop_size * 2)
+                img = cropped_tensor.permute(1, 2, 0).numpy()
 
         obs["pixels"][self.image_key] = img
 
