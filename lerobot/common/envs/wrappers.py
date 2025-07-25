@@ -14,7 +14,7 @@ import torchvision.transforms.functional as F
 from gymnasium import spaces
 from libero.libero import benchmark, get_libero_path
 from libero.libero.envs import OffScreenRenderEnv
-from openai import OpenAI
+from openai import OpenAI, APIConnectionError
 from PIL import Image
 from vila_utils.utils.decode import add_mask_2d_to_img, add_path_2d_to_img_alt_fast, get_path_from_answer
 from vila_utils.utils.encode import scale_path
@@ -206,6 +206,14 @@ def send_request(
             if verbose:
                 print(f"Server response received in {duration:.2f} seconds.")
             return response_text
+        except APIConnectionError as e:
+            print(f"Error connecting to server: {e}")
+            wait_time = 2**retry_count  # Exponential backoff
+            retry_count += 1 # this doesn't count as a retry
+            max_retries += 1 
+            print(f"Retrying in {wait_time} seconds... (Attempt {retry_count} of {max_retries})")
+            time.sleep(wait_time)
+            continue
         except Exception as e:
             retry_count += 1
             wait_time = 2**retry_count  # Exponential backoff
