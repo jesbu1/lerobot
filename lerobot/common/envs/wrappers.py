@@ -655,8 +655,7 @@ class LIBEROEnv(gym.Env):
         self.env, initial_states = self._get_libero_env()
         obs = self.env.reset(**kwargs)
 
-        if self.load_gt_initial_states:
-            self.env.set_init_state(initial_states)
+        self.env.set_init_state(initial_states)
         current_steps_waited = 0
         while current_steps_waited < self.num_steps_wait:
             obs, _, _, info = self.env.step(self.LIBERO_DUMMY_ACTION)
