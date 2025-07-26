@@ -16,8 +16,8 @@ libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
     #name="eval_fixres_vlm_act_centered_5ep_$env"
-    name="eval_act_libero_test_10ep_$env"
-    group="eval_act_libero_test_10ep"
+    name="eval_act_libero_fixinit_test_10ep_$env"
+    group="eval_act_libero_fixinit_test_10ep"
     CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/eval_libero_vlm.py \
         --env.type=libero \
         --policy.path=$policy_path \

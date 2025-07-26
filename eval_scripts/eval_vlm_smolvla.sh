@@ -20,8 +20,8 @@ policy_path="outputs/train_smolvla_libero_test_10ep/checkpoints/last/pretrained_
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
-    name="eval_vlm_smolvla_test_10ep_$env"
-    group="eval_vlm_smolvla_test_10ep"
+    name="eval_vlm_smolvla_fixinit_test_10ep_$env"
+    group="eval_vlm_smolvla_fixinit_test_10ep"
     CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
         --env.type=libero \
         --env.include_wrist_image=false \
