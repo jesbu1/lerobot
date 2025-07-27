@@ -28,10 +28,11 @@ export HF_HUB_DISABLE_PROGRESS_BARS=0
 
 RESUME=false
 
-EXP_NAME=train_smolvla_libero_test_10ep
+#EXP_NAME=train_smolvla_libero_test_10ep
+EXP_NAME=train_smolvla_libero_5ep
 PROJ_NAME=lerobot
 
-BASE_TRAIN_CMD="--config_path=train_configs/train_smolvla_libero.yaml --wandb.run_id=$EXP_NAME --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --dataset.repo_id=jesbu1/libero_test_lerobot_pathmask_rdp_max_ep_per_task_10"
+BASE_TRAIN_CMD="--config_path=train_configs/train_smolvla_libero.yaml --wandb.run_id=$EXP_NAME --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --dataset.repo_id=jesbu1/libero_test_lerobot_pathmask_rdp_max_ep_per_task_5"
 RESUME_TRAIN_CMD="--config_path=outputs/$EXP_NAME/checkpoints/last/pretrained_model/train_config.json --resume=true"
 
 TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py"
