@@ -1,10 +1,10 @@
 # Training configuration
 seed: 42
-steps: 1000000
+steps: 50_000
 batch_size: 128
 num_workers: 16
 log_freq: 100
-save_freq: 500
+save_freq: 5_000
 save_checkpoint: true
 resume: false
 output_dir: "outputs/train_smolvla_bridge"
@@ -63,7 +63,7 @@ policy:
 # Optimizer configuration
 optimizer:
   type: "adamw"
-  lr: 1e-4  # smolVLA default learning rate
+  lr: 0.003  
   betas: [0.9, 0.95]
   eps: 1e-8
   weight_decay: 1e-10

@@ -2,8 +2,8 @@
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
-#SBATCH --cpus-per-task=28
-#SBATCH --mem=120G
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=80G
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:a100:1
 #SBATCH --output=slurm_outputs/%x_%j.out
