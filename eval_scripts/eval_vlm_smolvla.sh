@@ -16,12 +16,12 @@ source ~/.bashrc
 
 cd /home1/jessez/nvidia/my_lerobot
 
-policy_path="outputs/train_smolvla_libero_test_10ep/checkpoints/last/pretrained_model"
+policy_path="outputs/train_smolvla_libero_5ep/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
-    name="eval_vlm_smolvla_fixinit_test_10ep_$env"
-    group="eval_vlm_smolvla_fixinit_test_10ep"
+    name="eval_vlm_smolvla_5ep_$env"
+    group="eval_vlm_smolvla_5ep"
     CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
         --env.type=libero \
         --env.include_wrist_image=false \
