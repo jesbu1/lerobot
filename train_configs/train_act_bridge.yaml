@@ -1,10 +1,10 @@
 # Training configuration
 seed: 42
 steps: 200_000
-batch_size: 192
-num_workers: 30
+batch_size: 64
+num_workers: 20
 log_freq: 100
-save_freq: 20_000
+save_freq: 3_000
 save_checkpoint: true
 resume: false
 output_dir: "outputs/train_act_bridge_2cam_lang"
