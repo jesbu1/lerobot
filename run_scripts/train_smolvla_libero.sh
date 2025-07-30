@@ -2,33 +2,17 @@
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
-#SBATCH --cpus-per-task=22
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=26
+#SBATCH --mem=32G
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
 source ~/.bashrc
-module load cuda
-module load glew
-module load patchelf
-module load git-lfs
-export PATH="/apps/conda/.local/bin:$PATH"
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
-export MUJOCO_GL=egl
-
-# Add Hugging Face timeout and retry settings
-export HF_HUB_DOWNLOAD_TIMEOUT=300  # Increase timeout to 5 minutes
-export HF_HUB_ENABLE_HF_TRANSFER=1  # Enable HF transfer for better download speeds
-#export HF_HOME=/scratch1/kimkj/huggingface
-export HF_HUB_DISABLE_SYMLINKS_WARNING=1
-export HF_HUB_DISABLE_EXPERIMENTAL_WARNING=1
-export HF_HUB_DISABLE_PROGRESS_BARS=0
 
 RESUME=false
 
-#EXP_NAME=train_smolvla_libero_test_10ep
 EXP_NAME=train_smolvla_libero_5ep
 PROJ_NAME=lerobot
 
