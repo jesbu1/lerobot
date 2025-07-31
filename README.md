@@ -1,6 +1,6 @@
 ## Extra install
 ```bash
-pip install -e .
+pip install -e .[widowx, smolvla]
 git clone git@github.com:jesbu1/LIBERO.git
 pip install -e LIBERO
 git clone git@github.com:memmelma/vila_utils.git
