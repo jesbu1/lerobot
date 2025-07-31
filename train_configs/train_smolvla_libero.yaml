@@ -20,6 +20,8 @@ dataset:
     actions: "action"
   drop_keys:
     ["masked_image", "path_image", "masked_path_image"]
+  image_transforms:
+    enable: true
 
 # Policy configuration
 policy:
