@@ -5,6 +5,8 @@ Example usage:
 # MAKE SURE NUMPY < 2 is installed!!!
 pip install 'numpy<2'
 pip install -e .[widowx, smolvla]
+USB_CONNECTOR_CHART=$(pwd)/usb_connector_chart.yml docker compose up --build robonet	# in bridge_data_robot
+docker compose exec robonet bash -lic "widowx_env_service --server"  # in separate window
 python lerobot/scripts/serve_widowx.py --policy.path=outputs/train_smolvla_bridge_1cam/checkpoints/last/pretrained_model --policy.use_amp=false --policy.device=cuda # on the host machine
 python scripts/eval_widowx.py --policy-server-address https://whippet-pet-singularly.ngrok.app --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
 """
