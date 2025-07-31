@@ -110,7 +110,7 @@ class WebsocketPolicyServer:
                         action = torch.stack(list(action), dim=0).to("cpu")
                         assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
                         assert action.shape[1] == 1, "Batch size should be 1"
-                    action = action[1]  # get first batch item from the chunk
+                    action = action[:, 0]  # get first batch item from the chunk
                     action = {"actions": action.numpy().tolist()}  # convert to list for JSON serialization
                     
                     # Send action back to client

@@ -5,6 +5,8 @@ Example usage:
 # MAKE SURE NUMPY < 2 is installed!!!
 pip install 'numpy<2'
 pip install -e .[widowx, smolvla]
+USB_CONNECTOR_CHART=$(pwd)/usb_connector_chart.yml docker compose up --build robonet	# in bridge_data_robot
+docker compose exec robonet bash -lic "widowx_env_service --server"  # in separate window
 python lerobot/scripts/serve_widowx.py --policy.path=outputs/train_smolvla_bridge_1cam/checkpoints/last/pretrained_model --policy.use_amp=false --policy.device=cuda # on the host machine
 python scripts/eval_widowx.py --policy-server-address https://whippet-pet-singularly.ngrok.app --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
 """
@@ -35,7 +37,7 @@ except ImportError as e:
     print("Please ensure widowx_envs is installed correctly.")
     exit(1)
 
-resolution = 256
+resolution = 224
 
 # --- Globals for keyboard listener ---
 key_pressed = None
@@ -64,8 +66,8 @@ class WidowXConfigs:
         "skip_move_to_neutral": False,
         "return_full_image": False,
         "camera_topics": [
-            {"name": "/D435/color/image_raw"},
-            #{"name": "/blue/image_raw"},
+            #{"name": "/D435/color/image_raw"},
+            {"name": "/blue/image_raw"},
             # {"name": "/yellow/image_raw"},
         ],
     }
@@ -171,7 +173,6 @@ def format_observation(
             f"{cam_name}" in raw_obs
         ), f"Camera image key '{cam_name}' not found in raw observation. Available keys: {raw_obs.keys()}"
         img = raw_obs[cam_name]
-
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
         obs_for_policy["images"][cameras[cam_name]] = resize_with_pad(img, resolution, resolution)
 
@@ -239,6 +240,7 @@ def run_inference_loop(
             except Exception as e:
                 print(f"Error during inference: {e}. Stopping rollout.")
                 return False, "Error during inference"
+            print(f"min: {action_chunk.min(0)}, max: {action_chunk.max(0)}")
             for i, action in enumerate(action_chunk):
                 # Check for key press
                 key_pressed = check_key_press()
@@ -305,7 +307,7 @@ def run_inference_loop(
         print(f"An error occurred during the inference loop: {e}")
         # Attempt to save any data collected before the error
         save_trajectory(
-            saver, episode_idx, raw_obs_list, action_list, success=False, notes=f"Error: {str(e)}"
+            saver, episode_idx, raw_obs_list, action_list, notes=f"Error: {str(e)}"
         )
         return False  # Indicate abnormal stop
     finally:
