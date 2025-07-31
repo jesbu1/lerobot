@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .configs import AlohaEnv, EnvConfig, PushtEnv, XarmEnv, LIBEROEnv  # noqa: F401
+from .configs import AlohaEnv, EnvConfig, PushtEnv, XarmEnv, LIBEROEnv, WidowXEnv  # noqa: F401

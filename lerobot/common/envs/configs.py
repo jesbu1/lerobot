@@ -319,3 +319,42 @@ class LIBEROEnv(EnvConfig):
             "visualization_width": self.resolution,
             "visualization_height": self.resolution,
         }
+
+@EnvConfig.register_subclass("widowx")
+@dataclass
+class WidowXEnv(EnvConfig):
+    """
+    This config is not for a gym env, but to provide the necessary info to the policy,
+    especially the features and features_map.
+    """
+
+    task: str = "widowx"
+    fps: int = 5
+    resolution: int = 256
+    features: dict[str, PolicyFeature] = field(
+        default_factory=lambda: {
+            "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
+            "state": PolicyFeature(type=FeatureType.STATE, shape=(7,)),
+        }
+    )
+    features_map: dict[str, str] = field(
+        default_factory=lambda: {
+            "action": ACTION,
+            "state": OBS_STATE,
+            "pixels/image0": f"{OBS_IMAGES}.image0",
+            # "pixels/over_shoulder": f"{OBS_IMAGES}.over_shoulder",
+        }
+    )
+
+    def __post_init__(self):
+        self.features["pixels/image0"] = PolicyFeature(
+            type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        )
+        # self.features["pixels/over_shoulder"] = PolicyFeature(
+        #    type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
+        # )
+
+    @property
+    def gym_kwargs(self) -> dict:
+        # This env config is not meant to be used with gym.make, so this is not used.
+        return {}

@@ -28,6 +28,7 @@ OLD_PROMPT = False
 # PATH_MODEL_NAME_MASK = "vila_3b_oxe_no_droid_path_mask"
 PATH_MODEL_NAME_MASK = PATH_MODEL_NAME = "vila_3b_path_mask_fast"
 
+
 def convert_to_uint8(img: np.ndarray) -> np.ndarray:
     """Converts an image to uint8 if it is a float image.
 
@@ -271,6 +272,7 @@ def get_path_mask_from_vlm(
             continue
     raise Exception("Failed to get path and mask from VLM")
 
+
 class ObservationModificationWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
@@ -409,6 +411,7 @@ class GroundTruthPathMaskWrapper(ObservationModificationWrapper):
             path = scale_path(path, min_in=min_in, max_in=max_in, min_out=min_out, max_out=max_out)
             # center image on path
             return path, masked_images
+
 
 class VLMPathMaskWrapper(ObservationModificationWrapper):
     def __init__(
@@ -575,7 +578,7 @@ class LIBEROEnv(gym.Env):
         self.include_wrist_image = include_wrist_image
         # load dummy env first
         # env, _ = self._get_libero_env()
-        self.metadata = {"render_fps" : 10}
+        self.metadata = {"render_fps": 10}
         self.render_mode = "rgb_array"
         self.observation_space = spaces.Dict(
             {

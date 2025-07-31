@@ -118,6 +118,13 @@ class ACTPolicy(PreTrainedPolicy):
         queue is empty.
         """
         self.eval()
+        self.select_action_chunk(batch)
+        return self._action_queue.popleft()
+
+    @torch.no_grad
+    def select_action_chunk(self, batch: dict[str, Tensor]) -> Tensor:
+        """Return a chunk of actions to run in the environment (potentially in batch mode)."""
+        self.eval()
 
         batch = self.normalize_inputs(batch)
         if self.config.image_features:
@@ -152,7 +159,7 @@ class ACTPolicy(PreTrainedPolicy):
             # `self.model.forward` returns a (batch_size, n_action_steps, action_dim) tensor, but the queue
             # effectively has shape (n_action_steps, batch_size, *), hence the transpose.
             self._action_queue.extend(actions.transpose(0, 1))
-        return self._action_queue.popleft()
+        return self._action_queue
 
     def forward(self, batch: dict[str, Tensor]) -> tuple[Tensor, dict]:
         """Run the batch through the model and compute the loss for training or validation."""

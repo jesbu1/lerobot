@@ -51,7 +51,8 @@ from lerobot.scripts.eval import eval_policy
 import importlib
 import gymnasium as gym
 from lerobot.common.envs import LIBEROEnv as LIBEROEnvConfig
-from lerobot.common.envs.wrappers import LIBEROEnv, GroundTruthPathMaskWrapper
+from lerobot.common.envs.wrappers import GroundTruthPathMaskWrapper
+from lerobot.common.envs.libero_env import LIBEROEnv
 from lerobot.common.utils.random_utils import set_seed
 from lerobot.common.utils.utils import (
     get_safe_torch_device,

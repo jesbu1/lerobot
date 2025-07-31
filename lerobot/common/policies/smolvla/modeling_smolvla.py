@@ -391,6 +391,12 @@ class SmolVLAPolicy(PreTrainedPolicy):
         environment. It works by managing the actions in a queue and only calling `select_actions` when the
         queue is empty.
         """
+        self.select_action_chunk(batch, noise)
+        return self._queues[ACTION].popleft()
+
+    @torch.no_grad
+    def select_action_chunk(self, batch: dict[str, Tensor], noise: Tensor | None = None) -> Tensor:
+        """Return a chunk of actions to run in the environment (potentially in batch mode)."""
         self.eval()
 
         if self.config.adapt_to_pi_aloha:
@@ -424,7 +430,7 @@ class SmolVLAPolicy(PreTrainedPolicy):
             # `self.model.forward` returns a (batch_size, n_action_steps, action_dim) tensor, but the queue
             # effectively has shape (n_action_steps, batch_size, *), hence the transpose.
             self._queues[ACTION].extend(actions.transpose(0, 1)[: self.config.n_action_steps])
-        return self._queues[ACTION].popleft()
+        return self._queues[ACTION]
 
     def forward(self, batch: dict[str, Tensor], noise=None, time=None) -> dict[str, Tensor]:
         """Do a full training forward pass to compute the loss"""
