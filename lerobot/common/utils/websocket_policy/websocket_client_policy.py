@@ -49,6 +49,8 @@ class WebsocketClientPolicy(BasePolicy):
                 port = 8000
 
         self._uri = f"{ws_scheme}://{hostname}:{port}{parsed_url.path or ''}"
+        logging.info(f"🔗 Client connecting to: {self._uri}")
+        print(f"🔗 Client connecting to: {self._uri}")
 
         self._packer = msgpack_numpy.Packer()
         self._ws, self._server_metadata = self._wait_for_server()
@@ -57,25 +59,71 @@ class WebsocketClientPolicy(BasePolicy):
         return self._server_metadata
 
     def _wait_for_server(self) -> Tuple[websockets.sync.client.ClientConnection, Dict]:
-        logging.info(f"Waiting for server at {self._uri}...")
+        logging.info(f"⏳ Waiting for server at {self._uri}...")
+        print(f"⏳ Waiting for server at {self._uri}...")
+        
+        attempt = 0
         while True:
+            attempt += 1
             try:
-                conn = websockets.sync.client.connect(self._uri, compression=None, max_size=None)
+                print(f"🔄 Attempt {attempt}: Connecting to {self._uri}")
+                conn = websockets.sync.client.connect(
+                    self._uri, 
+                    compression=None, 
+                    max_size=None,
+                    # Add connection options for better reliability
+                    ping_interval=20,
+                    ping_timeout=20,
+                    close_timeout=10,
+                )
+                print(f"✅ Successfully connected to server!")
+                
+                # Receive metadata from server
                 metadata = msgpack_numpy.unpackb(conn.recv())
+                print(f"📥 Received server metadata")
+                logging.info(f"✅ Connected to server and received metadata")
                 return conn, metadata
+                
             except ConnectionRefusedError:
-                logging.info("Still waiting for server...")
+                print(f"❌ Connection refused (attempt {attempt}) - server may not be running")
+                logging.info(f"Connection refused (attempt {attempt}) - server may not be running")
+                if attempt == 1:
+                    print(f"💡 Make sure the server is running with: python lerobot/scripts/serve_widowx.py")
+                    print(f"💡 Check that port is not in use and firewall allows connections")
+                time.sleep(5)
+            except websockets.exceptions.InvalidURI as e:
+                print(f"❌ Invalid URI: {e}")
+                logging.error(f"Invalid URI: {e}")
+                raise
+            except websockets.exceptions.InvalidHandshake as e:
+                print(f"❌ Handshake failed (attempt {attempt}): {e}")
+                logging.warning(f"Handshake failed (attempt {attempt}): {e}")
+                time.sleep(2)
+            except Exception as e:
+                print(f"❌ Connection error (attempt {attempt}): {e}")
+                logging.warning(f"Connection error (attempt {attempt}): {e}")
                 time.sleep(5)
 
     @override
     def infer(self, obs: Dict) -> Dict:  # noqa: UP006
-        data = self._packer.pack(obs)
-        self._ws.send(data)
-        response = self._ws.recv()
-        if isinstance(response, str):
-            # we're expecting bytes; if the server sends a string, it's an error.
-            raise RuntimeError(f"Error in inference server:\n{response}")
-        return msgpack_numpy.unpackb(response)
+        try:
+            data = self._packer.pack(obs)
+            self._ws.send(data)
+            response = self._ws.recv()
+            if isinstance(response, str):
+                # we're expecting bytes; if the server sends a string, it's an error.
+                error_msg = f"Error in inference server:\n{response}"
+                print(f"❌ {error_msg}")
+                raise RuntimeError(error_msg)
+            return msgpack_numpy.unpackb(response)
+        except websockets.exceptions.ConnectionClosed as e:
+            print(f"❌ Connection to server was closed: {e}")
+            logging.error(f"Connection to server was closed: {e}")
+            raise
+        except Exception as e:
+            print(f"❌ Error during inference: {e}")
+            logging.error(f"Error during inference: {e}")
+            raise
 
     @override
     def reset(self) -> None:

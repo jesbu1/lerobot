@@ -130,13 +130,48 @@ def main(cfg: WidowXEvalConfig) -> None:
     logging.info("Creating server (host: %s, ip: %s)", hostname, local_ip)
     print("hostname:", hostname)
     print("local_ip:", local_ip)
+    
+    # Add more detailed logging for debugging
+    logging.info(f"Starting WebSocket server on 0.0.0.0:{cfg.port}")
+    print(f"WebSocket server will be available at:")
+    print(f"  - ws://localhost:{cfg.port}")
+    print(f"  - ws://{local_ip}:{cfg.port}")
+    print(f"  - ws://{hostname}:{cfg.port}")
+    
+    # Test if port is available
+    try:
+        test_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        test_socket.settimeout(1)
+        result = test_socket.connect_ex(('localhost', cfg.port))
+        test_socket.close()
+        if result == 0:
+            logging.warning(f"Port {cfg.port} appears to be in use. This might cause connection issues.")
+            print(f"⚠️  Warning: Port {cfg.port} appears to be in use!")
+        else:
+            logging.info(f"Port {cfg.port} is available")
+    except Exception as e:
+        logging.warning(f"Could not test port availability: {e}")
+    
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
         host="0.0.0.0",
         port=cfg.port,
         device=torch.device(policy.config.device),
     )
-    server.serve_forever()
+    
+    print(f"🚀 Starting WebSocket policy server...")
+    print(f"📡 Server will accept connections on port {cfg.port}")
+    print(f"🔗 Clients should connect to: ws://localhost:{cfg.port}")
+    print(f"⏹️  Press Ctrl+C to stop the server")
+    
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\n🛑 Server stopped by user")
+    except Exception as e:
+        logging.error(f"Server error: {e}")
+        print(f"❌ Server error: {e}")
+        raise
 
 
 if __name__ == "__main__":
