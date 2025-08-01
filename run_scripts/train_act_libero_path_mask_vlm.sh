@@ -2,23 +2,16 @@
 #SBATCH --account=biyik_1165
 #SBATCH --nodes=1
 #SBATCH --time=48:00:00
-#SBATCH --cpus-per-task=20
-#SBATCH --mem=64G
+#SBATCH --cpus-per-task=24
+#SBATCH --mem=32G
 #SBATCH --partition=gpu
 #SBATCH --gres=gpu:1
 #SBATCH --output=slurm_outputs/%x_%j.out
 #SBATCH --error=slurm_outputs/%x_%j.err
 
 source ~/.bashrc
-module load cuda
-module load glew
-module load patchelf
-module load git-lfs
-export PATH="/apps/conda/.local/bin:$PATH"
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/lib/nvidia
-export MUJOCO_GL=egl
 
-EXP_NAME=train_act_libero_path_mask_vlm_0.01-0.12mask
+EXP_NAME=train_act_libero_path_mask_vlm_new
 PROJ_NAME=lerobot
 RESUME=false
 

@@ -16,7 +16,7 @@
 seed: 42
 steps: 500000
 batch_size: 64
-num_workers: 16
+num_workers: 20
 log_freq: 100
 save_freq: 100_000
 save_checkpoint: true
@@ -33,7 +33,7 @@ dataset:
     wrist_image: "observation.images.image_wrist"
     actions: "action"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["masked_image", "image", "path_image", "masked_path_centered_image"]
+    ["masked_image", "image", "path_image"]
 
 # Policy configuration
 policy:
