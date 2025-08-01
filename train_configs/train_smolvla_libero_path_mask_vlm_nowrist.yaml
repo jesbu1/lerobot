@@ -19,7 +19,7 @@ dataset:
     #wrist_image: "observation.wrist_image"
     actions: "action"
   drop_keys:
-    ["masked_image", "image", "path_image", "masked_path_centered_image", "wrist_image"]
+    ["image", "path_image", "masked_path_centered_image", "wrist_image"]
 
 # Policy configuration
 policy:

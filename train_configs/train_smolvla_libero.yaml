@@ -19,7 +19,7 @@ dataset:
     wrist_image: "observation.wrist_image"
     actions: "action"
   drop_keys:
-    ["masked_image", "path_image", "masked_path_image"]
+    ["path_image", "masked_path_image"]
   image_transforms:
     enable: true
 

@@ -32,7 +32,7 @@ dataset:
     masked_path_image: "observation.images.image"
     actions: "action"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["masked_image", "image", "path_image", "masked_path_centered_image", "wrist_image"]
+    ["image", "path_image", "masked_path_centered_image", "wrist_image"]
 
 # Policy configuration
 policy:
