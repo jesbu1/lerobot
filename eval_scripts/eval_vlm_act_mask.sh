@@ -24,15 +24,13 @@ sleep 90
 
 cd /home1/jessez/nvidia/my_lerobot
 
-policy_path="outputs/train_act_libero_path_mask_test_10ep/checkpoints/last/pretrained_model"
+policy_path="outputs/train_act_libero_path_mask_vlm_test_5ep/checkpoints/last/pretrained_model"
 libero_envs="libero_goal libero_spatial libero_10 libero_object"
 
 for env in $libero_envs; do
     for mask_ratio in 0.08; do
-        #name="eval_fixres_vlm_act_5ep_0.1mask_$env"
-        #name="eval_vlm_act_0.1mask_nowrist_5ep_$env"
-        name="eval_vlm_act_mask_fixinit_test_10ep_${mask_ratio}mask_$env"
-        group="eval_vlm_act_mask_fixinit_test_10ep_${mask_ratio}mask"
+        name="eval_vlm_act_pathmask_test_5ep_${mask_ratio}mask_$env"
+        group="eval_vlm_act_pathmask_test_5ep_${mask_ratio}mask"
         CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
             --vlm_server_ip=http://0.0.0.0:8000 \
             --env.type=libero \
