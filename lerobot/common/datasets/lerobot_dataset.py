@@ -464,7 +464,10 @@ class LeRobotDataset(torch.utils.data.Dataset):
         self.video_backend = video_backend if video_backend else get_safe_default_codec()
         self.delta_indices = None
         self.remap_keys = remap_keys
-        self.drop_keys = drop_keys
+        if drop_keys is not None:
+            self.drop_keys = drop_keys
+        else:
+            self.drop_keys = []
 
         # Unused attributes
         self.image_writer = None
