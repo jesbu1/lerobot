@@ -664,7 +664,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         query_indices = {
             key: [max(ep_start.item(), min(ep_end.item() - 1, idx + delta)) for delta in delta_idx]
             for key, delta_idx in self.delta_indices.items()
-            if key not in self.drop_keys
+            if not self.drop_keys or key not in self.drop_keys
         }
         padding = {  # Pad values outside of current episode range
             f"{key}_is_pad": torch.BoolTensor(
