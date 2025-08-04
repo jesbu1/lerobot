@@ -32,8 +32,8 @@ for env in $libero_envs; do
     for mask_ratio in 0.08; do
         #name="eval_vlm_act_pathmask_test_5ep_${mask_ratio}mask_$env"
         #group="eval_vlm_act_pathmask_test_5ep_${mask_ratio}mask"
-        name="eval_vlm_act_pathmask_90_${mask_ratio}mask_$env"
-        group="eval_vlm_act_pathmask_90_${mask_ratio}mask"
+        name="eval_vlm_act_pathmask_90_q100_${mask_ratio}mask_$env"
+        group="eval_vlm_act_pathmask_90_q100_${mask_ratio}mask"
         CMD="CUDA_VISIBLE_DEVICES=$POLICY_GPU_ID python lerobot/scripts/eval_libero_vlm.py \
             --vlm_server_ip=http://0.0.0.0:8000 \
             --env.type=libero \
