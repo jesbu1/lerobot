@@ -264,7 +264,7 @@ def eval_main(cfg: EvalPipelineConfig):
                 env,
                 policy,
                 cfg.eval.n_episodes,
-                max_episodes_rendered=cfg.eval.n_episodes,
+                max_episodes_rendered=10,
                 videos_dir=videos_dir,
                 start_seed=cfg.seed,
                 reset_callback=reset_callback,
