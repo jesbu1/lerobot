@@ -743,13 +743,13 @@ class LeRobotDataset(torch.utils.data.Dataset):
 
             if self.drop_keys:  # drop unnecessary features
                 item = {key: val for key, val in item.items() if key not in self.drop_keys}
-            if self.remap_keys:  # remap feature keys
-                item = {self.remap_keys.get(key, key): val for key, val in item.items()}
-
             if self.image_transforms is not None:
                 image_keys = self.meta.camera_keys
                 for cam in image_keys:
                     item[cam] = self.image_transforms(item[cam])
+
+            if self.remap_keys:  # remap feature keys
+                item = {self.remap_keys.get(key, key): val for key, val in item.items()}
 
             # Add task as a string
             task_idx = item["task_index"].item()
