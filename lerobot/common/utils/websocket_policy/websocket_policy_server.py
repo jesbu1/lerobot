@@ -113,7 +113,7 @@ class WebsocketPolicyServer:
                     
                     obs: WidowXMessageFormat = msgpack_numpy.unpackb(obs_data)
 
-                    if obs.reset:
+                    if obs["reset"]:
                         # resetting the policy
                         logging.info(f"🔄 Resetting policy and VLM step")
                         self._policy.reset()
