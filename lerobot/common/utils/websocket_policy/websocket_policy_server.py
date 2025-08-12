@@ -4,7 +4,7 @@ import asyncio
 import logging
 import traceback
 import os
-
+import numpy as np
 import torch
 import websockets.asyncio.server
 import websockets.frames
@@ -13,9 +13,11 @@ from lerobot.common.policies.pretrained import PreTrainedPolicy
 from lerobot.common.utils.websocket_policy import msgpack_numpy
 from lerobot.common.envs.widowx_env import WidowXMessageFormat
 from lerobot.common.envs.utils import preprocess_observation
+from lerobot.common.envs.wrappers import get_path_mask_from_vlm
 from PIL import Image
 
 
+IMAGE_SIZE = 224
 class WebsocketPolicyServer:
     """Serves a policy using the websocket protocol. See websocket_client_policy.py for a client implementation.
 
@@ -147,6 +149,7 @@ class WebsocketPolicyServer:
                                                 save_name = f"vlm_{self._vlm_img_key}_{self._vlm_step:06d}.png"
                                                 save_path = os.path.join(self._vlm_save_dir, save_name)
                                                 Image.fromarray(img).save(save_path)
+                                                print(f"🖼️ Saved VLM image to {save_path}")
                                             except Exception as save_err:
                                                 logging.warning(f"Failed to save VLM image to {self._vlm_save_dir}: {save_err}")
                                 elif self._vlm_current_path is not None or self._vlm_current_mask is not None:
@@ -176,6 +179,10 @@ class WebsocketPolicyServer:
                         "pixels": {},
                     }
                     for cam_name, img in obs["images"].items():
+                        # resize the image to 224x224
+                        img = Image.fromarray(img)
+                        img = img.resize((IMAGE_SIZE, IMAGE_SIZE))
+                        img = np.array(img)
                         policy_obs["pixels"][cam_name] = img
                     policy_obs = preprocess_observation(policy_obs)
 
