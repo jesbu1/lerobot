@@ -12,8 +12,13 @@ import numpy as np
 import torch
 import torchvision.transforms.functional as F
 from gymnasium import spaces
-from libero.libero import benchmark, get_libero_path
-from libero.libero.envs import OffScreenRenderEnv
+try:
+    from libero.libero import benchmark, get_libero_path
+    from libero.libero.envs import OffScreenRenderEnv
+except ImportError:
+    print("libero not found, so we can't use the LIBERO Env")
+    pass
+
 from openai import OpenAI, APIConnectionError
 from PIL import Image
 from vila_utils.utils.decode import add_mask_2d_to_img, add_path_2d_to_img_alt_fast, get_path_from_answer
