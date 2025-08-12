@@ -175,7 +175,9 @@ def format_observation(
         img = raw_obs[cam_name]
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
         # resize the image to the right resolution naively
-        obs_for_policy["images"][cameras[cam_name]] = img.resize((resolution, resolution))
+        # np image so need to use cv2 to resize
+        import cv2
+        obs_for_policy["images"][cameras[cam_name]] = cv2.resize(img, (resolution, resolution))
         #obs_for_policy["images"][cameras[cam_name]] = resize_with_pad(img, resolution, resolution)
 
     return obs_for_policy
