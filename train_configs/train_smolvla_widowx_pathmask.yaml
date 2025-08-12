@@ -30,9 +30,6 @@ policy:
     image:
       type: "VISUAL"
       shape: [3, 224, 224]
-    wrist_image:
-      type: "VISUAL"
-      shape: [3, 224, 224]
   output_features:
     action:
       type: "ACTION"
