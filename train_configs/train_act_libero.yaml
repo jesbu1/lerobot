@@ -33,7 +33,7 @@ dataset:
     wrist_image: "observation.images.image_wrist"
     actions: "action"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["masked_image", "path_image", "masked_path_image"]
+    ["path_image", "masked_path_image"]
 
 
 # Policy configuration

@@ -1,18 +1,22 @@
 # Training configuration
 seed: 42
-steps: 10_000
-batch_size: 64
-num_workers: 12
+steps: 30_000
+batch_size: 32
+num_workers: 8
 log_freq: 100
-save_freq: 1000
+save_freq: 5000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_smolvla_widowx"
-job_name: "train_smolvla_widowx"
+output_dir: "outputs/train_smolvla_uw_widowx_8_8"
+job_name: "train_smolvla_uw_widowx_8_8"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/usc_widowx_6_19_lerobot"
+  repo_id: "jesbu1/uw_widowx_8_8_pathmask_lerobot/"
+  drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
+    ["observation.images.masked_path_image0", "observation.images.path_image0"]
+  image_transforms:
+    enable: true
 
 # Policy configuration
 policy:
@@ -81,4 +85,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_smolvla_widowx" 
+  run_id: "train_smolvla_uw_widowx_8_8" 

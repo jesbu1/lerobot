@@ -464,7 +464,10 @@ class LeRobotDataset(torch.utils.data.Dataset):
         self.video_backend = video_backend if video_backend else get_safe_default_codec()
         self.delta_indices = None
         self.remap_keys = remap_keys
-        self.drop_keys = drop_keys
+        if drop_keys is not None:
+            self.drop_keys = drop_keys
+        else:
+            self.drop_keys = []
 
         # Unused attributes
         self.image_writer = None
@@ -661,7 +664,7 @@ class LeRobotDataset(torch.utils.data.Dataset):
         query_indices = {
             key: [max(ep_start.item(), min(ep_end.item() - 1, idx + delta)) for delta in delta_idx]
             for key, delta_idx in self.delta_indices.items()
-            if key not in self.drop_keys
+            if not self.drop_keys or key not in self.drop_keys
         }
         padding = {  # Pad values outside of current episode range
             f"{key}_is_pad": torch.BoolTensor(
@@ -740,13 +743,13 @@ class LeRobotDataset(torch.utils.data.Dataset):
 
             if self.drop_keys:  # drop unnecessary features
                 item = {key: val for key, val in item.items() if key not in self.drop_keys}
-            if self.remap_keys:  # remap feature keys
-                item = {self.remap_keys.get(key, key): val for key, val in item.items()}
-
             if self.image_transforms is not None:
                 image_keys = self.meta.camera_keys
                 for cam in image_keys:
                     item[cam] = self.image_transforms(item[cam])
+
+            if self.remap_keys:  # remap feature keys
+                item = {self.remap_keys.get(key, key): val for key, val in item.items()}
 
             # Add task as a string
             task_idx = item["task_index"].item()
