@@ -7,14 +7,14 @@ log_freq: 100
 save_freq: 5000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_smolvla_uw_widowx_8_8"
-job_name: "train_smolvla_uw_widowx_8_8"
+output_dir: "outputs/train_smolvla_uw_widowx_8_8_pathmask"
+job_name: "train_smolvla_uw_widowx_8_8_pathmask"
 
 # Dataset configuration
 dataset:
   repo_id: "jesbu1/uw_widowx_8_8_pathmask_lerobot/"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["observation.images.masked_path_image0", "observation.images.path_image0"]
+    ["observation.images.images0", "observation.images.path_image0"]
   image_transforms:
     enable: true
 
@@ -85,4 +85,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_smolvla_uw_widowx_8_8" 
+  run_id: "train_smolvla_uw_widowx_8_8_pathmask" 
