@@ -13,7 +13,6 @@ from lerobot.common.policies.pretrained import PreTrainedPolicy
 from lerobot.common.utils.websocket_policy import msgpack_numpy
 from lerobot.common.envs.widowx_env import WidowXMessageFormat
 from lerobot.common.envs.utils import preprocess_observation
-from lerobot.common.envs.wrappers import get_path_mask_from_vlm, SERVER_IP as VLM_SERVER_IP_DEFAULT
 from PIL import Image
 
 
@@ -134,7 +133,7 @@ class WebsocketPolicyServer:
                                             draw_path=self._vlm_draw_path,
                                             draw_mask=self._vlm_draw_mask,
                                             verbose=False,
-                                            vlm_server_ip=self._vlm_server_ip or VLM_SERVER_IP_DEFAULT,
+                                            vlm_server_ip=self._vlm_server_ip,
                                             mask_ratio=self._vlm_mask_ratio,
                                         )
                                     except Exception as e:
