@@ -71,6 +71,12 @@ class WidowXEvalConfig:
     env: envs.EnvConfig = field(default_factory=lambda: envs.WidowXEnv())
     draw_path: bool = True
     draw_mask: bool = True
+    # VLM overlay optiona
+    use_vlm: bool = False
+    vlm_img_key: str = "image0" # e.g., "image" or "image_wrist"; None disables overlay
+    vlm_server_ip: str = "localhost:8000"  # defaults to wrapper's SERVER_IP when None
+    vlm_query_frequency: int = 10 # how many action chunks between VLM queries
+    vlm_mask_ratio: float = 0.08 # how much of the image to mask out
     # image_keys: list[str] = ["external_img", "over_shoulder"]
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None
@@ -157,6 +163,13 @@ def main(cfg: WidowXEvalConfig) -> None:
         host="0.0.0.0",
         port=cfg.port,
         device=torch.device(policy.config.device),
+        # VLM overlay wiring
+        vlm_img_key=cfg.vlm_img_key if cfg.use_vlm else None,
+        vlm_server_ip=cfg.vlm_server_ip,
+        vlm_query_frequency=cfg.vlm_query_frequency,
+        vlm_draw_path=cfg.draw_path,
+        vlm_draw_mask=cfg.draw_mask,
+        vlm_mask_ratio=cfg.vlm_mask_ratio,
     )
     
     print(f"🚀 Starting WebSocket policy server...")

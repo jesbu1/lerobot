@@ -10,6 +10,7 @@ class WidowXMessageFormat(TypedDict):
     state: np.ndarray
     prompt: str  # from the eval_widowx code
     images: dict[str, np.ndarray]
+    reset: bool
 
 
 class WidowXEnv(gym.Env):

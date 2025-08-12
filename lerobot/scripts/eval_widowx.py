@@ -174,7 +174,9 @@ def format_observation(
         ), f"Camera image key '{cam_name}' not found in raw observation. Available keys: {raw_obs.keys()}"
         img = raw_obs[cam_name]
         # Policy expects keys like 'external', 'over_shoulder' directly under 'images'
-        obs_for_policy["images"][cameras[cam_name]] = resize_with_pad(img, resolution, resolution)
+        # resize the image to the right resolution naively
+        obs_for_policy["images"][cameras[cam_name]] = img.resize((resolution, resolution))
+        #obs_for_policy["images"][cameras[cam_name]] = resize_with_pad(img, resolution, resolution)
 
     return obs_for_policy
 
