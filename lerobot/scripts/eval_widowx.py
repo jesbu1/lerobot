@@ -41,7 +41,9 @@ resolution = 224
 
 # --- Globals for keyboard listener ---
 key_pressed = None
+MAX_CHUNK_SIZE = 5 # how many actions of the policy to use
 
+print(f"SETTING MAX ACTIONS IN CHUNK TO {MAX_CHUNK_SIZE} REGARDLESS OF POLICY")
 
 class WidowXConfigs:
     DefaultEnvParams = {
@@ -54,16 +56,8 @@ class WidowXConfigs:
             [0.45, 0.25, 0.25, 1.57, 0],
         ],
         "catch_environment_except": False,
-        "start_state": [
-            0.11865137,
-            -0.01696823,
-            0.24405071,
-            -0.03702571,
-            -0.11837727,
-            0.03907566,
-            0.9994886,
-        ],
-        "skip_move_to_neutral": False,
+        "start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1],
+        "skip_move_to_neutral": True,
         "return_full_image": False,
         "camera_topics": [
             #{"name": "/D435/color/image_raw"},
@@ -240,6 +234,7 @@ def run_inference_loop(
             except Exception as e:
                 print(f"Error during inference: {e}. Stopping rollout.")
                 return False, "Error during inference"
+            action_chunk = action_chunk[:MAX_CHUNK_SIZE]
             print(f"min: {action_chunk.min(0)}, max: {action_chunk.max(0)}")
             for i, action in enumerate(action_chunk):
                 # Check for key press
