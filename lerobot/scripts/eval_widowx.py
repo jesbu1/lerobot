@@ -41,7 +41,7 @@ resolution = 224
 
 # --- Globals for keyboard listener ---
 key_pressed = None
-MAX_CHUNK_SIZE = 5 # how many actions of the policy to use
+MAX_CHUNK_SIZE = 10 # how many actions of the policy to use
 
 print(f"SETTING MAX ACTIONS IN CHUNK TO {MAX_CHUNK_SIZE} REGARDLESS OF POLICY")
 
@@ -56,7 +56,16 @@ class WidowXConfigs:
             [0.45, 0.25, 0.25, 1.57, 0],
         ],
         "catch_environment_except": False,
-        "start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1],
+        #"start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1], # bridge-dataset style neutral
+        "start_state": [
+            0.11865137,
+            -0.01696823,
+            0.24405071,
+            -0.03702571,
+            -0.11837727,
+            0.03907566,
+            0.9994886,
+        ], # data collection neutral
         "skip_move_to_neutral": True,
         "return_full_image": False,
         "camera_topics": [
@@ -264,7 +273,7 @@ def run_inference_loop(
                 # 3. Execute the first action in the chunk
                 action_to_execute = action
                 # change gripper to discrete 0-1
-                action_to_execute[6] = int(action_to_execute[6] > 0)
+                action_to_execute[6] = int(action_to_execute[6] > 0.5)
 
                 # step_action returns next_obs, reward, done, info - we only need next_obs
                 step_result = widowx_client.step_action(action_to_execute)
