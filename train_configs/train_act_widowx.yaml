@@ -1,0 +1,59 @@
+# Training configuration
+seed: 42
+steps: 200_000
+batch_size: 64
+num_workers: 20
+log_freq: 100
+save_freq: 50_000
+save_checkpoint: true
+resume: false
+output_dir: "outputs/train_act_uw_8_8_widowx"
+job_name: "train_act_uw_8_8_widowx"
+
+# Dataset configuration
+dataset:
+  repo_id: "jesbu1/uw_widowx_8_8_pathmask_lerobot"
+  drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
+    ["observation.images.masked_path_image0", "observation.images.path_image0"]
+  image_transforms:
+    enable: true
+
+# Policy configuration
+policy:
+  type: "act"
+  device: "cuda"
+  use_amp: true
+  input_features:
+    state:
+      type: "STATE"
+      shape: [8]  
+    image:
+      type: "VISUAL"
+      shape: [3, 224, 224]
+  output_features:
+    action:
+      type: "ACTION"
+      shape: [7]
+  chunk_size: 50
+  n_action_steps: 10
+  use_language: true
+
+# Optimizer configuration
+optimizer:
+  type: "adamw"
+  lr: 0.003
+  weight_decay: 0.01
+  grad_clip_norm: 1.0
+
+# Evaluation configuration
+eval_freq: 0
+eval:
+  n_episodes: 10
+  batch_size: 1
+  use_async_envs: false
+
+# Wandb configuration
+wandb:
+  enable: true
+  project: "p-masked-vla"
+  run_id: "train_act_uw_8_8_widowx"
