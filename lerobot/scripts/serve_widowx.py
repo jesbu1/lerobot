@@ -177,7 +177,7 @@ def main(cfg: WidowXEvalConfig) -> None:
         vlm_draw_path=cfg.draw_path,
         vlm_draw_mask=cfg.draw_mask,
         vlm_mask_ratio=cfg.vlm_mask_ratio,
-        vlm_img_key=updated_vlm_img_key_name,
+        vlm_updated_img_key_name=updated_vlm_img_key_name,
     )
     
     print(f"🚀 Starting WebSocket policy server...")
