@@ -23,6 +23,8 @@ import math
 from collections import deque
 from itertools import chain
 from typing import Callable
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import einops
 import numpy as np
