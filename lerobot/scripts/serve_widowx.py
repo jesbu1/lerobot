@@ -73,7 +73,7 @@ class WidowXEvalConfig:
     draw_mask: bool = True
     # VLM overlay optiona
     use_vlm: bool = False
-    vlm_img_key: str = "image0"  # e.g., "image" or "image_wrist"; None disables overlay
+    vlm_img_key: str = "images0"  # e.g., "image" or "image_wrist"; None disables overlay
     vlm_server_ip: str = "http://localhost:8000"  # defaults to wrapper's SERVER_IP when None
     vlm_query_frequency: int = 5  # how many action chunks between VLM queries
     vlm_mask_ratio: float = 0.08 # how much of the image to mask out
@@ -124,7 +124,6 @@ def main(cfg: WidowXEvalConfig) -> None:
     logging.info("Making environment.")
 
     logging.info("Making policy.")
-
     policy = make_policy(
         cfg=cfg.policy,
         env_cfg=cfg.env,
@@ -157,6 +156,14 @@ def main(cfg: WidowXEvalConfig) -> None:
             logging.info(f"Port {cfg.port} is available")
     except Exception as e:
         logging.warning(f"Could not test port availability: {e}")
+
+    updated_vlm_img_key_name = (
+        "path_image0"
+        if cfg.draw_path and not cfg.draw_mask
+        else "masked_path_image0"
+        if cfg.draw_mask and not cfg.draw_path
+        else "images0"
+    )
     
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
@@ -170,6 +177,7 @@ def main(cfg: WidowXEvalConfig) -> None:
         vlm_draw_path=cfg.draw_path,
         vlm_draw_mask=cfg.draw_mask,
         vlm_mask_ratio=cfg.vlm_mask_ratio,
+        vlm_img_key=updated_vlm_img_key_name,
     )
     
     print(f"🚀 Starting WebSocket policy server...")

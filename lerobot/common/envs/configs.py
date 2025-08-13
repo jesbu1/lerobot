@@ -330,7 +330,7 @@ class WidowXEnv(EnvConfig):
 
     task: str = "widowx"
     fps: int = 5
-    resolution: int = 256
+    resolution: int = 224
     features: dict[str, PolicyFeature] = field(
         default_factory=lambda: {
             "action": PolicyFeature(type=FeatureType.ACTION, shape=(7,)),
@@ -341,7 +341,7 @@ class WidowXEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "state": OBS_STATE,
-            "pixels/image0": f"{OBS_IMAGES}.image0",
+            "pixels/images0": f"{OBS_IMAGES}.images0",
             # "pixels/over_shoulder": f"{OBS_IMAGES}.over_shoulder",
         }
     )

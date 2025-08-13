@@ -87,7 +87,7 @@ class WidowXConfigs:
     #    broadcast_port=5557,
     #)
 
-cameras = dict(full_image="image0")
+cameras = dict(full_image="images0")
 
 def on_press(key):
     """Callback for key press events"""

@@ -37,6 +37,7 @@ class WebsocketPolicyServer:
         vlm_draw_path: bool = True,
         vlm_draw_mask: bool = True,
         vlm_mask_ratio: float = 0.08,
+        vlm_updated_img_key_name: str | None = None,
     ) -> None:
         self._policy = policy
         self._host = host
@@ -57,6 +58,7 @@ class WebsocketPolicyServer:
         self._vlm_current_path = None
         self._vlm_current_mask = None
         self._vlm_step = 0
+        self._vlm_updated_img_key_name = vlm_updated_img_key_name
         # Save directory in current working directory for VLM images
         self._vlm_save_dir = None
         if self._vlm_img_key is not None:
@@ -183,6 +185,8 @@ class WebsocketPolicyServer:
                         img = Image.fromarray(img)
                         img = img.resize((IMAGE_SIZE, IMAGE_SIZE))
                         img = np.array(img)
+                        if cam_name == self._vlm_img_key:
+                            cam_name = self._vlm_updated_img_key_name
                         policy_obs["pixels"][cam_name] = img
                     policy_obs = preprocess_observation(policy_obs)
 
@@ -195,6 +199,7 @@ class WebsocketPolicyServer:
                     # Run policy inference
                     with torch.inference_mode():
                         self._policy.reset()  # clears the action chunk
+                        breakpoint()
                         action = self._policy.select_action_chunk(policy_obs) # get full action chunk
                         action = torch.stack(list(action), dim=0).to("cpu")
                         assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"
