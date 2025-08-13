@@ -124,6 +124,25 @@ def main(cfg: WidowXEvalConfig) -> None:
     logging.info("Making environment.")
 
     logging.info("Making policy.")
+
+    if cfg.use_vlm:
+        updated_vlm_img_key_name = (
+            "path_image0"
+            if cfg.draw_path and not cfg.draw_mask
+            else "masked_path_image0"
+            if cfg.draw_path and cfg.draw_mask
+            else "images0"
+        )
+
+        # rename env cfg so policy sees the right key
+        cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
+        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
+            f"pixels/{cfg.vlm_img_key}"
+        ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
+
+        cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
+        cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
+
     policy = make_policy(
         cfg=cfg.policy,
         env_cfg=cfg.env,
@@ -157,14 +176,6 @@ def main(cfg: WidowXEvalConfig) -> None:
     except Exception as e:
         logging.warning(f"Could not test port availability: {e}")
 
-    updated_vlm_img_key_name = (
-        "path_image0"
-        if cfg.draw_path and not cfg.draw_mask
-        else "masked_path_image0"
-        if cfg.draw_mask and not cfg.draw_path
-        else "images0"
-    )
-    
     server = websocket_policy_server.WebsocketPolicyServer(
         policy=policy,
         host="0.0.0.0",

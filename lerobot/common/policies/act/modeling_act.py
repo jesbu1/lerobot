@@ -128,6 +128,7 @@ class ACTPolicy(PreTrainedPolicy):
         """Return a chunk of actions to run in the environment (potentially in batch mode)."""
         self.eval()
 
+
         batch = self.normalize_inputs(batch)
         if self.config.image_features:
             batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
@@ -141,6 +142,9 @@ class ACTPolicy(PreTrainedPolicy):
                 device=self.config.device,
                 show_progress_bar=False,
             )
+            if batch["lang_embed"].ndim == 1:
+                # if we are batching but task is not, unsqueeze
+                batch["lang_embed"] = batch["lang_embed"].unsqueeze(0)
 
         # If we are doing temporal ensembling, do online updates where we keep track of the number of actions
         # we are ensembling over.

@@ -199,7 +199,6 @@ class WebsocketPolicyServer:
                     # Run policy inference
                     with torch.inference_mode():
                         self._policy.reset()  # clears the action chunk
-                        breakpoint()
                         action = self._policy.select_action_chunk(policy_obs) # get full action chunk
                         action = torch.stack(list(action), dim=0).to("cpu")
                         assert action.ndim == 3, "Action dimensions should be (chunk_size, batch, action_dim)"

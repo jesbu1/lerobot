@@ -347,7 +347,7 @@ class WidowXEnv(EnvConfig):
     )
 
     def __post_init__(self):
-        self.features["pixels/image0"] = PolicyFeature(
+        self.features["pixels/images0"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
         # self.features["pixels/over_shoulder"] = PolicyFeature(
