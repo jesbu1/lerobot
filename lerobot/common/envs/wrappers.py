@@ -127,7 +127,7 @@ def draw_onto_image(vlm_path_mask_output, prompt_type, img, mask_ratio=0.15, ver
     if "path" in prompt_type and scaled_path is not None:
         if verbose:
             print("adding path")
-        img = add_path_2d_to_img_alt_fast(img, scaled_path, line_size=2 if h <= 128 else 3)
+        img = add_path_2d_to_img_alt_fast(img, scaled_path, line_size=2)
     return img
 
 
