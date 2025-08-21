@@ -31,6 +31,7 @@ import torch.nn.functional as F  # noqa: N812
 import torchvision
 from diffusers.schedulers.scheduling_ddim import DDIMScheduler
 from diffusers.schedulers.scheduling_ddpm import DDPMScheduler
+from sentence_transformers import SentenceTransformer
 from torch import Tensor, nn
 
 from lerobot.common.constants import OBS_ENV_STATE, OBS_STATE
@@ -207,6 +208,9 @@ class DiffusionModel(nn.Module):
         else:
             self.num_inference_steps = config.num_inference_steps
 
+        if config.use_language:
+            self.lang_encoder = SentenceTransformer("all-MiniLM-L6-v2").to(self.config.device)
+
     # ========= inference  ============
     def conditional_sample(
         self, batch_size: int, global_cond: Tensor | None = None, generator: torch.Generator | None = None
@@ -270,6 +274,20 @@ class DiffusionModel(nn.Module):
 
         if self.config.env_state_feature:
             global_cond_feats.append(batch[OBS_ENV_STATE])
+
+        if self.config.use_language:
+            lang_embed = self.lang_encoder.encode(
+                batch["task"],
+                batch_size=len(batch["task"]),
+                convert_to_tensor=True,
+                device=self.config.device,
+                show_progress_bar=False,
+            )
+            if lang_embed.ndim == 1:
+                # if we are batching but task is not, unsqueeze
+                lang_embed = lang_embed.unsqueeze(0)
+            
+            global_cond_feats.append(lang_embed)
 
         # Concatenate features then flatten to (B, global_cond_dim).
         return torch.cat(global_cond_feats, dim=-1).flatten(start_dim=1)
