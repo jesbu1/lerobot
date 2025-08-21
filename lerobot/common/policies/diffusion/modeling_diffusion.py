@@ -99,6 +99,9 @@ class DiffusionPolicy(PreTrainedPolicy):
             self._queues["observation.images"] = deque(maxlen=self.config.n_obs_steps)
         if self.config.env_state_feature:
             self._queues["observation.environment_state"] = deque(maxlen=self.config.n_obs_steps)
+    @torch.no_grad
+    def select_action_chunk(self, batch: dict[str, Tensor]) -> Tensor:
+        raise NotImplementedError("select_action_chunk is not implemented for DiffusionPolicy yet")
 
     @torch.no_grad
     def select_action(self, batch: dict[str, Tensor]) -> Tensor:
