@@ -253,6 +253,7 @@ class DiffusionModel(nn.Module):
                 # in case camera dim doesn't exist
                 batch["observation.images"] = batch["observation.images"].unsqueeze(1)
             if self.config.use_separate_rgb_encoder_per_camera:
+                breakpoint()
                 # Combine batch and sequence dims while rearranging to make the camera index dimension first.
                 images_per_camera = einops.rearrange(batch["observation.images"], "b s n ... -> n (b s) ...")
                 img_features_list = torch.cat(
@@ -267,7 +268,6 @@ class DiffusionModel(nn.Module):
                     img_features_list, "(n b s) ... -> b s (n ...)", b=batch_size, s=n_obs_steps
                 )
             else:
-                breakpoint()
                 # Combine batch, sequence, and "which camera" dims before passing to shared encoder.
                 img_features = self.rgb_encoder(
                     einops.rearrange(batch["observation.images"], "b s n ... -> (b s n) ...")

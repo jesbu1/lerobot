@@ -43,7 +43,7 @@ policy:
   n_action_steps: 8
   n_obs_steps: 1
   pretrained_backbone_weights: "IMAGENET1K_V1"
-  use_separate_rgb_encoder_per_camera: false
+  use_separate_rgb_encoder_per_camera: true
   crop_shape: null
   use_language: true
   use_group_norm: false # for pre-trained models can't swap
