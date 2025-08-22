@@ -192,6 +192,8 @@ class DiffusionModel(nn.Module):
                 global_cond_dim += self.rgb_encoder.feature_dim * num_images
         if self.config.env_state_feature:
             global_cond_dim += self.config.env_state_feature.shape[0]
+        if self.config.use_language:
+            global_cond_dim += 384
 
         self.unet = DiffusionConditionalUnet1d(config, global_cond_dim=global_cond_dim * config.n_obs_steps)
 
@@ -249,11 +251,10 @@ class DiffusionModel(nn.Module):
         global_cond_feats = [batch[OBS_STATE]]
         # Extract image features.
         if self.config.image_features:
-            if batch["observation.images"].ndim == 4:
+            if batch["observation.images"].ndim == 5:
                 # in case camera dim doesn't exist
                 batch["observation.images"] = batch["observation.images"].unsqueeze(1)
             if self.config.use_separate_rgb_encoder_per_camera:
-                breakpoint()
                 # Combine batch and sequence dims while rearranging to make the camera index dimension first.
                 images_per_camera = einops.rearrange(batch["observation.images"], "b s n ... -> n (b s) ...")
                 img_features_list = torch.cat(
@@ -292,7 +293,10 @@ class DiffusionModel(nn.Module):
             )
             if lang_embed.ndim == 1:
                 # if we are batching but task is not, unsqueeze
-                lang_embed = lang_embed.unsqueeze(0)
+                lang_embed = lang_embed.unsqueeze(0).unsqueeze(1)
+            elif lang_embed.ndim == 2:
+                # if we are batching but task is not, unsqueeze
+                lang_embed = lang_embed.unsqueeze(1)
             
             global_cond_feats.append(lang_embed)
 
