@@ -193,7 +193,8 @@ class DiffusionModel(nn.Module):
         if self.config.env_state_feature:
             global_cond_dim += self.config.env_state_feature.shape[0]
         if self.config.use_language:
-            global_cond_dim += 384
+            global_cond_dim += 128
+            self.lang_embed_linear = nn.Linear(384, 128)
 
         self.unet = DiffusionConditionalUnet1d(config, global_cond_dim=global_cond_dim * config.n_obs_steps)
 
@@ -297,7 +298,9 @@ class DiffusionModel(nn.Module):
             elif lang_embed.ndim == 2:
                 # if we are batching but task is not, unsqueeze
                 lang_embed = lang_embed.unsqueeze(1)
-            
+
+            # run it through a learned linear to reduce dim
+            lang_embed = self.lang_embed_linear(lang_embed.squeeze(1)).unsqueeze(1)
             global_cond_feats.append(lang_embed)
 
         # Concatenate features then flatten to (B, global_cond_dim).
