@@ -125,25 +125,26 @@ def main(cfg: WidowXEvalConfig) -> None:
 
     logging.info("Making policy.")
 
-    if cfg.use_vlm:
-        updated_vlm_img_key_name = (
-            "path_image0"
-            if cfg.draw_path and not cfg.draw_mask
-            else "masked_path_image0"
-            if cfg.draw_path and cfg.draw_mask
-            else "images0"
-        )
+    if not cfg.use_vlm:
+        # if we are not using vlm, we don't need to draw path or mask
+        cfg.draw_path = cfg.draw_mask = False
 
-        # rename env cfg so policy sees the right key
-        cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
-        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
-            f"pixels/{cfg.vlm_img_key}"
-        ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
+    updated_vlm_img_key_name = (
+        "path_image0"
+        if cfg.draw_path and not cfg.draw_mask
+        else "masked_path_image0"
+        if cfg.draw_path and cfg.draw_mask
+        else "images0"
+    )
 
-        cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
-        cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
-    else:
-        updated_vlm_img_key_name = None
+    # rename env cfg so policy sees the right key
+    cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
+    cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
+        f"pixels/{cfg.vlm_img_key}"
+    ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
+
+    cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
+    cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
 
     policy = make_policy(
         cfg=cfg.policy,
