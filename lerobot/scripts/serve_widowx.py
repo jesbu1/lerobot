@@ -142,6 +142,8 @@ def main(cfg: WidowXEvalConfig) -> None:
 
         cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
         cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
+    else:
+        updated_vlm_img_key_name = None
 
     policy = make_policy(
         cfg=cfg.policy,
