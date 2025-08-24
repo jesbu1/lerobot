@@ -101,7 +101,28 @@ class DiffusionPolicy(PreTrainedPolicy):
             self._queues["observation.environment_state"] = deque(maxlen=self.config.n_obs_steps)
     @torch.no_grad
     def select_action_chunk(self, batch: dict[str, Tensor]) -> Tensor:
-        raise NotImplementedError("select_action_chunk is not implemented for DiffusionPolicy yet")
+        batch = self.normalize_inputs(batch)
+        if self.config.image_features:
+            batch = dict(batch)  # shallow copy so that adding a key doesn't modify the original
+            batch["observation.images"] = torch.stack(
+                [batch[key] for key in self.config.image_features], dim=-4
+            )
+        # Note: It's important that this happens after stacking the images into a single key.
+        self._queues = populate_queues(self._queues, batch)
+
+        if len(self._queues["action"]) == 0:
+            # stack n latest observations from the queue
+            batch = {k: torch.stack(list(self._queues[k]), dim=1) for k in batch if k in self._queues}
+            actions = self.diffusion.generate_actions(batch)
+
+            # TODO(rcadene): make above methods return output dictionary?
+            actions = self.unnormalize_outputs({"action": actions})["action"]
+
+            self._queues["action"].extend(actions.transpose(0, 1))
+
+        return self._queues["action"]
+
+
 
     @torch.no_grad
     def select_action(self, batch: dict[str, Tensor]) -> Tensor:
