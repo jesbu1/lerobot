@@ -341,13 +341,13 @@ class WidowXEnv(EnvConfig):
         default_factory=lambda: {
             "action": ACTION,
             "state": OBS_STATE,
-            "pixels/images0": f"{OBS_IMAGES}.images0",
+            "pixels/image_0": f"{OBS_IMAGES}.image_0",
             # "pixels/over_shoulder": f"{OBS_IMAGES}.over_shoulder",
         }
     )
 
     def __post_init__(self):
-        self.features["pixels/images0"] = PolicyFeature(
+        self.features["pixels/image_0"] = PolicyFeature(
             type=FeatureType.VISUAL, shape=(self.resolution, self.resolution, 3)
         )
         # self.features["pixels/over_shoulder"] = PolicyFeature(

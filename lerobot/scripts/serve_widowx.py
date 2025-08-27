@@ -73,7 +73,7 @@ class WidowXEvalConfig:
     draw_mask: bool = True
     # VLM overlay optiona
     use_vlm: bool = False
-    vlm_img_key: str = "images0"  # e.g., "image" or "image_wrist"; None disables overlay
+    vlm_img_key: str = "image0"  # e.g., "image" or "image_wrist"; None disables overlay
     vlm_server_ip: str = "http://localhost:8000"  # defaults to wrapper's SERVER_IP when None
     vlm_query_frequency: int = 5  # how many action chunks between VLM queries
     vlm_mask_ratio: float = 0.08 # how much of the image to mask out
@@ -125,26 +125,26 @@ def main(cfg: WidowXEvalConfig) -> None:
 
     logging.info("Making policy.")
 
+    updated_vlm_img_key_name = (
+        "path_image_0"
+        if cfg.draw_path and not cfg.draw_mask
+        else "masked_path_image_0"
+        if cfg.draw_path and cfg.draw_mask
+        else "image_0"
+    )
+
     if not cfg.use_vlm:
         # if we are not using vlm, we don't need to draw path or mask
         cfg.draw_path = cfg.draw_mask = False
+    else:
+        # rename env cfg so policy sees the right key
+        cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
+        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
+            f"pixels/{cfg.vlm_img_key}"
+        ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
 
-    updated_vlm_img_key_name = (
-        "path_image0"
-        if cfg.draw_path and not cfg.draw_mask
-        else "masked_path_image0"
-        if cfg.draw_path and cfg.draw_mask
-        else "images0"
-    )
-
-    # rename env cfg so policy sees the right key
-    cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
-    cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
-        f"pixels/{cfg.vlm_img_key}"
-    ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
-
-    cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
-    cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
+        cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
+        cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
 
     policy = make_policy(
         cfg=cfg.policy,
