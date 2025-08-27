@@ -12,7 +12,7 @@ job_name: "train_smolvla_bridge"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/bridge_v2_lerobot"
+  repo_id: "jesbu1/bridge_v2_lerobot_pathmask"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
     #["observation.images.image_1", "observation.images.image_2", "observation.images.image_3", "observation.path.image_0", "observation.path.image_1", "observation.path.image_2", "observation.path.image_3", "observation.masked_path.image_0", "observation.masked_path.image_1", "observation.masked_path.image_2", "observation.masked_path.image_3"]
     ["observation.images.image_1", "observation.images.image_2", "observation.images.image_3"]
