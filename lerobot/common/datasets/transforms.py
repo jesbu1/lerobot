@@ -22,6 +22,24 @@ from torchvision.transforms import v2
 from torchvision.transforms.v2 import Transform
 from torchvision.transforms.v2 import functional as F  # noqa: N812
 
+class CropResizeRotate(Transform):
+    def __init__(self, image_size: int, crop_ratio: float, rotation_range: float):
+        super().__init__()
+        self.crop= v2.RandomCrop(self.image_size * self.crop_ratio)
+        self.resize= v2.Resize(self.image_size)
+        self.rotation= v2.RandomRotation(self.rotation_range)
+        
+    def forward(self, *inputs: Any) -> Any:
+        crop= self.crop(*inputs)
+        resize= self.resize(crop)
+        rotation= self.rotation(resize)
+        return rotation 
+    def extra_repr(self) -> str:
+        return (
+            f"image_size={self.image_size}, "
+            f"crop_ratio={self.crop_ratio}, "
+            f"rotation_range={self.rotation_range}"
+        )
 
 class RandomSubsetApply(Transform):
     """Apply a random subset of N transformations from a list of transformations.
@@ -214,6 +232,11 @@ def make_transform_from_config(cfg: ImageTransformConfig):
         return v2.ColorJitter(**cfg.kwargs)
     elif cfg.type == "SharpnessJitter":
         return SharpnessJitter(**cfg.kwargs)
+    elif cfg.type == "CropResizeRotate":
+        assert "image_size" in cfg.kwargs, "image_size is required"
+        assert "crop_ratio" in cfg.kwargs, "crop_ratio is required"
+        assert "rotation_range" in cfg.kwargs, "rotation_range is required"
+        return CropResizeRotate(**cfg.kwargs)
     else:
         raise ValueError(f"Transform '{cfg.type}' is not valid.")
 
