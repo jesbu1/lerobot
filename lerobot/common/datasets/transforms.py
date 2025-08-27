@@ -25,10 +25,13 @@ from torchvision.transforms.v2 import functional as F  # noqa: N812
 class CropResizeRotate(Transform):
     def __init__(self, image_size: int, crop_ratio: float, rotation_range: float):
         super().__init__()
-        self.crop= v2.RandomCrop(self.image_size * self.crop_ratio)
-        self.resize= v2.Resize(self.image_size)
-        self.rotation= v2.RandomRotation(self.rotation_range)
-        self.transforms= [self.crop, self.resize, self.rotation]
+        crop= v2.RandomCrop(image_size * crop_ratio)
+        resize= v2.Resize(image_size)
+        rotation= v2.RandomRotation(rotation_range)
+        self.transforms= [crop, resize, rotation]
+        self.image_size= image_size
+        self.crop_ratio= crop_ratio
+        self.rotation_range= rotation_range
         
     def forward(self, *inputs: Any) -> Any:
         needs_unpacking = len(inputs) > 1
