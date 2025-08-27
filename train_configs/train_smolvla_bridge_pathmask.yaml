@@ -18,6 +18,11 @@ dataset:
     ["observation.images.image_0", "observation.path.image_0"]
   image_transforms:
     enable: true
+    tfs:
+      crop_resize_rotate:
+        weight: 1.0
+        type: "CropResizeRotate"
+        kwargs: { image_size: 212, crop_ratio: 0.95, rotation_range: 5 } # 224 * 0.95 rounded down
   #random_cam_sampling:
   #  how_many_cameras: 2
   #  sample_cameras: true
