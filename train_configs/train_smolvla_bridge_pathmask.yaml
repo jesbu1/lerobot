@@ -1,0 +1,93 @@
+# Training configuration
+seed: 42
+steps: 50_000
+batch_size: 64
+num_workers: 20
+log_freq: 100
+save_freq: 10_000
+save_checkpoint: true
+resume: false
+output_dir: "outputs/train_smolvla_bridge_pathmask"
+job_name: "train_smolvla_bridge_pathmask"
+
+# Dataset configuration
+dataset:
+  repo_id: "jesbu1/bridge_v2_lerobot_pathmask"
+  drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
+    #["observation.images.image_1", "observation.images.image_2", "observation.images.image_3", "observation.path.image_0", "observation.path.image_1", "observation.path.image_2", "observation.path.image_3", "observation.masked_path.image_0", "observation.masked_path.image_1", "observation.masked_path.image_2", "observation.masked_path.image_3"]
+    ["observation.images.image_0", "observation.path.image_0"]
+  image_transforms:
+    enable: true
+  #random_cam_sampling:
+  #  how_many_cameras: 2
+  #  sample_cameras: true
+  #  camera_present_key: "camera_present"
+
+# Policy configuration
+policy:
+  type: "smolvla"
+  device: "cuda"
+  use_amp: false
+  input_features:
+    state:
+      type: "STATE"
+      shape: [8]
+    image:
+      type: "VISUAL"
+      shape: [3, 224, 224]
+    wrist_image:
+      type: "VISUAL"
+      shape: [3, 224, 224]
+  output_features:
+    action:
+      type: "ACTION"
+      shape: [7]
+  chunk_size: 50
+  n_action_steps: 10
+  
+  # smolVLA specific configurations
+  vlm_model_name: "HuggingFaceTB/SmolVLM2-500M-Video-Instruct"
+  freeze_vision_encoder: true
+  train_expert_only: false
+  train_state_proj: true
+  attention_mode: "cross_attn"
+  num_expert_layers: -1  # Use same number of layers as VLM
+  num_vlm_layers: 16
+  self_attn_every_n_layers: 2
+  expert_width_multiplier: 0.75
+  min_period: 4e-3
+  max_period: 4.0
+  use_cache: true
+  add_image_special_tokens: false
+  prefix_length: -1
+  pad_language_to: "longest"
+
+# Optimizer configuration
+optimizer:
+  type: "adamw"
+  lr: 0.005  
+  betas: [0.9, 0.95]
+  eps: 1e-8
+  weight_decay: 1e-10
+  grad_clip_norm: 10.0
+
+# Scheduler configuration
+scheduler:
+  type: "cosine_decay_with_warmup"
+  num_warmup_steps: 1000
+  num_decay_steps: 30000
+  peak_lr: 1e-4
+  decay_lr: 2.5e-6
+
+# Evaluation configuration
+eval_freq: 0
+eval:
+  n_episodes: 10
+  batch_size: 1
+  use_async_envs: false
+
+# Wandb configuration
+wandb:
+  enable: true
+  project: "p-masked-vla"
+  run_id: "train_smolvla_bridge" 
