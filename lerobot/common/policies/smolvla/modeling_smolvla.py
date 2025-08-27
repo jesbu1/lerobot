@@ -54,6 +54,7 @@ policy = SmolVLAPolicy.from_pretrained("lerobot/smolvla_base")
 
 import math
 import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import re
 from collections import deque
 
