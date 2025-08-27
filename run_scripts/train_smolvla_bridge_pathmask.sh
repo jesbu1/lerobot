@@ -23,7 +23,7 @@ RESUME=false
 EXP_NAME=train_smolvla_bridge_pathmask
 PROJ_NAME=lerobot
 
-BASE_TRAIN_CMD="--config_path=train_configs/train_smolvla_bridge.yaml --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --wandb.run_id=$EXP_NAME"
+BASE_TRAIN_CMD="--config_path=train_configs/train_smolvla_bridge_pathmask.yaml --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --wandb.run_id=$EXP_NAME"
 RESUME_TRAIN_CMD="--config_path=outputs/$EXP_NAME/checkpoints/last/pretrained_model/train_config.json --resume=true"
 
 TRAIN_CMD="conda run -n lerobot --no-capture-output python lerobot/scripts/train.py"
