@@ -28,12 +28,14 @@ class CropResizeRotate(Transform):
         self.crop= v2.RandomCrop(self.image_size * self.crop_ratio)
         self.resize= v2.Resize(self.image_size)
         self.rotation= v2.RandomRotation(self.rotation_range)
+        self.transforms= [self.crop, self.resize, self.rotation]
         
     def forward(self, *inputs: Any) -> Any:
-        crop= self.crop(*inputs)
-        resize= self.resize(crop)
-        rotation= self.rotation(resize)
-        return rotation 
+        needs_unpacking = len(inputs) > 1
+        for transform in self.transforms:
+            outputs = transform(*inputs)
+            inputs = outputs if needs_unpacking else (outputs,)
+        return outputs
     def extra_repr(self) -> str:
         return (
             f"image_size={self.image_size}, "
