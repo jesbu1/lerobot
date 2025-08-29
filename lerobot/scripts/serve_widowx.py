@@ -73,7 +73,7 @@ class WidowXEvalConfig:
     draw_mask: bool = True
     # VLM overlay optiona
     use_vlm: bool = False
-    vlm_img_key: str = "image0"  # e.g., "image" or "image_wrist"; None disables overlay
+    vlm_img_key: str = "image_0"  # e.g., "image" or "image_wrist"; None disables overlay
     vlm_server_ip: str = "http://localhost:8000"  # defaults to wrapper's SERVER_IP when None
     vlm_query_frequency: int = 5  # how many action chunks between VLM queries
     vlm_mask_ratio: float = 0.08 # how much of the image to mask out
