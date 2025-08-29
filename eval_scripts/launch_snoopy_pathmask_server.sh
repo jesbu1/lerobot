@@ -14,7 +14,7 @@ checkpoint=outputs/train_smolvla_bridge_pathmask_imgtransforms/checkpoints/last/
 #checkpoint=outputs/train_smolvla_bridge_imgtransforms/checkpoints/last/pretrained_model/
 serve_policy_vlm_freq=5
 
-if [[ "$config" == *"path"* ]]; then
+if [[ "$checkpoint" == *"path"* ]]; then
     cd ~/VILA
     echo "Running VILA server"
     conda run -n vila --no-capture-output /bin/bash -c "python -W ignore vila_3b_server.py --model-paths ~/.cache/huggingface/hub/models--memmelma--vila_3b_path_mask_fast/snapshots/12df7a04221a50e88733cd2f1132eb01257aba0d/checkpoint-11700/" &
