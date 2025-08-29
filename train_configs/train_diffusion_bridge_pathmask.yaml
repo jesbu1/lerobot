@@ -4,7 +4,7 @@ steps: 600_000
 batch_size: 64
 num_workers: 20
 log_freq: 100
-save_freq: 50_000
+save_freq: 100_000
 save_checkpoint: true
 resume: false
 output_dir: "outputs/train_diffusion_bridge_pathmask"
