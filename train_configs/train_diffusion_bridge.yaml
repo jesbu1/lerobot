@@ -22,6 +22,12 @@ dataset:
   #  camera_present_key: "camera_present"
   image_transforms:
     enable: true
+      enable: true
+    tfs:
+      crop_resize_rotate:
+        weight: 1.0
+        type: "CropResizeRotate"
+        kwargs: { image_size: 212, crop_ratio: 0.95, rotation_range: 5 } # 224 * 0.95 rounded down
 
 # Policy configuration
 policy:
