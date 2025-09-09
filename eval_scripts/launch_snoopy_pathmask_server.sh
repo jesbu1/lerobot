@@ -9,10 +9,12 @@
 #SBATCH --gres=shard:20
 
 policy_port=8001
-checkpoint=outputs/train_smolvla_bridge_pathmask_imgtransforms/checkpoints/last/pretrained_model
+#checkpoint=outputs/train_smolvla_bridge_pathmask_imgtransforms/checkpoints/last/pretrained_model
+checkpoint=outputs/train_act_bridge_imgtransforms/checkpoints/last/pretrained_model
+#checkpoint=outputs/train_act_bridge_pathmask_imgtransforms/checkpoints/last/pretrained_model
 #checkpoint=outputs/train_diffusion_bridge_pathmask/checkpoints/last/pretrained_model
-#checkpoint=outputs/train_diffusion_bridge/checkpoints/last/pretrained_model/
-#checkpoint=outputs/train_diffusion_bridge_resnetscratch/checkpoints/last/pretrained_model/
+#checkpoint=outputs/train_diffusion_bridge_imgtransforms/checkpoints/last/pretrained_model/
+#checkpoint=outputs/train_diffusion_bridge_pathmask/checkpoints/last/pretrained_model/
 #checkpoint=outputs/train_smolvla_bridge_imgtransforms/checkpoints/last/pretrained_model/
 serve_policy_vlm_freq=10
 

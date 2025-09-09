@@ -12,6 +12,7 @@ from lerobot.common.utils.websocket_policy import websocket_policy_server
 from lerobot.configs import parser
 from lerobot.configs.default import EvalConfig
 from lerobot.configs.policies import PreTrainedConfig
+from lerobot.common.constants import OBS_IMAGES
 
 import torch
 
@@ -132,7 +133,6 @@ def main(cfg: WidowXEvalConfig) -> None:
         if cfg.draw_path and cfg.draw_mask
         else "image_0"
     )
-
     if not cfg.use_vlm:
         # if we are not using vlm, we don't need to draw path or mask
         cfg.draw_path = cfg.draw_mask = False
@@ -143,9 +143,11 @@ def main(cfg: WidowXEvalConfig) -> None:
             f"pixels/{cfg.vlm_img_key}"
         ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
 
+        # must do this because i forgot to add "images" in the prefix for the keys in the bridge dataset lol
+        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"].replace("images.", "")
+
         cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
         cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
-
     policy = make_policy(
         cfg=cfg.policy,
         env_cfg=cfg.env,
