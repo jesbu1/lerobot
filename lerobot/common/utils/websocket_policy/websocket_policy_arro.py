@@ -149,6 +149,7 @@ class WebsocketPolicyServer:
                     obs["images"][self._arro_img_key] = masked_frame
 
                     # save the masked frame to the _arro_save_dir
+                    os.makedirs(os.path.join(self._arro_save_dir, obs["prompt"]), exist_ok=True)
                     Image.fromarray(masked_frame).save(os.path.join(self._arro_save_dir, obs["prompt"], f"{datetime.now().strftime('%Y%m%d_%H%M%S')}_{idx}.png"))
 
 

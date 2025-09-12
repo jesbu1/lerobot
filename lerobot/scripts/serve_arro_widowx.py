@@ -72,7 +72,7 @@ class WidowXEvalConfig:
     draw_path: bool = True
     draw_mask: bool = True
     arro_img_key: str = "image_0"  # e.g., "image" or "image_wrist"; None disables overlay
-    arro_server_ip: str = "http://edclduajln.a.pinggy.link/"  # defaults to wrapper's SERVER_IP when None
+    arro_server_address: str = "tcp://edclduajln.a.pinggy.link:21379"  # defaults to wrapper's SERVER_IP when None
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None
     port: int = 8001  # Port to serve the policy on.
@@ -158,7 +158,7 @@ def main(cfg: WidowXEvalConfig) -> None:
         host="0.0.0.0",
         port=cfg.port,
         device=torch.device(policy.config.device),
-        arro_server_ip=cfg.arro_server_ip,
+        arro_server_address=cfg.arro_server_address,
         arro_img_key=cfg.arro_img_key,
     )
     
