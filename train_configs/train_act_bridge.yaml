@@ -1,6 +1,6 @@
 # Training configuration
 seed: 42
-steps: 200_000
+steps: 50_000
 batch_size: 64
 num_workers: 20
 log_freq: 100
