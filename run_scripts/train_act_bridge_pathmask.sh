@@ -13,7 +13,7 @@
 source ~/.bashrc
 RESUME=false
 
-EXP_NAME=train_act_bridge_pathmask_imgtransforms
+EXP_NAME=train_act_bridge_pathmask
 PROJ_NAME=lerobot
 
 BASE_TRAIN_CMD="--config_path=train_configs/train_act_bridge_pathmask.yaml --output_dir=outputs/$EXP_NAME --job_name=$EXP_NAME --wandb.run_id=$EXP_NAME"
