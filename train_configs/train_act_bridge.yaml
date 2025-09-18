@@ -7,8 +7,8 @@ log_freq: 100
 save_freq: 10_000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_act_bridge_imgtransforms"
-job_name: "train_act_bridge_imgtransforms"
+output_dir: "outputs/act-bridge-v2"
+job_name: "train_act_bridge_v2"
 
 # Dataset configuration
 dataset:
@@ -63,5 +63,5 @@ eval:
 # Wandb configuration
 wandb:
   enable: true
-  project: "p-masked-vla"
-  run_id: "train_act_bridge_imgtransforms"
+  project: "peek"
+  run_id: "train_act_bridge_v2"

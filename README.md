@@ -40,8 +40,8 @@ Modify the bash script or config file at `train_configs/train_act_bridge.yaml` t
 
 ## PEEK Inference Instructions.
 Either train your policies as above or download the pre-trained checkpoints listed below:
-- ACT+PEEK: `hf download jesbu1/act-bridge-v2-peek --local-dir outputs/train_act_bridge_pathmask`
-- Standard ACT: `hf download jesbu1/act-bridge-v2 --local-dir outputs/train_act_bridge`
+- ACT+PEEK: `hf download jesbu1/peek-act-bridge-v2 --local-dir outputs/peek-act-bridge-v2`
+- Standard ACT: `hf download jesbu1/act-bridge-v2 --local-dir outputs/act-bridge-v2`
 
 ### Inference
 To run inference on a WidowX, you need a PEEK VLM server already running or you can follow the instructions below.
