@@ -8,11 +8,10 @@ from pprint import pformat
 from lerobot.common import envs
 from lerobot.common.policies.factory import make_policy
 from lerobot.common.utils.utils import init_logging
-from lerobot.common.utils.websocket_policy import websocket_policy_server
+from lerobot.common.utils.websocket_policy import websocket_policy_arro
 from lerobot.configs import parser
 from lerobot.configs.default import EvalConfig
 from lerobot.configs.policies import PreTrainedConfig
-from lerobot.common.constants import OBS_IMAGES
 
 import torch
 
@@ -72,13 +71,8 @@ class WidowXEvalConfig:
     env: envs.EnvConfig = field(default_factory=lambda: envs.WidowXEnv())
     draw_path: bool = True
     draw_mask: bool = True
-    # VLM overlay optiona
-    use_vlm: bool = False
-    vlm_img_key: str = "image_0"  # e.g., "image" or "image_wrist"; None disables overlay
-    vlm_server_ip: str = "http://localhost:8000"  # defaults to wrapper's SERVER_IP when None
-    vlm_query_frequency: int = 5  # how many action chunks between VLM queries
-    vlm_mask_ratio: float = 0.08 # how much of the image to mask out
-    # image_keys: list[str] = ["external_img", "over_shoulder"]
+    arro_img_key: str = "image_0"  # e.g., "image" or "image_wrist"; None disables overlay
+    arro_server_address: str = "tcp://edclduajln.a.pinggy.link:21379"  # defaults to wrapper's SERVER_IP when None
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None
     port: int = 8001  # Port to serve the policy on.
@@ -126,28 +120,6 @@ def main(cfg: WidowXEvalConfig) -> None:
 
     logging.info("Making policy.")
 
-    updated_vlm_img_key_name = (
-        "path_image_0"
-        if cfg.draw_path and not cfg.draw_mask
-        else "masked_path_image_0"
-        if cfg.draw_path and cfg.draw_mask
-        else "image_0"
-    )
-    if not cfg.use_vlm:
-        # if we are not using vlm, we don't need to draw path or mask
-        cfg.draw_path = cfg.draw_mask = False
-    else:
-        # rename env cfg so policy sees the right key
-        cfg.env.features[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features[f"pixels/{cfg.vlm_img_key}"]
-        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[
-            f"pixels/{cfg.vlm_img_key}"
-        ].replace(cfg.vlm_img_key, updated_vlm_img_key_name)
-
-        # must do this because i forgot to add "images" in the prefix for the keys in the bridge dataset lol
-        cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"] = cfg.env.features_map[f"pixels/{updated_vlm_img_key_name}"].replace("images.", "")
-
-        cfg.env.features.pop(f"pixels/{cfg.vlm_img_key}")
-        cfg.env.features_map.pop(f"pixels/{cfg.vlm_img_key}")
     policy = make_policy(
         cfg=cfg.policy,
         env_cfg=cfg.env,
@@ -181,19 +153,13 @@ def main(cfg: WidowXEvalConfig) -> None:
     except Exception as e:
         logging.warning(f"Could not test port availability: {e}")
 
-    server = websocket_policy_server.WebsocketPolicyServer(
+    server = websocket_policy_arro.WebsocketPolicyServer(
         policy=policy,
         host="0.0.0.0",
         port=cfg.port,
         device=torch.device(policy.config.device),
-        # VLM overlay wiring
-        vlm_img_key=cfg.vlm_img_key if cfg.use_vlm else None,
-        vlm_server_ip=cfg.vlm_server_ip,
-        vlm_query_frequency=cfg.vlm_query_frequency,
-        vlm_draw_path=cfg.draw_path,
-        vlm_draw_mask=cfg.draw_mask,
-        vlm_mask_ratio=cfg.vlm_mask_ratio,
-        vlm_updated_img_key_name=updated_vlm_img_key_name,
+        arro_server_address=cfg.arro_server_address,
+        arro_img_key=cfg.arro_img_key,
     )
     
     print(f"🚀 Starting WebSocket policy server...")

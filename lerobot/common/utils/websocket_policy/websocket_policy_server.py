@@ -15,7 +15,62 @@ from lerobot.common.envs.widowx_env import WidowXMessageFormat
 from lerobot.common.envs.utils import preprocess_observation
 from lerobot.common.envs.wrappers import get_path_mask_from_vlm
 from PIL import Image
+from torch import Tensor
+import einops
 
+def preprocess_observation_custom_hacky(observations: dict[str, np.ndarray]) -> dict[str, Tensor]:
+    # TODO(aliberts, rcadene): refactor this to use features from the environment (no hardcoding)
+    """Convert environment observation to LeRobot format observation.
+    Args:
+        observation: Dictionary of observation batches from a Gym vector environment.
+    Returns:
+        Dictionary of observation batches with keys renamed to LeRobot format and values as tensors.
+    """
+    # map to expected inputs for the policy
+    return_observations = {}
+    if "pixels" in observations:
+        if isinstance(observations["pixels"], dict):
+            # remove the "image" prefix from the keys
+            imgs = {f"observation.{key}": img for key, img in observations["pixels"].items()}
+        else:
+            imgs = {"observation": observations["pixels"]}
+
+        for imgkey, img in imgs.items():
+            # TODO(aliberts, rcadene): use transforms.ToTensor()?
+            img = torch.from_numpy(img)
+
+            # When preprocessing observations in a non-vectorized environment, we need to add a batch dimension.
+            # This is the case for human-in-the-loop RL where there is only one environment.
+            if img.ndim == 3:
+                img = img.unsqueeze(0)
+            # sanity check that images are channel last
+            _, h, w, c = img.shape
+            assert c < h and c < w, f"expect channel last images, but instead got {img.shape=}"
+
+            # sanity check that images are uint8
+            assert img.dtype == torch.uint8, f"expect torch.uint8, but instead {img.dtype=}"
+
+            # convert to channel first of type float32 in range [0,1]
+            img = einops.rearrange(img, "b h w c -> b c h w").contiguous()
+            img = img.type(torch.float32)
+            img /= 255
+
+            return_observations[imgkey] = img
+
+    if "environment_state" in observations:
+        env_state = torch.from_numpy(observations["environment_state"]).float()
+        if env_state.dim() == 1:
+            env_state = env_state.unsqueeze(0)
+
+        return_observations["observation.environment_state"] = env_state
+
+    # TODO(rcadene): enable pixels only baseline with `obs_type="pixels"` in environment by removing
+    agent_pos = torch.from_numpy(observations["agent_pos"]).float()
+    if agent_pos.dim() == 1:
+        agent_pos = agent_pos.unsqueeze(0)
+    return_observations["observation.state"] = agent_pos
+
+    return return_observations
 
 IMAGE_SIZE = 224
 class WebsocketPolicyServer:
@@ -188,7 +243,10 @@ class WebsocketPolicyServer:
                         if cam_name == self._vlm_img_key:
                             cam_name = self._vlm_updated_img_key_name
                         policy_obs["pixels"][cam_name] = img
-                    policy_obs = preprocess_observation(policy_obs)
+                    if self._vlm_draw_path or self._vlm_draw_mask:
+                        policy_obs = preprocess_observation_custom_hacky(policy_obs)
+                    else:
+                        policy_obs = preprocess_observation(policy_obs)
 
                     policy_obs = {
                         key: policy_obs[key].to(self._device, non_blocking=self._device.type == "cuda")

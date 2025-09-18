@@ -1,20 +1,18 @@
- # Training configuration
+# Training configuration
 seed: 42
-steps: 600_000
-batch_size: 48
+steps: 200_000
+batch_size: 64
 num_workers: 20
 log_freq: 100
-save_freq: 10_000
+save_freq: 50_000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_diffusion_bridge"
-job_name: "train_diffusion_bridge"
+output_dir: "outputs/train_act_bridge_arro"
+job_name: "train_act_bridge_arro"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/bridge_v2_lerobot_pathmask"
-  drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    ["observation.path.image_0", "observation.masked_path.image_0"]
+  repo_id: "jesbu1/bridge_v2_lerobot_dinosam_masked"
   image_transforms:
     enable: true
     tfs:
@@ -25,7 +23,7 @@ dataset:
 
 # Policy configuration
 policy:
-  type: "diffusion"
+  type: "act"
   device: "cuda"
   use_amp: true
   input_features:
@@ -35,20 +33,16 @@ policy:
     image:
       type: "VISUAL"
       shape: [3, 224, 224]
+    wrist_image:
+      type: "VISUAL"
+      shape: [3, 224, 224]
   output_features:
     action:
       type: "ACTION"
       shape: [7]
-  horizon: 16
-  n_action_steps: 8
-  n_obs_steps: 1
-  pretrained_backbone_weights: "IMAGENET1K_V1"
-  use_separate_rgb_encoder_per_camera: true
-  crop_shape: null
-  use_language: true 
-  use_group_norm: false # for pre-trained models can't swap
-  num_inference_steps: 10
-
+  chunk_size: 50
+  n_action_steps: 10
+  use_language: true
 
 # Optimizer configuration
 optimizer:
@@ -68,4 +62,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_diffusion_bridge"
+  run_id: "train_act_bridge_imgtransforms"

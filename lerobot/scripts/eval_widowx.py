@@ -8,7 +8,7 @@ pip install -e .[widowx, smolvla]
 USB_CONNECTOR_CHART=$(pwd)/usb_connector_chart.yml docker compose up --build robonet	# in bridge_data_robot
 docker compose exec robonet bash -lic "widowx_env_service --server"  # in separate window
 python lerobot/scripts/serve_widowx.py --policy.path=outputs/train_smolvla_bridge_1cam/checkpoints/last/pretrained_model --policy.use_amp=false --policy.device=cuda # on the host machine
-python scripts/eval_widowx.py --policy-server-address https://whippet-pet-singularly.ngrok.app --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
+python scripts/eval_widowx.py --policy-server-address http://jessezhang.a.pinggy.link --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
 """
 
 import argparse
@@ -41,7 +41,7 @@ resolution = 224
 
 # --- Globals for keyboard listener ---
 key_pressed = None
-MAX_CHUNK_SIZE = 10 # how many actions of the policy to use
+MAX_CHUNK_SIZE = 5 # how many actions of the policy to use
 
 print(f"SETTING MAX ACTIONS IN CHUNK TO {MAX_CHUNK_SIZE} REGARDLESS OF POLICY")
 
@@ -56,17 +56,17 @@ class WidowXConfigs:
             [0.45, 0.25, 0.25, 1.57, 0],
         ],
         "catch_environment_except": False,
-        #"start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1], # bridge-dataset style neutral
-        "start_state": [
-            0.11865137,
-            -0.01696823,
-            0.24405071,
-            -0.03702571,
-            -0.11837727,
-            0.03907566,
-            0.9994886,
-        ], # data collection neutral
-        "skip_move_to_neutral": True,
+        "start_state": [0.3, 0.0, 0.15, 0, 0, 0, 1], # bridge-dataset style neutral
+        # "start_state": [
+        #     0.11865137,
+        #     -0.01696823,
+        #     0.24405071,
+        #     -0.03702571,
+        #     -0.11837727,
+        #     0.03907566,
+        #     0.9994886,
+        # ], # data collection neutral
+        "skip_move_to_neutral": False,
         "return_full_image": False,
         "camera_topics": [
             #{"name": "/D435/color/image_raw"},

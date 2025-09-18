@@ -4,22 +4,24 @@ steps: 200_000
 batch_size: 64
 num_workers: 20
 log_freq: 100
-save_freq: 3_000
+save_freq: 10_000
 save_checkpoint: true
 resume: false
-output_dir: "outputs/train_act_bridge_2cam_lang"
-job_name: "train_act_bridge_2cam_lang"
+output_dir: "outputs/train_act_bridge_imgtransforms"
+job_name: "train_act_bridge_imgtransforms"
 
 # Dataset configuration
 dataset:
-  repo_id: "jesbu1/bridge_v2_lerobot"
+  repo_id: "jesbu1/bridge_v2_lerobot_pathmask"
   drop_keys:  # drop unnecessary features. Necessary so that we don't accidentally condition on too many things.
-    #["observation.images.image_1", "observation.images.image_2", "observation.images.image_3", "observation.path.image_0", "observation.path.image_1", "observation.path.image_2", "observation.path.image_3", "observation.masked_path.image_0", "observation.masked_path.image_1", "observation.masked_path.image_2", "observation.masked_path.image_3"]
-    ["observation.images.image_1", "observation.images.image_2", "observation.images.image_3"]
-  #random_cam_sampling:
-  #  how_many_cameras: 2
-  #  sample_cameras: true
-  #  camera_present_key: "camera_present"
+    ["observation.path.image_0", "observation.masked_path.image_0"]
+  image_transforms:
+    enable: true
+    tfs:
+      crop_resize_rotate:
+        weight: 1.0
+        type: "CropResizeRotate"
+        kwargs: { image_size: 212, crop_ratio: 0.95, rotation_range: 5 } # 224 * 0.95 rounded down
 
 # Policy configuration
 policy:
@@ -41,7 +43,7 @@ policy:
       type: "ACTION"
       shape: [7]
   chunk_size: 50
-  n_action_steps: 50
+  n_action_steps: 10
   use_language: true
 
 # Optimizer configuration
@@ -62,4 +64,4 @@ eval:
 wandb:
   enable: true
   project: "p-masked-vla"
-  run_id: "train_act_bridge_2cam_lang"
+  run_id: "train_act_bridge_imgtransforms"
