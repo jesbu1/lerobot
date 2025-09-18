@@ -1,12 +1,63 @@
-## Extra install
+# PEEK Lerobot Instructions
+To install this repo, first follow the lerobot installation instructions in the middle of this page.
+Then, come back and run these extra install commands:
+
 ```bash
+conda activate lerobot
 pip install -e .[widowx]
-git clone git@github.com:jesbu1/LIBERO.git
-pip install -e LIBERO
-git clone git@github.com:memmelma/vila_utils.git
-pip install -e vila_utils
+git clone git@github.com:memmelma/vila_utils.git # TODO: update this
+pip install -e vila_utils # TODO: update the vila utils dependency
 ```
 
+If you want to directly use a pre-trained checkpoint for BRIDGE inference, skip the training instructions and go to the inference instructions.
+
+## PEEK Training Instructions
+### Download the BRIDGE labeled dataset.
+```bash
+conda activate lerobot
+python -c "from lerobot.common.datasets.lerobot_dataset import LeRobotDataset; dataset = LeRobotDataset('jesbu1/bridge_v2_lerobot_pathmask')"
+```
+
+### Training
+
+We include instructions for training ACT+PEEK and standard ACT on the BRIDGE labeled dataset.;
+The main changes from the original LeRobot ACT policy implementations are:
+- We apply extra image transformations from Pi0's repo to help with slightly different camera placements/colors.
+- We add a pre-trained sentence embedding `all-MiniLM-L6-v2` to the input features to allow conditioning on task instructions.
+
+To train PEEK, run the following command to train on 1 GPU and 20 dataloading workers
+```bash
+bash scripts/train_act_bridge_pathmask.sh
+```
+Modify the bash script or config file at `train_configs/train_act_bridge_pathmask.yaml` to change the training hyperparameters. Outputs are saved in `outputs/train_act_bridge_pathmask`.
+
+To train standard ACT on the BRIDGE labeled dataset (w/o paths and masks from PEEK), run the following command:
+```bash
+bash scripts/train_act_bridge.sh
+```
+Modify the bash script or config file at `train_configs/train_act_bridge.yaml` to change the training hyperparameters. Outputs are saved in `outputs/train_act_bridge`.
+
+
+## PEEK Inference Instructions.
+Either train your policies as above or download the pre-trained checkpoints listed below:
+- ACT+PEEK: `hf download jesbu1/act-bridge-v2-peek --local-dir outputs/train_act_bridge_pathmask`
+- Standard ACT: `hf download jesbu1/act-bridge-v2 --local-dir outputs/train_act_bridge`
+
+### Inference
+To run inference on a WidowX, you need a PEEK VLM server already running or you can follow the instructions below.
+
+There are 3 scripts to care about:
+- `lerobot/scripts/eval_widowx.py` to run inference locally on your machine where the WidowX is connected to.
+- `lerobot/scripts/serve_widowx.py` to run the ACT policy server, can be run locally or on a remote machine.
+- TODO: VLM serving script
+
+We give an example pipeline for serving the policy on a remote machine in the following script
+```bash
+bash scripts/serve_policy.sh
+```
+
+--------
+# Original Lerobot README
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="media/lerobot-logo-thumbnail.png">
