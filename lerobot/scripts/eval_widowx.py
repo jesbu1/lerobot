@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-"""Inference script for USC WidowX using openpi policy server.
+"""Inference script for WidowX using OpenPI's policy server example to run inference locally on your machine where the WidowX is connected to.
+
+Follow the BRIDGE dataset instructions to set up the robot: https://github.com/rail-berkeley/bridge_data_robot
 
 Example usage:
 # MAKE SURE NUMPY < 2 is installed!!!
@@ -7,8 +9,7 @@ pip install 'numpy<2'
 pip install -e .[widowx, smolvla]
 USB_CONNECTOR_CHART=$(pwd)/usb_connector_chart.yml docker compose up --build robonet	# in bridge_data_robot
 docker compose exec robonet bash -lic "widowx_env_service --server"  # in separate window
-python lerobot/scripts/serve_widowx.py --policy.path=outputs/train_smolvla_bridge_1cam/checkpoints/last/pretrained_model --policy.use_amp=false --policy.device=cuda # on the host machine
-python scripts/eval_widowx.py --policy-server-address http://jessezhang.a.pinggy.link --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
+python scripts/eval_widowx.py --policy-server-address ADDRESS_OF_POLICY_SERVER --robot-ip localhost --robot-port 5556 --prompt "pick up the red block"
 """
 
 import argparse
