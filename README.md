@@ -1,4 +1,6 @@
 # PEEK Lerobot Instructions
+First, make sure you have `peek_vlm` setup and installed. See the outer repo for instructions.
+
 To install this repo, first follow the lerobot installation instructions in the middle of this page.
 Then, come back and run these extra install commands:
 
@@ -50,7 +52,14 @@ There are 3 scripts to care about:
 - `lerobot/scripts/serve_widowx.py` to run the ACT policy server, can be run locally or on a remote machine.
 - TODO: VLM serving script
 
-We give an example pipeline for serving the policy on a remote machine in the following script
+We give an example pipeline for serving the policy on a remote machine in the following script. Modify the `checkpoint` variable to the path to the checkpoint you want to serve.
+
+First, makes sure the PEEK VLM server is running if you are running PEEK (not necessary if you are running standard ACT):
+```bash
+conda activate peek_vlm
+python scripts/server.py --host localhost --port 8000 --model_path memmelma/vila_3b_path_mask_fast
+```
+Then, run the following script to serve the policy using the VLM server:
 ```bash
 bash scripts/serve_policy.sh
 ```

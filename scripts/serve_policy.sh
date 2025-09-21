@@ -9,25 +9,17 @@
 #SBATCH --gres=shard:20
 
 policy_port=8001
-#checkpoint=outputs/train_smolvla_bridge_pathmask_imgtransforms/checkpoints/last/pretrained_model
-checkpoint=outputs/train_act_bridge_imgtransforms/checkpoints/last/pretrained_model
-#checkpoint=outputs/train_act_bridge_pathmask_imgtransforms/checkpoints/last/pretrained_model
-#checkpoint=outputs/train_diffusion_bridge_pathmask/checkpoints/last/pretrained_model
-#checkpoint=outputs/train_diffusion_bridge_imgtransforms/checkpoints/last/pretrained_model/
-#checkpoint=outputs/train_diffusion_bridge_pathmask/checkpoints/last/pretrained_model/
-#checkpoint=outputs/train_smolvla_bridge_imgtransforms/checkpoints/last/pretrained_model/
-serve_policy_vlm_freq=10
+#checkpoint=outputs/act-bridge-v2/checkpoints/last/pretrained_model # standard ACT
+checkpoint=outputs/peek-act-bridge-v2/checkpoints/last/pretrained_model # ACT+PEEK
+serve_policy_vlm_freq=10 # how many action chunks between VLM queries
+PEEK_VLM_PORT=8000
+PEEK_VLM_IP=localhost
 
-if [[ "$checkpoint" == *"path"* ]]; then
-    cd ~/VILA
-    echo "Running VILA server"
-    conda run -n vila --no-capture-output /bin/bash -c "python -W ignore vila_3b_server.py --model-paths ~/.cache/huggingface/hub/models--memmelma--vila_3b_path_mask_fast/snapshots/12df7a04221a50e88733cd2f1132eb01257aba0d/checkpoint-11700/" &
-    sleep 10
-fi
+vlm_server_ip=$PEEK_VLM_IP:$PEEK_VLM_PORT
 
 cd ~/lerobot
-if [[ "$checkpoint" == *"path"* ]]; then                
-    conda run -n lerobot --no-capture-output /bin/bash -c "python lerobot/scripts/serve_widowx.py --policy.path=$checkpoint --policy.use_amp=false --policy.device=cuda --use_vlm true --port $policy_port --vlm_query_frequency=$serve_policy_vlm_freq"
+if [[ "$checkpoint" == *"peek"* ]]; then                
+    conda run -n lerobot --no-capture-output /bin/bash -c "python lerobot/scripts/serve_widowx.py --policy.path=$checkpoint --policy.use_amp=false --policy.device=cuda --use_vlm true --port $policy_port --vlm_server_ip=$vlm_server_ip --vlm_query_frequency=$serve_policy_vlm_freq"
 else
     conda run -n lerobot --no-capture-output /bin/bash -c "python lerobot/scripts/serve_widowx.py --policy.path=$checkpoint --policy.use_amp=false --policy.device=cuda --use_vlm false --port $((policy_port+1))"
 fi
