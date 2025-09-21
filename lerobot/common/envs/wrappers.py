@@ -24,7 +24,7 @@ from PIL import Image
 #from vila_utils.utils.decode import add_mask_2d_to_img, add_path_2d_to_img_alt_fast, get_path_from_answer
 #from vila_utils.utils.encode import scale_path
 #from vila_utils.utils.prompts import get_prompt
-from peek_vlm import vila_inference_api, add_answer_to_img, send_request
+from peek_vlm import add_answer_to_img, send_request
 
 # Constants
 VLM_DOWNSAMPLE_RESOLUTION = 256

@@ -56,6 +56,7 @@ We give an example pipeline for serving the policy on a remote machine in the fo
 
 First, makes sure the PEEK VLM server is running if you are running PEEK (not necessary if you are running standard ACT):
 ```bash
+cd ../peek_vlm
 conda activate peek_vlm
 python scripts/server.py --host localhost --port 8000 --model_path memmelma/vila_3b_path_mask_fast
 ```
