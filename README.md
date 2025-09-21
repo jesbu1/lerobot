@@ -5,8 +5,7 @@ Then, come back and run these extra install commands:
 ```bash
 conda activate lerobot
 pip install -e .[widowx]
-git clone git@github.com:memmelma/vila_utils.git # TODO: update this
-pip install -e vila_utils # TODO: update the vila utils dependency
+pip install -e ../peek_vlm # install the PEEK VLM library from the outer folder to use the inference api
 ```
 
 If you want to directly use a pre-trained checkpoint for BRIDGE inference, skip the training instructions and go to the inference instructions.
@@ -56,6 +55,7 @@ We give an example pipeline for serving the policy on a remote machine in the fo
 bash scripts/serve_policy.sh
 ```
 
+To run inference on a WidowX, read the top of `lerobot/scripts/eval_widowx.py` for instructions.
 --------
 # Original Lerobot README
 <p align="center">

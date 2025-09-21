@@ -91,7 +91,6 @@ class WebsocketPolicyServer:
         vlm_query_frequency: int = 10,
         vlm_draw_path: bool = True,
         vlm_draw_mask: bool = True,
-        vlm_mask_ratio: float = 0.08,
         vlm_updated_img_key_name: str | None = None,
     ) -> None:
         self._policy = policy
@@ -109,9 +108,7 @@ class WebsocketPolicyServer:
         self._vlm_query_frequency = int(vlm_query_frequency)
         self._vlm_draw_path = bool(vlm_draw_path)
         self._vlm_draw_mask = bool(vlm_draw_mask)
-        self._vlm_mask_ratio = float(vlm_mask_ratio)
-        self._vlm_current_path = None
-        self._vlm_current_mask = None
+        self._vlm_current_vlm_pred = None
         self._vlm_step = 0
         self._vlm_updated_img_key_name = vlm_updated_img_key_name
         # Save directory in current working directory for VLM images
@@ -185,20 +182,16 @@ class WebsocketPolicyServer:
                             if self._vlm_draw_path or self._vlm_draw_mask:
                                 if self._vlm_step % self._vlm_query_frequency == 0:
                                     try:
-                                        img, self._vlm_current_path, self._vlm_current_mask = get_path_mask_from_vlm(
+                                        img, self._vlm_current_vlm_pred = get_path_mask_from_vlm(
                                             image=img,
-                                            crop_type=None,
                                             task_instr=obs.get("prompt", ""),
                                             draw_path=self._vlm_draw_path,
                                             draw_mask=self._vlm_draw_mask,
-                                            verbose=False,
                                             vlm_server_ip=self._vlm_server_ip,
-                                            mask_ratio=self._vlm_mask_ratio,
                                         )
                                     except Exception as e:
                                         logging.warning(f"VLM overlay error on query: {e}")
-                                        self._vlm_current_path = None
-                                        self._vlm_current_mask = None
+                                        self._vlm_current_vlm_pred = None
                                     else:
                                         # Save the overlaid image for this fresh query
                                         if self._vlm_save_dir is not None:
@@ -209,19 +202,15 @@ class WebsocketPolicyServer:
                                                 print(f"🖼️ Saved VLM image to {save_path}")
                                             except Exception as save_err:
                                                 logging.warning(f"Failed to save VLM image to {self._vlm_save_dir}: {save_err}")
-                                elif self._vlm_current_path is not None or self._vlm_current_mask is not None:
+                                elif self._vlm_current_vlm_pred is not None:
                                     try:
-                                        img, _, _ = get_path_mask_from_vlm(
+                                        img, _ = get_path_mask_from_vlm(
                                             image=img,
-                                            crop_type=None,
                                             task_instr=obs.get("prompt", ""),
                                             draw_path=self._vlm_draw_path,
                                             draw_mask=self._vlm_draw_mask,
-                                            verbose=False,
                                             vlm_server_ip=None,
-                                            path=self._vlm_current_path,
-                                            mask=self._vlm_current_mask,
-                                            mask_ratio=self._vlm_mask_ratio,
+                                            current_vlm_pred=self._vlm_current_vlm_pred,
                                         )
                                     except Exception as e:
                                         logging.warning(f"VLM overlay error on reuse: {e}")

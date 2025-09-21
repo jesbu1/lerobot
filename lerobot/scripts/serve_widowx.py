@@ -12,7 +12,6 @@ from lerobot.common.utils.websocket_policy import websocket_policy_server
 from lerobot.configs import parser
 from lerobot.configs.default import EvalConfig
 from lerobot.configs.policies import PreTrainedConfig
-from lerobot.common.constants import OBS_IMAGES
 
 import torch
 
@@ -77,7 +76,6 @@ class WidowXEvalConfig:
     vlm_img_key: str = "image_0"  # e.g., "image" or "image_wrist"; None disables overlay
     vlm_server_ip: str = "http://localhost:8000"  # defaults to wrapper's SERVER_IP when None
     vlm_query_frequency: int = 5  # how many action chunks between VLM queries
-    vlm_mask_ratio: float = 0.08 # how much of the image to mask out
     # image_keys: list[str] = ["external_img", "over_shoulder"]
     eval: EvalConfig = field(default_factory=EvalConfig)
     policy: PreTrainedConfig | None = None
