@@ -13,7 +13,7 @@ policy_port=8001
 checkpoint=outputs/peek-act-bridge-v2/checkpoints/050000/pretrained_model # ACT+PEEK
 serve_policy_vlm_freq=10 # how many action chunks between VLM queries
 PEEK_VLM_PORT=8000
-PEEK_VLM_IP=localhost
+PEEK_VLM_IP=http://localhost
 
 vlm_server_ip=$PEEK_VLM_IP:$PEEK_VLM_PORT
 
