@@ -190,7 +190,6 @@ def main(cfg: WidowXEvalConfig) -> None:
         vlm_query_frequency=cfg.vlm_query_frequency,
         vlm_draw_path=cfg.draw_path,
         vlm_draw_mask=cfg.draw_mask,
-        vlm_mask_ratio=cfg.vlm_mask_ratio,
         vlm_updated_img_key_name=updated_vlm_img_key_name,
     )
     
