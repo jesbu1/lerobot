@@ -27,7 +27,7 @@ from PIL import Image
 from peek_vlm.models.peek import add_answer_to_img, send_request
 
 # Constants
-PEEK_VLM_NAME = "vila_3b_path_mask_fast"
+PEEK_VLM_NAME = "peek_3b"
 
 
 def get_path_mask_from_vlm(
