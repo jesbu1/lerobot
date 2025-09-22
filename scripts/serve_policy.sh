@@ -9,8 +9,8 @@
 #SBATCH --gres=shard:20
 
 policy_port=8001
-#checkpoint=outputs/act-bridge-v2/checkpoints/last/pretrained_model # standard ACT
-checkpoint=outputs/peek-act-bridge-v2/checkpoints/last/pretrained_model # ACT+PEEK
+#checkpoint=outputs/act-bridge-v2/checkpoints/050000/pretrained_model # standard ACT
+checkpoint=outputs/peek-act-bridge-v2/checkpoints/050000/pretrained_model # ACT+PEEK
 serve_policy_vlm_freq=10 # how many action chunks between VLM queries
 PEEK_VLM_PORT=8000
 PEEK_VLM_IP=localhost
