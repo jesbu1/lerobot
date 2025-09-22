@@ -58,7 +58,7 @@ First, makes sure the PEEK VLM server is running if you are running PEEK (not ne
 ```bash
 cd ../peek_vlm
 conda activate peek_vlm
-python scripts/server.py --host localhost --port 8000 --model_path memmelma/peek_3b
+python scripts/vila_server.py --host localhost --port 8000 --model_path memmelma/peek_3b
 ```
 Then, run the following script to serve the policy using the VLM server:
 ```bash
